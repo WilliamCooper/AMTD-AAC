@@ -1,0 +1,2182 @@
+%% LyX 2.1.4 created this file.  For more info, see http://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[english,british,amt,bookmarks=false,unicode=true]{copernicus}
+\usepackage[T1]{fontenc}
+\usepackage{booktabs}
+\usepackage{amsbsy}
+\usepackage[authoryear]{natbib}
+
+\makeatletter
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% LyX specific LaTeX commands.
+%% Because html converters don't know tabularnewline
+\providecommand{\tabularnewline}{\\}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
+\usepackage{lineno}
+\linenumbers
+
+\makeatother
+
+\usepackage{babel}
+\begin{document}
+
+
+
+\title{Algorithms for correcting measurements of attitude angles}
+
+
+\author{W. A. Cooper}
+
+
+\affil{National Center for Atmospheric Research, Boulder CO, U. S. A.}
+
+
+\runningtitle{Corrections for INS attitude-angle errors}
+
+
+\runningauthor{W. A. Cooper}
+
+
+\correspondence{W. A. Cooper\\
+(cooperw@ucar.edu)}
+\maketitle
+\begin{abstract}
+Many systems for measuring wind on research aircraft rely on inertial
+navigation systems for the measurement of pitch, roll, and heading,
+and uncertainties in those measurements are often the dominant source
+of uncertainty in measurements of wind. Simple algorithms that can
+improve those measurements in data sets already collected or in future
+measurement campaigns are developed here. It is demonstrated that
+with those algorithms uncertainties in these attitude angles can be
+reduced to 0.01$^{\circ}$ or less, and that this leads to a significant
+reduction in uncertainty associated with the measurements of wind.
+The use of Global Positioning System receivers to improve these measurements
+has a long history and the general basis for the approach developed
+here is not new, but the specific implementation is particularly suited
+to improving measurement capabilities for atmospheric research. Code
+for implementing these algorithms, provided as supplemental material,
+is developed for the data sets archived and collected by the Research
+Aviation Facility of the National Center for Atmospheric Research,
+but it could be applied to other data sources also.
+\end{abstract}
+
+\introduction{}
+
+Inertial navigation systems (INSs) used, e.g., on research aircraft
+provide measurements of the pitch, roll, and heading of the aircraft,
+here called the attitude angles of the aircraft. Errors in these angles
+can arise from many sources, but it appears that dominant sources
+are errors in initial alignment and errors that result from in-flight
+drift, often associated with horizontal accelerations. These errors
+often are the dominant errors in measurements of wind from research
+aircraft. The examples here are drawn from data collected using the
+NSF/NCAR Gulfstream V research aircraft, and at typical flight speeds
+of that aircraft an uncertainty in pitch of 0.05$^{\circ}$, the specification
+for the INS on that aircraft, leads to an uncertainty in vertical
+wind of about 0.2~m/s. A separate analysis of uncertainty for that
+measurements (\citet{Cooper2016ncartn}) shows that uncertainty in
+pitch is the dominant source of uncertainty in measured vertical wind.
+The uncertainty in heading is still larger and leads to a proportionately
+larger uncertainty in the lateral component of the horizontal wind.
+Therefore, correcting for these errors can lead to significant improvement
+in the measurements of wind.
+
+The standard method for correcting such errors is via a Kalman filter,
+where the error sources are represented by an error model and the
+corrected set of measurements is obtained by detecting and providing
+feedback for errors determined by comparing the INS measurements to
+some reference such as measurements from a Global Positioning System
+(GPS) receiver. This approach is discussed in many books and articles,
+including for example \citet{noureldin2013fundamentals}, \citet{groves2013PrinciplesGNSS},
+and additional references cited therein. The Kalman filter requires
+extensive information regarding the characteristics of the measuring
+system and can be complex. While this approach provides good results,
+it is often difficult to know what corrections are made, how good
+they are, and how they relate to the flight conditions. Incorporation
+of a good Kalman filter requires either a substantial development
+project or an expensive addition to the INS itself. 
+
+The intent of this note is to provide alternative corrections for
+all three attitude angles on the basis of relatively simple comparisons
+between measurements available from the combination of an INS and
+a GPS receiver. These corrections can be applied to archived data
+and so can lead to improvements in datasets collected in past as well
+as future projects. In the case of pitch and roll, the solution relies
+on observation of the derivatives in the errors in ground-speed components
+and position, which arise primarily from errors in those angles. For
+heading, the accelerations measured by the INS are compared to those
+determined by differentiating the GPS-provided ground-speed components.
+This difference is dependent on the error in heading because the accelerations
+are measured in the body frame of the aircraft (here called\emph{
+}the $a$-frame), and translation to an Earth-reference frame (or
+\emph{l}-frame) involves the heading. An error in heading results
+in a difference between the two sets of measured accelerations, and
+that difference can be used to estimate the error in heading. As developed
+here, all three corrections are applied to measurements after acquisition,
+not during recording, to be able to use algorithms that smooth measurements
+over centered intervals. This also makes it possible to correct archived
+data as long as the full set of INS measurements including accelerations
+and measurements of ground-speed by both an INS and a GPS receiver
+are available.
+
+A technical note discussing the uncertainty in measurements of wind
+for this research aircraft (\citet{Cooper2016ncartn}) provides more
+detail regarding the instrumentation and calibration of the wind-sensing
+system. The appendix to this paper summarizes key results from that
+technical note. That reference also provides support for the entries
+in the tables of the appendix to this note, where the uncertainty
+in wind measurement is summarized.
+
+
+\section{Correcting the pitch and roll\label{sec:Correcting-the-pitch}}
+
+
+\subsection{The basis for the correction\label{sub:Sect2.1}}
+
+An inertial system aligns during initialization to detect the local
+vertical direction and then calculates the new vertical direction
+as the aircraft moves (changing the local vertical direction) and
+accelerates (which can cause gyros to precess). Any mis-alignment
+present at initialization persists but also will oscillate and will
+cause errors in roll and pitch to mix as the aircraft changes flight
+direction. For the inertial system used on the NSF/NCAR GV, the standard
+uncertainty associated with this measurement is 0.05$^{\circ}$ in
+both roll and pitch for flight duration of a few hours, and the error
+often increases during the flight as heading errors and accelerometer
+biases affect the results. 
+
+The work of Schuler (\citet{Schuler1923}) showed that coupling among
+some of these error sources leads to limits on the growth of errors
+and to simultaneous oscillations in some of the measurement errors.
+In particular, an error in pitch leads to an error in horizontal acceleration
+because gravity is resolved to have a horizontal component, and integration
+of that error in horizontal acceleration leads to a position error
+that grows so as to compensate for the false component of acceleration
+arising from the original error in pitch. However, when the error
+in pitch is reduced to zero, errors in position and velocity have
+been accumulated and those lead to growth of the error in pitch in
+the direction opposite to the original error. The result is a Schuler
+oscillation having a period of $T_{Sch}=(R_{e}/g)^{0.5}/(2\pi)\approx5064\thinspace s$
+or 84.4\,min, where $R_{e}$ is the radius of the Earth and $g$
+the acceleration of gravity. 
+
+The existence of this coupling allows estimation of the pitch error
+if the error in horizontal acceleration is known. That is the case
+if, in addition to the INS, there is a GPS receiver that can provide
+high-quality measurements of Earth-relative velocity. Modern GPS receivers,
+especially if they incorporate differential-GPS corrections or ionispheric
+corrections, produce velocity measurements that have remarkably low
+uncertainty, often a few cm/s, so these can be considered a standard
+against which to compare the corresponding IRS-measured velocities.
+The difference between ground-speed components from the two systems
+thus determines the error in INS-measured velocity and, after differentiation,
+the error in horizontal acceleration.
+
+<<initialization-pitch,echo=FALSE,include=FALSE>>=
+
+ReloadData <- FALSE
+# ReloadData <- TRUE
+require(Ranadu, quietly = TRUE, warn.conflicts=FALSE)
+require(ggplot2)
+require(grid)
+library(knitr)
+require(ggthemes)
+opts_chunk$set(echo=FALSE, include=FALSE, fig.lp="fig:")
+opts_chunk$set(fig.width=6, fig.height=5, fig.loc="center", digits=4)
+thisFileName <- "AttitudeAngleNote"
+setwd("~/RStudio/DEEPWAVE/WindUncertainty")
+Directory <- DataDirectory ()
+Flight <- "ff02" 				# XXX change this
+Project = "DEEPWAVE"			 # XXX change this
+fname = sprintf("%s%s/%s%s.nc", Directory,Project,Project,Flight)
+VarNames <- c("BLATA", "BLONGA", "BNORMA", "VNS", "VEW", "VSPD", "GGVNS", "GGVEW", 
+              "GGVSPD", "LAT", "LON", "ALT", "THDG", "PITCH", "ROLL") 
+SaveRData1 <- sprintf("%s1.Rdata", thisFileName)
+if (ReloadData) {
+  Data <- getNetCDF (fname, standardVariables(VarNames))		
+  save(Data, file=SaveRData1)
+} else {
+  load (file=SaveRData1)
+}
+Cradeg <- pi / 180
+source ("~/RStudio/Ranadu/R/ShiftInTime.R")
+source("~/RStudio/Ranadu/R/XformLA.R")
+source ("~/RStudio/Ranadu/R/PitchCorrection.R")
+
+@
+
+If $a_{n}=a_{n}^{*}+\delta a_{n}$ where $a_{n}^{*}$ is the true
+northward acceleration of the aircraft and $\delta a_{n}$ is the
+erroneous acceleration that results from pitch and displacement errors,
+then the error in acceleration is given by
+
+\begin{equation}
+\delta a_{n}^{(l)}=-g\delta\theta^{(l)}\,\,\,.\label{eq:delta-an}
+\end{equation}
+where  $\delta\theta^{(l)}$ is the error in pitch. The superscripts
+$(l)$ denote that these pitch and acceleration errors are those present
+in an Earth reference frame or $l$-frame, often called the ENU frame,
+where the axes are respectively east, north, and up. Then the error
+in measured northward acceleration provides a direct measure of the
+error in pitch:\\
+\begin{equation}
+\delta\theta^{(l)}=-\frac{1}{g}\frac{d(\delta v_{n}^{(l)})}{dt}\,\,\,.\label{eq:full-delta-pitch}
+\end{equation}
+
+
+Because $\delta v_{n}$is measurable by comparison to measurements
+from a GPS receiver, the error in pitch can be found from (\ref{eq:full-delta-pitch})
+and the analogous equation for the $l$-frame error in roll, $\delta\phi^{(l)}$:\footnote{The different signs arise from the different definitions of the angles,
+where a positive pitch error represents a rotation of the platform
+axis in the negative $y$-axis direction but a positive roll error
+corresponds to a platform rotation in the positive $x$-axis direction.}
+
+\begin{eqnarray}
+\delta\phi^{(l)} & = & \frac{1}{g}\frac{d(\delta v_{e}^{(l)})}{dt}\,\,\,.\label{eq:delta-phi}
+\end{eqnarray}
+The differentiated errors in the components of the aircraft ground-speed
+and the errors in position thus can provide estimates for corrections
+to be applied to the measurements of pitch and roll. Because this
+correction relies on the observable effects of the errors on velocity,
+it is not sensitive to the source of the error, whether it arises
+from misalignment before flight, bias errors in the INS gyros, or
+other sources except for these exceptions: (i) an error in measured
+acceleration from the accelerometers that contributes to the velocity
+errors in a way not dependent on the pitch or roll errors; and (ii)
+a minor dependence on error in heading that arises when the pitch
+and roll errors in the Earth-relative $l$-frame are transformed to
+the reference frame of the aircraft. The latter is negligible for
+normal heading errors, but the former can cause increasing amplitude
+or drift of the velocity errors. Figures to be shown below of the
+observed errors in ground-speed components suggest relatively small
+changes in the amplitude of the Schuler oscillation during most flights,
+as would be expected if the accelerometer errors make only small contributions
+to the velocity errors.
+
+In general an additional transformation of angles is needed to obtain
+the pitch and roll errors in the aircraft reference frame, which will
+here be called the $a$-frame. The $a$-frame differs from the $b$-frame
+or body frame often discussed in the inertial-navigation literature
+by having $\hat{x}$ and $\hat{y}$ axes interchanged and the $\hat{z}$
+axis reversed to be downward, as is conventional for aircraft.
+
+
+\subsection{An example}
+
+<<v-errors-straight-leg, fig.height=5.5, fig.lp="fig:",fig.cap="Top: Errors in the IRS measurements of the northward and eastward components of groundspeed ($V_n^{(IRS)}$ and $V_e^{(IRS)}$) as determined by comparison to measurements from a GPS receiver ($V_n^{(GPS)}$ and $V_e^{(GPS)}$) for DEEPWAVE flight ff02, a ferry flight starting on 1 June 2014 and traveling from Hawaii to Pago-Pago. Bottom: Errors in pitch ($\\delta\\theta$) and roll ($\\delta\\phi$) as obtained from (\\ref{eq:full-delta-pitch}) and (\\ref{eq:delta-phi}).", include=TRUE>>=
+
+D <- Data[Data$TASX > 130., ]
+layout(matrix(1:2, ncol = 1), widths = 1, heights = c(5,6))
+op <- par (mar=c(2,4,1,2.5)+0.1)
+plotWAC (D$Time, D$VNS-D$GGVNS, ylab="error [m/s]", ylim=c(-2.5,3.5))
+Z <- lineWAC (D$Time, D$VEW-D$GGVEW, col='darkgreen')
+legend ('top', legend=c(expression(paste('(',V[e]^(IRS),'-',V[e]^(GPS),')')), expression(paste('(',V[n]^(IRS),'-',V[n]^(GPS),')'))), lwd=2, col=c('darkgreen', 'blue'), text.col=c('darkgreen', 'blue'), cex=0.8, horiz=TRUE)
+op <- par (mar=c(5,4,1,2.5)+0.1)
+# deal with missing values:
+D <- D[!is.na (D$Time), ]
+#interpolate if necessary:
+VNS <- zoo::na.approx (as.vector(D$VNS), maxgap=100, na.rm = FALSE)
+VEW <- zoo::na.approx (as.vector(D$VEW), maxgap=100, na.rm = FALSE)
+GGVNS <- zoo::na.approx (as.vector(D$GGVNS), maxgap=100, na.rm = FALSE)
+GGVEW <- zoo::na.approx (as.vector(D$GGVEW), maxgap=100, na.rm = FALSE)
+# 1013 points (must be odd) to span about 1/5 Schuler osc. -- about 16.8 min
+Rate <- 1
+NAV <- 1013 * Rate
+vndot <- signal::sgolayfilt (VNS-GGVNS, 3, NAV, m=1) * Rate  # m=1 for first deriv.
+vedot <- signal::sgolayfilt (VEW-GGVEW, 3, NAV, m=1) * Rate
+deltaPitch <- vndot/Ranadu::Gravity (D$LAT, D$GGALT) ## would be negative but
+                                                     ## flight is to south
+deltaRoll <- -vedot/Ranadu::Gravity (D$LAT, D$GGALT) ## negative because S-bound
+plotWAC(D$Time, deltaPitch/Cradeg, ylab=expression(paste('error [', degree, ']')),
+        ylim=c(-0.02,0.022))
+lineWAC (D$Time, deltaRoll/Cradeg, col="darkgreen")
+legend('top', legend=c(expression(paste(delta, theta)), expression(paste(delta,phi))), lwd=2, col=c("blue", "darkgreen"), text.col=c("blue", "darkgreen"), cex=0.8, horiz=TRUE)
+
+@
+
+An example from a ferry flight of the NSF/NCAR GV project is shown
+in Fig.~\ref{fig:v-errors-straight-leg}. The heading for most of
+this flight was close to southbound and steady, so to a reasonable
+approximation the errors in pitch and roll will be given by the respective
+derivatives in the error terms $\delta v_{n}$ and $\delta v_{e}$,
+divided by the acceleration of gravity and converted to units of degrees.
+The derivatives, estimated using Savitzky-Golay polynomials fitted
+to the difference in ground-speed components as measured by the IRS
+and a GPS receiver, are shown in the bottom panel of Fig.\_\ref{fig:v-errors-straight-leg}.
+ A rather long averaging period of 1013 s, or about 1/5 of a Schuler
+oscillation, was used to reduce noise in the result.
+
+The result is that the magnitude of the pitch error is limited to
+$<0.01^{\circ}$for most of this flight, except for the final descent,
+and the roll error is limited to less than about 0.015$^{\circ}$for
+the same period. This is evidence for low uncertainty in both measurements
+for this flight, well below the specified uncertainty of 0.05$^{\circ}$. 
+
+
+\subsection{Transformation of attitude angles}
+
+In a reference frame called the $l$-frame or ENU frame, where the
+coordinate axes are local-east, local-north, and upward, the derivation
+in Sect.~\ref{sub:Sect2.1} showed that the pitch and roll errors
+are related via (\ref{eq:full-delta-pitch}) and (\ref{eq:delta-phi})
+to the time-derivatives of the errors in horizontal velocity. Pitch
+and roll as used in these equations are the respective errors in platform
+alignment\footnote{The inertial system used is a strap-down system, so there is no actual
+motion of the ``platform''. Instead, from measured rotations and
+accelerations, the system calculates the expected orientation if there
+were a true stabilized platform. The errors referenced here are those
+relative to that calculated platform orientation.} in the north-south and east-west directions, so these angles must
+be transformed to account for the orientation of the aircraft when
+it is not flying straight-and-level to the north. Because transformations
+for roll and pitch do not change the magnitude of the errors in those
+quantities, only a rotation about the $z$ axis for heading is needed
+to obtain the error components in the body or $b$-frame of the aircraft.
+This leads to pitch errors in the body frame of the aircraft that
+are mixtures of pitch and roll errors in the $l$-frame, with the
+mixture dependent on the heading. A positive pitch error for northbound
+level flight will be a negative pitch error for southbound level flight,
+and for eastbound flight an $l$-frame roll error becomes an $a$-frame
+pitch error while an $l$-frame pitch error become a negative $a$-frame
+roll error. 
+
+Consider a unit vector representing the orientation errors in pitch
+and roll in the $l$-frame, with east, north, and upward components
+$\mathbf{b^{(l)}=}$\{$\sin\delta\phi^{(l)},\,-\sin\delta\theta^{(l)},\,\sqrt{1-\sin^{2}\delta\phi^{(l)}-\sin^{2}\delta\theta^{(l)}}$\}
+or, because the errors are always small, approximately \{$\delta\phi^{(l)},\,-\delta\theta^{(l)},\,1$\}.
+The transformation of these errors from the $l$-frame to the $b$-frame\footnote{The $b$-frame is relative to aircraft-based coordinates but has $\hat{x}$
+starboard, $\hat{y}$ forward, and $\hat{z}$ upward in the aircraft
+reference frame, so it differs from the $a$-frame by having $x$
+and $y$ axes interchanged and $z$ axis reversed in sign.} requires a rotation by the \emph{negative} of the heading angle $\psi$
+in the $l$-frame but does not require further transformation because
+differences in pitch and roll between the $l$ and $a$ reference
+frames do not affect the estimate of platform mis-alignment and how
+that misalignment is resolved into pitch and roll components. Therefore, 
+
+\begin{eqnarray}
+\mathbf{b^{(a)}=}R_{l}^{a}\mathbf{b^{(l)}} & \approx & \left[\begin{array}{ccc}
+\cos\psi & -\sin\psi & 0\\
+\sin\psi & \cos\psi & 0\\
+0 & 0 & 1
+\end{array}\right]\begin{bmatrix}\delta\phi^{(l)}\\
+-\delta\theta^{(l)}\\
+1
+\end{bmatrix}\label{eq:b-vector-in-b-frame}\\
+ & \simeq & \begin{bmatrix}\cos\psi\delta\phi^{(l)}+\sin\psi\delta\theta^{(l)}\\
+\sin\psi\delta\phi^{(l)}-\cos\psi\delta\theta^{(l)}\\
+1
+\end{bmatrix}
+\end{eqnarray}
+which leads to $\delta\theta^{(a)}$ and $\delta\phi^{(a)}$, the
+pitch and roll errors in the $b$-frame or $a$-frame:
+
+\begin{eqnarray}
+\delta\theta^{(a)} & \simeq & -b_{2}^{(b)}/b_{3}^{(b)}=-\sin\psi\delta\phi^{(l)}+\cos\psi\delta\theta^{(l)}\label{eq:final-answer}\\
+\delta\phi^{(a)} & \approx & b_{1}^{(b)}/b_{3}^{(b)}=\cos\psi\delta\phi^{(l)}+\sin\psi\delta\theta^{(l)}\,\,\,.\nonumber 
+\end{eqnarray}
+These errors should then be \emph{subtracted} from the angles measured
+by the INS to obtain corrected values. 
+
+
+
+<<processing-1, fig.height=3.5, fig.cap="Measured errors in ground-speed components for DEEPWAVE research flight 1. $V_e^{IRS}$ and $V_n^{IRS}$ are the east and north components of the ground speed measured by the inertial system, and $V_e^{GPS}$ and $V_n^{GPS}$ are the corresponding components measured independently by the GPS receiver.", include=FALSE>>=
+
+Flight <- "rf01h"
+Flight <- "rf01"
+# Flight <- "rf15"
+fname <- sprintf ("%s%s/%s%s.nc", DataDirectory (), Project, Project, Flight)
+VarNames <- c("VNS", "VEW","GGVNS", "GGVEW", "GGALT", "LATC", "LONC", "THDG", "PITCH", "ROLL")
+SaveRData2 <- sprintf("%s2.Rdata", thisFileName)
+if (ReloadData) {
+  Data <- getNetCDF (fname, standardVariables(VarNames))
+  save(Data, file=SaveRData2)
+} else {
+  load (file=SaveRData2)
+}
+Rate <- 1
+Ts <- -120
+Data$VEW <- ShiftInTime (Data$VEW, Rate, Ts)
+Data$VNS <- ShiftInTime (Data$VNS, Rate, Ts)
+Ts <- -60
+Data$THDG <- ShiftInTime (Data$THDG, Rate, Ts)
+
+D <- Data[Data$TASX > 130, ]
+#D <- D[setRange(D$Time, 81500,82500),]
+plotWAC (D$Time, D$GGVEW-D$VEW, ylab="Ve error [m/s]", ylim=c(-5, 8.))
+lineWAC (D$Time, D$GGVNS-D$VNS, col='darkgreen', lwd=1)
+legend ('topleft', legend=c('VEW-GGVEW', 'VNS-GGVNS'), lwd=c(2,1), col=c('blue', 'darkgreen'), text.col=c('blue', 'darkgreen'), ncol=2)
+figcapP2=c("Top: Errors in pitch ($\\delta\\theta^{(l)}$) and roll ($\\delta\\phi^{(l)}$) determined from the measured errors in ground-speed components via (\\ref{eq:final-answer}), as measured in the $l$-frame. Measurements are from the DEEPWAVE project, research flight 1. Bottom: Errors in pitch ($\\delta\\theta$) and roll ($\\delta\\phi$) determined from the measured errors in ground-speed components, after transformation of the errors shown in the previous plot to the reference frame that is the body frame of the aircraft. Measurements are from the DEEPWAVE project, research flight 1. The limits $\\pm$0.02 correspond to roll angle of $\\pm 20^{\\circ}$ after division by 1000.")
+
+@
+
+
+\subsection{Application to a representative research flight\label{sub:Application-to-research}}
+
+The research flights have frequent changes in heading, with associated
+mixing of the roll and pitch errors but also accelerations that affect
+those errors and introduce new errors from heading errors. The corrections
+to pitch therefore appear much less systematic than was the case for
+the ferry flight, and in some cases the corrections are considerably
+larger. An example, DEEPWAVE research flight 1 (June 6 2014), is presented
+here. The DEEPWAVE (Deep Propagating Gravity Wave Experiment over
+New Zealand) field project is described at this web site: http://www.eol.ucar.edu/field\_projects/deepwave.
+Figure~\ref{fig:processing-2} shows the estimated errors in pitch
+and roll in the $l$-frame for this flight and those errors after
+transformation to the $a$-frame. There are instances in the latter
+where the pitch error abruptly reverses sign; those are cases where
+the flight direction changes by about 180$^{\circ}$. In straight-and-level
+flight, the needed corrections are about $\pm$0.03$^{\circ}$ at
+some times, and this error can lead (for true airspeed of 220 m/s)
+to an error in vertical wind of about $\pm0.1$\,m/s. A mismatch
+in timing between measurements from IRS and GPS units will affect
+measurements in turns, and there is some evidence of this in Fig.\-\ref{fig:processing-2}. 
+
+
+\subsection{Discussion}
+
+The magnitude of the correction in the example shown is significant
+in comparison to the total uncertainty in measurements of vertical
+wind (discussed further in the Appendix), so correction for this error
+should lead to a significant reduction in the uncertainty associated
+with the measured vertical wind. There can be various sources for
+the error in pitch, including initial alignment, bias or other errors
+from the IRS sensors, possible effects of horizontal accelerations
+or turbulence on platform alignment, and others. However, the equations
+(\ref{eq:final-answer}) used to detect this error do not depend on
+the source of the error; any error in pitch will introduce an error
+in horizontal acceleration, and that error can be detected by comparison
+to corresponding measurements from the GPS receiver provided that
+the measurements from the GPS unit are accurate and the INS accelerometers
+themselves introduce little error. 
+
+Modern GPS receivers, often incorporating differential-GPS corrections
+and ionospheric corrections, are capable of measuring horizontal motions
+with uncertainties as small as 3~cm\,s$^{-1}$. Representative variance
+spectra for the GPS-measured velocity components suggest an onset
+of noise at around 0.2\,Hz with approximate amplitude of 0.1\,m\,s$^{-1}$,
+suggesting an ability to measure accelerations with an uncertainty
+of about 0.02\,m\,s$^{-2}$ for measurements spanning 5~s. From
+(\ref{eq:full-delta-pitch}), this suggests an uncertainty in the
+pitch correction of about 0.002 or 0.1$^{\circ}$ for measurements
+with this separation. It appears from plots like those shown above
+that the pitch correction varies only slowly with time, so this estimate
+can be improved significantly by using longer averaging times. For
+times of 5~min, for example, the uncertainty in acceleration can
+be less than 0.0001\,m\,s$^{-1}$ and the corresponding uncertainty
+in the pitch correction is less than 0.002$^{\circ}$. 
+
+The uncertainty introduced by errors in measured horizontal acceleration
+is more difficult to estimate. The errors they introduce in ground-speed
+components contribute to errors in pitch and roll through the strong
+coupling between ground-speed-component errors and attitude-angle
+errors, so the algorithm proposed here will correct for a portion
+of the past history of contributions via accelerometer errors but
+not the immediate contribution at the observation time. Because normal
+measurements of lateral accelerations are quite small and appear unbiased
+away from turns, it is likely that these errors arise primarily during
+turns and can be diagnosed away from turns. One estimate of the magnitude
+of this contribution can be based on the growth of the magnitude of
+the Schuler oscillation in ground-speed errors, which in normal cases
+is limited to about 0.5\,m\,s$^{-1}$ per hour of flight or an accumulated
+acceleration of around $10^{-4}$\,m\,s$^{-2}$. As argued in the
+preceding paragraph, this magnitude of uncertainty in acceleration
+would lead to uncertainty in pitch correction of less than 0.002$^{\circ}.$
+
+At this level, the uncertainty in pitch arising from the measurements
+of horizontal acceleration from either the INS or GPS receiver does
+not make a significant contribution to the uncertainty in measurements
+of vertical wind because other sources dominate, as discussed in the
+Appendix. For straight flight paths, the correction procedure thus
+can be considered to remove the error in pitch. In turns, however,
+the relative timing of the measurements can introduce biases that
+cause errors extending not only during but also for a short period
+before and after the turns, with duration depending on the averaging
+period used.
+
+For research applications, the roll correction is seldom of much consequence,
+but the pitch correction can either produce significant improvement
+in the calculated vertical wind or, when small, can reduce the uncertainty
+below that based solely on specifications for the measurement from
+the IRS. 
+
+
+
+<<processing-2, fig.height=6.5, fig.cap=figcapP2, include=TRUE>>=
+
+layout(matrix(1:2, ncol = 1), widths = 1, heights = c(5,6))
+op <- par (mar=c(2,4,1,2.5)+0.1)
+# deal with missing values:
+D <- D[!is.na (D$Time), ]
+#interpolate if necessary:
+VNS <- zoo::na.approx (as.vector(D$VNS), maxgap=100*Rate, na.rm = FALSE)
+VEW <- zoo::na.approx (as.vector(D$VEW), maxgap=100*Rate, na.rm = FALSE)
+GGVNS <- zoo::na.approx (as.vector(D$GGVNS), maxgap=100*Rate, na.rm = FALSE)
+GGVEW <- zoo::na.approx (as.vector(D$GGVEW), maxgap=100*Rate, na.rm = FALSE)
+# 1013 points (must be odd) to span about 1/5 Schuler osc. -- about 16.8 min
+NAV <- 1013*Rate
+vndot <- signal::sgolayfilt (VNS-GGVNS, 3, NAV, m=1) * Rate  # m=1 for first deriv.
+vedot <- signal::sgolayfilt (VEW-GGVEW, 3, NAV, m=1) * Rate
+deltaPitchL <- -vndot/Ranadu::Gravity (D$LAT, D$GGALT)
+deltaRollL <- vedot/Ranadu::Gravity (D$LAT, D$GGALT)
+HDG <- D$THDG*Cradeg
+D$deltaPitch <- (sin(HDG)*deltaRollL + cos(HDG)*deltaPitchL)/Cradeg
+D$deltaRoll <- (cos(HDG)*deltaRollL - sin(HDG)*deltaPitchL)/Cradeg
+# DeltaPitch2 <- CorrectPitch(D)
+D$dRL <- deltaRollL/Cradeg
+D$dPL <- deltaPitchL/Cradeg
+plotWAC (D[, c("Time", "dPL", "dRL")], ylab=expression (paste (delta, theta^(l), ' or ', delta, phi^(l), ' [', degree, ']')), lwd=c(2.5, 2, 1.5),  lty=c(1,1,3), ylim=c(-0.04,0.05), legend.position=NA)
+# lineWAC(D$Time, D$THDG/10000, col='red')
+legend('top', legend=c(expression (paste (delta, theta^(l))), expression (paste (delta, phi^(l)))), lwd=c(2.5,2), lty=c(1,1), col=c("blue", "darkgreen"), text.col=c("blue", "darkgreen"), cex=0.8, bg='lightyellow', horiz=TRUE)
+
+op <- par (mar=c(5,4,1,2.5)+0.1)
+# D$deltaRoll <- SmoothInterp(D$deltaRoll, .Length=121)
+# D$deltaPitch <- SmoothInterp(D$deltaPitch, .Length=121)
+plotWAC (D[, c("Time", "deltaPitch", "deltaRoll")], ylab=expression (paste (delta, theta, ' or ', delta, phi, ' [', degree, ']')), lwd=c(2.5, 2, 1.5),  lty=c(1,1,3), ylim=c(-0.04,0.05), legend.position=NA)
+#Z <- lineWAC (D$Time, deltaRoll2, col='darkgreen')
+#Z <- lineWAC (D$Time, deltaPitch, col='darkorange', lty=2, lwd=1.2)
+#Z <- lineWAC (D$Time, deltaRoll, col='red', lty=2, lwd=1.2)
+Z <- lineWAC (D$Time, D$ROLL/1000, col='red', lwd=1.5, lty=1)
+legend('top', legend=c(expression (paste (delta, theta)), expression (paste (delta, phi)), "ROLL/1000"), lwd=c(2.5,2,1.5), lty=c(1,1,1), col=c("blue", "darkgreen", "red"), text.col=c("blue", "darkgreen", "red"), cex=0.8, bg='lightyellow', horiz=TRUE)
+Valid <- (D$TASX > 130)
+Valid[abs(D$ROLL) > 5] <- FALSE
+## hist (CorrectPitch(D)[Valid], xlim=c(-0.05, 0.05))
+## mean is very close to zero
+## mean (CorrectPitch(D)[Valid], na.rm=TRUE)
+SDofCorrection = sd (CorrectPitch(D)[Valid], na.rm=TRUE)
+
+## check how this would change with an accelerometer bias of 1%
+
+@
+
+
+\subsection{Some details regarding smoothing}
+
+While (\ref{eq:final-answer}) provides a correction applicable to
+each measurement, some smoothing is desirable not only to decrease
+the uncertainty in the correction but also to avoid introducing high-frequency
+noise into signals that might distort the variance spectrum or affect
+other uses where noise is undesirable. A specific choice was made
+for the examples shown, but other choices might perform better and
+may benefit from tailoring to the flight patterns. The velocity errors
+usually vary smoothly and approximately sinusoidally, as shown in
+Figs.~\ref{fig:v-errors-straight-leg}, except for occasional noise
+associated with turns or turbulence. Smoothing the time series of
+these error terms can be combined with finding the derivatives required
+in (\ref{eq:full-delta-pitch}) and (\ref{eq:delta-phi}) if Savitzky-Golay
+polynomials are fitted to the time series. The specific choice made
+here is to use third-order polynomials covering 1013 points or, for
+1-Hz measurements, about 1/5 of a Schuler oscillation. In the $l$-frame
+where these errors are measured they are usually quite regular over
+several oscillations so this provides a compromise between good smoothing
+and response to changes in the amplitude and phase of the oscillations.
+This usually produces smooth corrections except near turns, where
+some more abrupt changes occur. Most research measurements of wind
+are made during straight flight legs, so these fluctuations near turns
+are not a serious impediment in the normal case. They appear to arise
+from timing differences among the different measurements being used.
+For example, if the measurement of heading lags behind the derivatives,
+the rotation of $l$-frame errors to the $a$-frame will lead to different
+errors in right vs.~left turns, leading to jumps in the correction
+terms like those evident at, e.g., about 12:00 UTC in Fig.~\ref{fig:processing-2}.
+
+The final step in the application of the correction algorithm for
+pitch is to subtract the term given by (\ref{eq:final-answer}) from
+the measured pitch or roll and use the result when the Earth-relative
+wind is calculated. 
+
+
+\section{Correcting the measurement of heading\label{sec:heading-correction}}
+
+
+\subsection{The basis for the correction}
+
+A procedure related to that used for pitch is developed here for estimating
+the error in heading. The basis for the correction is that an error
+in heading results in an error in how the measured body-relative components
+of the acceleration are transformed to the ENU or \emph{l}-frame (in
+the terminology of the previous discussion of the correction for pitch).
+These errors can be detected by comparing the actual acceleration
+of the aircraft (determined from derivatives of the GPS-measured ground-speed
+components, as in the preceding section) to the measurements of acceleration
+after transformation to the \emph{l}-frame.\footnote{Some additional considerations arising from rotation of the earth
+and rotation of the $l$-frame in an inertial frame are discussed
+later; cf.~(\ref{eq:rotation-correction}).} 
+
+The accelerations measured by a strap-down inertial system like the
+Honeywell systems on the NCAR/NSF GV are the accelerations in the
+reference frame of the aircraft, here called the $a$-frame. To transform
+these to the \emph{l}-frame, the transformation by conventional definition
+of the attitude angles involves a rotation about the roll axis to
+level the wings, a rotation about the pitch axis to level the longitudinal
+axis of the aircraft, and a rotation about the vertical axis as required
+to point the aircraft to the north. However, if there is an error
+in the heading ($\delta\psi$) the last rotation will give final components
+$a_{x,y,z}^{(l)}$ that have respective errors of $\delta a_{x}^{(l)}=a_{x}^{(l)}(1-\cos\delta\psi)-a_{y}^{(l)}\sin\delta\psi$,
+$\delta a_{y}^{(l)}=a_{y}^{(l)}(1-\cos\delta\psi)+a_{x}^{(l)}\sin\delta\psi$,
+and $\delta a_{z}^{(l)}=0$ or, for small angles,\\
+\begin{align}
+\left[\begin{array}{c}
+\delta a_{x}^{(l)}\\
+\delta a_{y}^{(l)}\\
+\delta a_{z}^{(l)}
+\end{array}\right] & =\left[\begin{array}{ccc}
+0 & -\delta\psi & 0\\
+\delta\psi & 0 & 0\\
+0 & 0 & 0
+\end{array}\right]\left[\begin{array}{c}
+a_{x}^{(l)}\\
+a_{y}^{(l)}\\
+a_{z}^{(l)}
+\end{array}\right]\label{eq:heading-error-equation}\\
+\delta a_{x}^{(l)} & =-a_{y}^{(l)}\delta\psi\label{eq:ax-error}\\
+\delta a_{y}^{(l)} & =a_{x}^{(l)}\delta\psi\label{eq:ay-error}\\
+\delta\psi & =\frac{a_{x}^{(l)}\delta a_{y}^{(l)}-a_{y}^{(l)}\delta a_{x}^{(l)}}{(a_{x}^{(l)})^{2}+(a_{y}^{(l)})^{2}}\label{eq:estimator-equation}
+\end{align}
+The last equation is obtained\footnote{If the error measure to be minimized is $\chi^{2}=(\delta a_{x}+a_{y}\delta\psi)^{2}+(\delta a_{y}-a_{x}\delta\psi)^{2}$,
+differentiating $\chi^{2}$ with respect to $\delta\psi$ and setting
+the result equal to zero gives (\ref{eq:estimator-equation}).} by minimizing the errors between the values of $\delta a_{i}^{(l)}$
+given by (\ref{eq:ax-error}) and (\ref{eq:ay-error}) and the measured
+error given by $(a_{i}^{*}-a_{i}^{(l)})$. This then gives an estimate
+of the rotation $-\delta\psi$ that gives the best match between the
+measured accelerations and those determined from the derivatives of
+the GPS-provided ground-speed components. The resulting value of $\delta\psi$
+from (\ref{eq:estimator-equation}) is then an estimate of the error
+in heading.
+
+
+
+To use (\ref{eq:estimator-equation}), the acceleration vector $\mathbf{a^{*}}$
+must be determined by differentiation of the GPS-measured velocity
+components. As in the pitch-correction algorithm, the choice made
+here is to estimate the derivatives using Savitzky-Golay polynomials,
+but now with a 31\,s span to avoid excessive distortion in 3-min
+turns. However, this choice affects the uncertainty of the estimate,
+as follows. It was previously estimated that the uncertainty in a
+measurement of acceleration from GPS is at least 0.01\,m\,s$^{-1}$/$\tau$
+where $\tau$ is the time over which the average is calculated. For
+31-s polynomial fits, the effective averaging time is about 20\,s,
+leading to a minimum uncertainty of about 0.0005\,m\,s$^{-2}$.
+Equation~(\ref{eq:estimator-equation}) indicates that, for an uncertainty
+in the heading correction of 0.1$^{\circ}$ or about 0.002~radians,
+the total horizontal acceleration should then be at least 0.0005/0.002=0.25~m\,s$^{-2}$.
+
+Typical horizontal accelerations in turns exceed 4~m\,s$^{-2}$
+but horizontal accelerations exceeding 1~m\,s$^{-2}$ are seldom
+encountered outside of turns, so the algorithm developed here only
+provides a valid correction if there are regular turns during the
+flight. In the following, heading corrections will be calculated only
+for periods when the horizontal acceleration exceeds 1~m\,s$^{-2}$
+to avoid excessive noise and uncertainty. It is significant, though,
+that for a flight that transits in a straight line from start to finish,
+attempts to use these estimates are unlikely to be useful. Fortunately,
+in most research flights there are many turns, e.g., as the aircraft
+flies back and forth over a mountain range or flies fixed raster patterns
+for mapping. Each turn can provide significant horizontal accelerations
+that give estimates of the heading error, but these estimates are
+only sporadic and must be linked by an extrapolation procedure to
+obtain valid corrections spanning periods without significant acceleration.
+The heading correction therefore has a higher uncertainty than the
+pitch correction and, unlike the pitch correction, depends on significant
+horizontal accelerations for its operation. In addition, the heading
+error is not coupled to other errors in ways that limit its growth,
+so implementing some correction procedure is important not only to
+provide corrections but also to determine the estimated magnitude
+of the uncorrected error.
+
+
+
+
+\subsection{The transformation from $a$-frame to $l$-frame}
+
+Measurements of body accelerations are provided by most inertial
+systems used on research aircraft, so the procedure developed here
+is not unique to the NCAR aircraft. The specific application, however,
+will use measurements from the NSF/NCAR GV research aircraft. These
+measured body accelerations will be represented by ($a_{1}^{(a)},\,a_{2}^{(a)},\,a_{3}^{(a)}$),
+respectively, with $a_{3}^{(a)}$ representing the difference between
+the downward acceleration and the acceleration of gravity. Then, with
+\{$\phi,\,\theta,\,\psi$\} representing \{roll, pitch, heading\},
+the transformation from the $a$-frame to the \emph{l}-frame is that
+given in standard sources include \citet{Bulletin23} or \citet{noureldin2013fundamentals},
+Eq.~2-82.\footnote{There is an error in Eq.~2.6 of Bulletin 23, where in matrix element
+(1,3) the first term should be $\sin\psi\sin\phi,$not $\sin\psi\sin\theta$.
+Standard NCAR/RAF processing uses the correct transformation. The
+transformation given by Noureldin et al.~is given in terms of the
+yaw angle, which is the negative of the heading angle. Also, to use
+either the transformation in Bulletin 23 or that from Noureldin et
+al., which relates the $l$-frame to the $b$-frame, further transformation
+is needed to relate the $b$-frame to the $a$-frame. The specific
+transformation used here is included in the Workflow document contained
+in the supplementary material for this paper.} This transformation then gives the accelerations in the local reference
+frame with $x$-axis east, $y$-axis north, and $z$-axis upward.
+It incorporates the change in axis definitions as well as the required
+signs of the rotations (i.e., rotation by $-\phi,$ then by $-\theta,$
+then by $+\psi$). 
+
+<<reinitialization,echo=FALSE,include=FALSE>>=
+
+Flight <- "rf15" 				
+Project = "DEEPWAVE"			 
+fname = sprintf("%s%s/%s%sZPC.nc", Directory,Project,Project,Flight)
+VarNames <- c("BLATA", "BLONGA", "BNORMA",
+              "VNS", "VEW", "VSPD", "GGVNS", "GGVEW", 
+              "GGVSPD", "LAT", "LON", "ALT", "THDG", "PITCH", "ROLL") 
+
+SaveRData3 <- sprintf("%s3.Rdata", thisFileName)
+if (ReloadData) {
+  Data <- getNetCDF (fname, standardVariables(VarNames))	
+  save(Data, file=SaveRData3)
+} else {
+  load (SaveRData3)
+}
+Cradeg <- pi / 180
+s <- -60
+Data$VEW <- ShiftInTime (Data$VEW, 1, s)
+Data$VNS <- ShiftInTime (Data$VNS, 1, s)
+Data$THDG <- ShiftInTime (Data$THDG, 1, s)
+
+@
+
+
+<<sg-poly-smoothing, include=FALSE, fig.lp="fig:", fig.cap=c("Ground-speed components measured using GPS.", "Estimated components of horizontal acceleration for DEEPWAVE flight rf15, obtained via differentiation of the GPS-measured variables GGVEW and GGVNS")>>=
+
+# deal with missing values:
+D <- Data[!is.na (Data$Time), ]
+#interpolate if necessary:
+D$GGVNS <- zoo::na.approx (as.vector(D$GGVNS), maxgap=100, na.rm = FALSE)
+D$GGVEW <- zoo::na.approx (as.vector(D$GGVEW), maxgap=100, na.rm = FALSE)
+D$vndot <- signal::sgolayfilt (D$GGVNS, 3, 21, m=1)  # m=1 for first deriv.
+D$vedot <- signal::sgolayfilt (D$GGVEW, 3, 21, m=1)
+D$vzdot <- signal::sgolayfilt (D$GGVSPD, 3, 7, m=1)
+plotWAC(D[, c("Time", "GGVNS", "GGVEW")])
+plotWAC(D[, c("Time", "vndot", "vedot", "vzdot")])
+
+@
+
+
+
+<<get-b-vector-and-transform, include=TRUE, fig.height=4, fig.cap=c("Accelerations ($a_x$, $a_y$, $a_z$) measured by an INS during a circle maneuver, 3:40:00--3:55:00 UTC on 3 July 2014, DEEPWAVE flight 15. Also shown as dotted lines are the accelerations deduced from differentiating the corresponding GPS-measured ground-speed components ($v_n$ and $v_e$).")>>=
+
+## these captions are just saved here; they apply to plots now suppressed
+FC1a <- "Measured accelerations translated to the l-frame (x east, y north, z up) for DEEPWAVE flight 15, 3 July 2014."
+FC1c <- "As for the preceding figure but for a pitch maneuver, 4:25:00--4:30:00 UTC."
+
+RotationCorrection <- function (.data=Data, .V) {
+  Cradeg <- pi/180
+  omegaE <- StandardConstant ('Omega')
+  Re <- StandardConstant ('Re')
+  DL <- nrow (.data)
+  C <- vector ('numeric', 3*DL); dim(C) <- c(DL,3)
+  lat <- .data$LATC * Cradeg
+  sinLat <- sin(lat); cosLat <- cos(lat); tanLat <- tan(lat)
+  M12 <- -2*omegaE*sinLat-.V[,1]*tanLat/Re
+  M13 <- 2*omegaE*cosLat+.V[,1]/Re
+  M21 <- 2*omegaE*sinLat+.V[,1]*tanLat/Re
+  M23 <- .V[,2]/Re
+  M31 <- -2*omegaE*cosLat-.V[,1]/Re
+  M32 <- -.V[,2]/Re
+  C[,1] <- M12*.V[,2]+M13*.V[,3]
+  C[,2] <- M21*.V[,1]+M23*.V[,3]
+  C[,3] <- M31*.V[,1]+M32*.V[,2]
+  return (C)
+}
+
+layout(matrix(1:1, ncol = 1), widths = 1, heights = c(5))
+op <- par (mar=c(5,4,1,2.5)+0.1)
+
+G <- Gravity (D$LATC, D$GGALT)
+AV <- matrix(c(D$BLONGA, D$BLATA, D$BNORMA+G), ncol=3) #aircraft-frame
+LV <- XformLA (D, AV)                                  #l-frame
+## now corrected for angular effects
+## See Noureldin et al, 2013, Eq. (5.55)
+LV <- LV - RotationCorrection (D, LV)
+
+D$LACCX <- LV[, 1]
+D$LACCY <- LV[, 2]
+D$LACCZ <- LV[, 3] + G
+D$LACCX <- signal::sgolayfilt (D$LACCX, 3, 21, m=0)
+D$LACCY <- signal::sgolayfilt (D$LACCY, 3, 21, m=0)
+D$LACCZ <- signal::sgolayfilt (D$LACCZ, 3, 7, m=0)
+# plotWAC(D[, c("Time", "LACCX", "LACCY", "LACCZ")], ylab="acceleration [m/s^2]")
+V <- c("Time", "LACCX", "LACCY", "LACCZ", "vedot", "vndot")
+r <- setRange(D$Time, 33500,35500)
+plotWAC(D[r,V], lw=c(3,3,3,5,5), lty=c(1,1,1,3,3), legend.position=NA)
+legend('bottomleft', legend=c(expression(a[x]), expression(a[y]), expression(a[z]),
+       expression(dv[e]/dt), expression(dv[n]/dt)), 
+       col=c('blue', 'darkgreen', 'red', 'cyan3', 'darkorange'),
+       text.col=c('blue', 'darkgreen', 'red', 'cyan3', 'darkorange'),
+       lwd=c(3,3,3,5,5), lty=c(1,1,1,3,3), bg='lightyellow')
+# r <- setRange(D$Time, 42500, 42830)
+# V <- c(V, "vzdot")
+# plotWAC(D[r,V], lw=c(3,3,3,5,5,5), lty=c(1,1,1,3,3,2))
+# lineWAC(D$Time[r], D$vzdot[r], col='green', lwd=2, lty=2)
+
+@
+
+To demonstrate that the accelerations obtained in this way are good
+matches to the accelerations determined by differentiation of GPS-determined
+velocities and to check the transformation matrix, an example of the
+two components of acceleration as determined in these two ways is
+shown in Fig.\ref{fig:get-b-vector-and-transform}. This flight segment
+is a circle maneuver in which a full circle is flown twice drifting
+with the wind using constant-bank left turns and then twice using
+right turns. The acceleration components therefore have sinusoidal
+variations, and as shown in the figure the two independent measurements
+match very well. This checks the transformations and shows sufficient
+agreement without substantial noise, a requirement if the small difference
+is to be used to correct the measurements of heading. A similar plot,
+not shown, illustrated similar agreement in vertical components for
+a pitch maneuver in which the pitch of the aircraft is varied with
+about a 20\,s period while flying without roll and allowing the aircraft
+to climb and descend in response to the changes in pitch. 
+
+
+
+Some components of the transformation are neglected in this approach,
+specifically those arising from the rotation of the Earth and the
+change in orientation of the $l$-frame as the aircraft moves over
+the surface of the Earth. \citet{noureldin2013fundamentals} {[}cf.~pp.~178--179{]}
+give the correction to be added to the $l$-frame velocity:\\
+\begin{equation}
+\mathbf{\boldsymbol{\Delta\dot{\mathbf{v}}}=}-(2\boldsymbol{\Omega}_{ie}^{l}+\boldsymbol{\Omega}_{el}^{l})\mathbf{v}^{(l)}\label{eq:rotation-correction}
+\end{equation}
+where the rotation matrices, respectively representing the Earth's
+rotation and the $l$-frame rotation, are\\
+\begin{equation}
+\boldsymbol{\Omega}_{ie}^{l}=\left[\begin{array}{ccc}
+0 & -\omega^{e}\sin\lambda & \omega^{e}\cos\lambda\\
+\omega^{e}\sin\lambda & 0 & 0\\
+-\omega^{e}\cos\lambda & 0 & 0
+\end{array}\right]\label{eq:first-omega-eq}
+\end{equation}
+\begin{equation}
+\boldsymbol{\Omega}_{el}^{l}=\left[\begin{array}{ccc}
+0 & \frac{-v_{e}\tan\lambda}{R_{e}} & \frac{v_{e}}{R_{e}}\\
+\frac{v_{e}\tan\lambda}{R_{e}} & 0 & \frac{v_{n}}{R_{e}}\\
+\frac{-v_{e}}{R_{e}} & \frac{-v_{n}}{R_{e}} & 0
+\end{array}\right]\label{eq:second-omega-equation}
+\end{equation}
+with $\lambda$ the latitude, $R_{e}$ the radius of the earth,\footnote{A mean radius for the Earth, $R_{e}=6.371\times10^{6}$\,m, is used
+rather than the normal and meridional radii adjusted for height of
+the aircraft because this difference is insignificant for this application.} and $\omega^{e}=7.292\times10^{-5}$ the angular rate of rotation
+of the Earth. Evaluation of the typical magnitudes arising from these
+rotation terms indicates that they are minor but not negligible, so
+this correction is added to the $l$-frame accelerations before comparison
+to the accelerations obtained by differentiating the GPS velocities.
+
+
+\subsection{A proposed correction algorithm for heading}
+
+The requirements for this algorithm are as follows:
+\begin{itemize}
+\item The flight pattern must include maneuvers that provide horizontal
+accelerations, usually turns of at least 30\,s duration \emph{in
+each direction.} The reason is that it is difficult to correct for
+timing errors in the measurements of heading relative to the measured
+ground-speed components from a GPS receiver, and even a delay of 50\,ms
+will, for a turn rate corresponding to a three-minute turn through
+360$^{\circ}$, lead to a 0.05$^{\circ}$ false indication of a heading
+error. However, the error reverses sign with the direction of the
+turn, so averaging the results from left turns and from right turns
+will correct for this false indication of a heading error. Course-reversal
+maneuvers like ``90-270'' turns (90$^{\circ}$ one direction followed
+by 270$^{\circ}$ the other direction) provide good data for this
+algorithm, as do ``60-300-60'' teardrop turns that are a faster
+means of returning to the starting point. If wind measurements are
+critical to the research, it may be useful to include patterns like
+``S'' turns periodically, with 30\,s turns in opposite directions,
+to provide the needed accelerations.
+\item To the extent possible, sampled time series should be corrected for
+sampling delays. The most important such correction is the timing
+of the heading measurement from the INS relative to the ground-speed
+measurements from the GPS. In the examples shown in this note, the
+differences between different turn directions were minimized by shifting
+the heading forward in time by 140\,ms. The averaging provided by
+the first item above helps reduce errors from timing, but it is still
+preferable to keep those errors small. Full-circle patterns flown
+in each turn direction provide a sensitive test of timing errors.
+\end{itemize}
+Many research flights and research data sets meet these requirements,
+and where wind measurement is important they can be incorporated into
+flight plans for future projects. The algorithm implemented here,
+for which specific R code is available, follows these steps:
+\begin{enumerate}
+\item \emph{Shift the timing of the heading measurement as needed to match
+the GPS-receiver measurements of ground velocity. }The result of
+this procedure is very sensitive to differences in timing of measurements
+from the IRS and GPS, because in turns any lag appears as an offset
+in the accelerations that mimics a heading error.
+\item \emph{Optionally, apply pitch and roll corrections using the algorithm
+developed in Sect.~\ref{sec:Correcting-the-pitch}. }The measurements
+of pitch and, to a lesser extent, roll affect the transformation of
+the accelerations from the $a$-frame to the $l$-frame, but only
+have a very small effect, so omission of this step normally makes
+no detectable difference in the final heading correction.. 
+\item \emph{Differentiate the ground-speed measurements provided by a GPS
+receiver,} using third-order Savitzky-Golay polynomials spanning 21\,s,
+to obtain reference measurements of horizontal accelerations in the
+$l$-frame. 
+\item \emph{Transform the accelerations measured by the INS in the $a$-frame
+to the $l$-frame}, with the correction term specified by (\ref{eq:rotation-correction}).
+Filter these results also using Savitzky-Golay polynomials of the
+same order and span so that they are smoothed in the same way as the
+ground-speed derivatives.
+\item \emph{Use (\ref{eq:final-answer}) to obtain estimates of the heading
+error $\delta\psi$ at each time.} However, apply data restrictions
+to avoid cases of high uncertainty. The most important restriction
+used here was to require that the total horizontal acceleration in
+the $l$-frame be larger than $1$\,m\,s$^{-2}$. 
+\item \emph{Use a search algorithm to identify flight segments with turns}
+(specifically, magnitude of roll larger than 10$^{\circ}$) continuously
+except for possible gaps of 5\,min. Require that these flight segments
+have both right and left turns, with at least 25\,s of each.
+\item \emph{For each such segment, calculate the mean correction} and its
+standard deviation and the mean time for each turn direction.
+\item \emph{Use cubic spline interpolation} to represent the variation in
+heading correction over the course of the flight. 
+\item \emph{Subtract the result given by this interopolation from the measured
+heading to obtain the corrected heading.}
+\end{enumerate}
+
+\subsection{Examples\label{sub:Examples-roll}}
+
+
+\subsubsection{DEEPWAVE flight 15}
+
+DEEPWAVE flight 15 was devoted to calibration maneuvers and included
+three circle maneuvers like that shown in Fig.~\ref{fig:get-b-vector-and-transform}
+as well as some other maneuvers and turns that introduced horizontal
+accelerations. Figure~\ref{fig:error-components} shows the estimated
+heading error obtained from (\ref{eq:estimator-equation}) for this
+flight. Values are plotted only where the total horizontal acceleration
+exceeded 1~m\,s$^{-2}$, the airspeed exceeded 130 m\,s$^{-1}$
+(to exclude periods of strong acceleration or deceleration near the
+start and end of the flight), and the absolute value of the rate of
+climb was less than 3~m\,s$^{-1}$ (to exclude climbs and descents). 
+
+<<error-components, fig.height=4.5, include=TRUE, fig.cap="Heading error as estimated from (\\ref{eq:estimator-equation}) for each 1-s measurement meeting the qualification test, for DEEPWAVE flight 15 (3 July 2014).">>=
+
+# D$err1 <- (D$vedot - D$LACCX) / D$LACCY * 180/pi
+# D$err2 <- -(D$vndot - D$LACCY) / D$LACCX * 180/pi
+# hlim <- 0.1
+# D$herr <- D$err1
+# t <- abs(D$LACCY) < abs(D$LACCX)
+# D$herr[t] <- D$err2[t]
+# t <- abs(D$LACCX) + abs(D$LACCY) < hlim*2
+# D$herr[t] <- NA
+# D$herr <- zoo::na.approx (as.vector(D$herr), maxgap=100, na.rm = FALSE)
+# t <- is.na(D$herr)
+# D$herr[t] <- 0
+# D$herr <- signal::sgolayfilt (D$herr, 3, 1021, m=0)  
+# D$herr[t] <- NA
+# r <- setRange(D$Time, 33800,35500)
+# plotWAC (D[r, c("Time", "err1", "err2", "herr")], ylim=c(-10.,10.))
+D$ang1 <- atan2(D$vndot, D$vedot) / Cradeg
+D$ang2 <- atan2(D$LACCY, D$LACCX) / Cradeg
+#plotWAC(D[, c("Time", "ang1", "ang2")])
+#plotWAC(D$Time, D$ang1-D$ang2, ylim=c(-2,2))
+A2 <- D$LACCX^2 + D$LACCY^2
+A <- sqrt(A2)
+D$herr <- (-D$LACCY*(D$vedot-D$LACCX)+D$LACCX*(D$vndot-D$LACCY)) / (Cradeg*A2)
+#plotWAC(D$Time, D$herr, ylim=c(-2,2))
+
+DT <- D
+v <- DT$TASX > 130
+v <- v & (A > 1) & abs (D$herr) < 0.3 & abs(D$GGVSPD) < 3
+DT[!v,] <- NA
+plotWAC(DT$Time, DT$herr, ylim=c(-0.2,0.2), type='p', pch=20, col='blue',
+        ylab=expression(paste(delta,psi," [",degree,"]")))
+# he <- 0
+# tau <- 10
+# hea <- vector ('numeric', nrow(D))
+# k <- 0
+# for (i in 1:nrow(D)) {
+#   if (D$TASX[i] > 130 && A[i] > 1 && abs(D$herr[i]) < 0.3 && abs(D$GGVSPD[i]) < 2) {
+#     he <- he + (D$herr[i]-he)/tau
+#     k <- k + 1
+#     if (k > 20) {tau = 60}
+#   }
+#   hea[i] <- he
+# }
+# lineWAC(D$Time, hea, col='red')
+ts <- DT[v,]
+meanDh <- mean(ts$herr)
+# plotWAC(ts[, c("Time", "herr"), ], ylab=expression(paste(delta,psi)))
+bf <- signal::butter(3,1/300)
+# ts$herr <- signal::filtfilt(bf, ts$herr)
+# lineWAC(ts$Time, ts$herr, col='red')
+D$hs <- rep(NA, nrow(DT))
+D$hs <- rep(meanDh, nrow(DT))
+for (i in 1:nrow(ts)) {
+  ix <- which(D$Time == ts$Time[i])
+  D$hs[ix] <- ts$herr[i]
+}
+hs <- zoo::na.approx (as.vector(D$hs), maxgap=3000, na.rm = FALSE)
+hs <- signal::filtfilt(bf, hs)
+lineWAC(D$Time, hs, col='red')
+legend('topleft', legend=expression(paste("smoothed ",delta,psi)), col='red',
+       text.col='red', lwd=2, lty=1, bg='lightyellow')
+
+
+@
+
+The mean estimated heading error for this flight was \Sexpr{round(meanDh,2)}$^{\circ}$,
+so the indicated heading correction is significant and would change
+the lateral component of the horizontal wind by about \Sexpr{round(meanDh*220*pi/180,1)}~m\,s$^{-1}$
+for a representative flight speed of 220~m\,s$^{-1}$. Also shown
+in Fig.~\ref{fig:error-components}, as a red line, is a smoothed
+representation of the heading correction. This was obtained using
+a third-order low-pass Butterworth filter with a cutoff frequency
+corresponding to a period of 5\,min to smooth departures from the
+mean only where the estimate of $\delta\psi$ was considered valid
+as defined above.:
+
+<<correct-heading>>=
+
+CorrectHeading <- function (.data=Data, .span=21, .default=-0.08) {
+  ## note: before calling, should apply timing corrections and to pitch/roll corrections if desired.
+  GeneratePlot <- FALSE
+  Cradeg <- pi/180
+  RotationCorrection <- function (.data=Data, .V) {
+    Cradeg <- pi/180
+    omegaE <- StandardConstant ('Omega')
+    Re <- StandardConstant ('Re')
+    DL <- nrow (.data)
+    C <- vector ('numeric', 3*DL); dim(C) <- c(DL,3)
+    lat <- .data$LAT * Cradeg
+    sinLat <- sin(lat); cosLat <- cos(lat); tanLat <- tan(lat)
+    M12 <- -2*omegaE*sinLat-.V[,1]*tanLat/Re
+    M13 <- 2*omegaE*cosLat+.V[,1]/Re
+    M21 <- 2*omegaE*sinLat+.V[,1]*tanLat/Re
+    M23 <- .V[,2]/Re
+    M31 <- -2*omegaE*cosLat-.V[,1]/Re
+    M32 <- -.V[,2]/Re
+    C[,1] <- M12*.V[,2]+M13*.V[,3]
+    C[,2] <- M21*.V[,1]+M23*.V[,3]
+    C[,3] <- M31*.V[,1]+M32*.V[,2]
+    return (C)
+  }
+  ## check for required variables:
+  Required <- c("BLATA", "BLONGA", "BNORMA", "GGVNS", "GGVEW", "GGALT",
+                "THDG", "PITCH", "ROLL")
+  .names <- names(.data)
+  for (.R in Required) {
+    if (.R %in% .names) {next}
+    print (sprintf ("in CorrectHeading, required variable %s not found; returning 0", .R))
+    return(0)
+  }
+  if (!("LATC" %in% .names) && !("LAT" %in% .names)) {
+    print (sprintf ("in CorrectHeading, required variable LAT or LATC not found; returning 0"))
+    return(0)
+  }
+
+  ## get the data rate
+  Rate <- 1  
+  if ((.data$Time[2]-.data$Time[1]) <= 0.04) {Rate <- 25} 
+  LD <- nrow(.data)
+  D <- .data[!is.na (.data$Time), ]  ## eliminate bad-time records
+  
+  if (Rate > 1) {
+    D1 <- D[(as.numeric(D$Time) %% 1) < 0.01,]
+  } else {
+    D1 <- D
+  }
+
+  if ("PITCHC" %in% names (D1)) {D1$PITCH <- D1$PITCHC}
+  if ("ROLLC" %in% names (D1)) {D1$ROLL <- D1$ROLLC}
+  if ("LATC" %in% names (D1)) {D1$LAT <- D1$LATC}
+  # plotTrack(D1)
+  
+  #interpolate if necessary:
+  MaxGap <- 1000
+  ggvns <- zoo::na.approx (as.vector(D1$GGVNS), maxgap=MaxGap, na.rm = FALSE)
+  ggvew <- zoo::na.approx (as.vector(D1$GGVEW), maxgap=MaxGap, na.rm = FALSE)
+  D1$BLONGA <- zoo::na.approx (as.vector (D1$BLONGA), maxgap=MaxGap, na.rm=FALSE)
+  D1$BLATA <- zoo::na.approx (as.vector (D1$BLATA), maxgap=MaxGap, na.rm=FALSE)
+  D1$BNORMA <- zoo::na.approx (as.vector (D1$BNORMA), maxgap=MaxGap, na.rm=FALSE)
+  D1$GGALT <- zoo::na.approx (as.vector (D1$GGALT), maxgap=MaxGap, na.rm=FALSE)
+  D1$PITCH <- zoo::na.approx (as.vector (D1$PITCH), maxgap=MaxGap, na.rm=FALSE)
+  D1$ROLL <- zoo::na.approx (as.vector (D1$ROLL), maxgap=MaxGap, na.rm=FALSE)
+  D1$THDG <- zoo::na.approx (as.vector (D1$THDG), maxgap=MaxGap, na.rm=FALSE)
+  D1$LAT <- zoo::na.approx (as.vector (D1$LAT), maxgap=MaxGap, na.rm=FALSE)
+  vndot <- signal::sgolayfilt (ggvns, 3, .span, m=1)  # m=1 for first deriv.
+  vedot <- signal::sgolayfilt (ggvew, 3, .span, m=1)
+  G <- Gravity (D1$LAT, D1$GGALT)
+  AV <- matrix(c(D1$BLONGA, D1$BLATA, D1$BNORMA+G), ncol=3) #aircraft-frame
+  LV <- XformLA (D1, AV)                                    #l-frame
+  ## now corrected for angular effects
+  ## See Noureldin et al, 2013, Eq. (5.55)
+  LV <- LV - RotationCorrection (D1, LV)
+  
+  D1$LACCX <- LV[, 1]
+  D1$LACCY <- LV[, 2]
+  D1$LACCZ <- LV[, 3] + G
+  
+  D1$LACCX <- signal::sgolayfilt (D1$LACCX, 3, .span, m=0)
+  D1$LACCY <- signal::sgolayfilt (D1$LACCY, 3, .span, m=0)
+  D1$LACCZ <- signal::sgolayfilt (D1$LACCZ, 3, .span, m=0)
+  
+  A2 <- D1$LACCX^2 + D1$LACCY^2
+  A <- sqrt(A2)
+  D1$herr <- (-D1$LACCY*(vedot-D1$LACCX)+D1$LACCX*(vndot-D1$LACCY)) / (Cradeg*A2)
+  DT <- D1
+  v <- DT$TASX > 130
+  v <- v & (A > 1) & abs (DT$herr) < 0.3 & abs(DT$GGVSPD) < 3
+  DT[!v,] <- NA
+  r <- DT$ROLL > 10
+  l <- DT$ROLL < -10
+  DT$TestR <- (!is.na(DT$Time) & (DT$ROLL > 10))
+  DT$TestL <- (!is.na(DT$Time) & (DT$ROLL < -10))
+  DSET <- data.frame ()
+  set <- vector("numeric")
+  hmean <- vector("numeric")
+  hsd <- vector("numeric")
+  tbar <- vector("numeric")
+  hmeanR <- vector("numeric")
+  hsdR <- vector("numeric")
+  tbarR <- vector("numeric")
+  hmeanL <- vector("numeric")
+  hsdL <- vector("numeric")
+  tbarL <- vector("numeric")
+  
+  setStart <- 0
+  NRA <- 40    ## effective averaging seconds for error-bar std. dev.
+  NSL <- 25    ## required seconds turn in each direction
+  TGAP <- 300  ## seconds constituting break in sets of turn values
+  for (k in 1:nrow(DT)) {
+    if (DT$TestR[k] || DT$TestL[k]) {
+      if (setStart == 0) {
+        setStart <- k
+        setEnd <- k
+        DSET <- rbind(DSET, DT[k,])
+      } else if (as.numeric(difftime(DT$Time[k], DT$Time[setEnd], units='sec')) > TGAP) {
+        if (length(DSET[DSET$TestR == TRUE, "herr"]) > NSL &&
+            length(DSET[DSET$TestL == TRUE, "herr"]) > NSL) {      
+          hmnR <- mean (DSET$herr[DSET$TestR], na.rm=TRUE)
+          hmnL <- mean (DSET$herr[DSET$TestL], na.rm=TRUE)
+          hsdevR <- sd (DSET$herr[DSET$TestR], na.rm=TRUE) / 
+            sqrt (length (DSET$TestR)/NRA)
+          hsdevL <- sd (DSET$herr[DSET$TestL], na.rm=TRUE) / 
+            sqrt (length (DSET$TestL)/NRA)
+          tbrR <- mean(DSET$Time[DSET$TestR], na.rm=TRUE)
+          tbrL <- mean(DSET$Time[DSET$TestL], na.rm=TRUE)
+          # print (sprintf ("R time %s count %d", as.POSIXct (tbrR, origin="2014-07-04", tz="GMT"), length(DSET$TestR)))
+          hmeanR <- c(hmeanR, hmnR)
+          hsdR   <- c(hsdR, hsdevR)
+          tbarR  <- c(tbarR, tbrR)
+          # print (sprintf ("L time %s count %d", as.POSIXct (tbrL, origin="2014-07-04", tz="GMT"), length(DSET$TestL)))
+          hmeanL <- c(hmeanL, hmnL)
+          hsdL   <- c(hsdL, hsdevL)
+          tbarL  <- c(tbarL, tbrL)
+        }
+        setStart <- k
+        setEnd <- k
+        DSET <- DT[k,]
+      } else {
+        setEnd <- k
+        DSET <- rbind(DSET, DT[k,])
+      }
+    }
+  }
+  if (length(DSET[DSET$TestR == TRUE, "herr"]) > NSL &&
+      length(DSET[DSET$TestL == TRUE, "herr"]) > NSL) { 
+    hmnR <- mean (DSET$herr[DSET$TestR], na.rm=TRUE)
+    hmnL <- mean (DSET$herr[DSET$TestL], na.rm=TRUE)
+    hsdevR <- sd (DSET$herr[DSET$TestR], na.rm=TRUE) / sqrt (length (DSET$TestR)/NRA)
+    hsdevL <- sd (DSET$herr[DSET$TestL], na.rm=TRUE) / sqrt (length (DSET$TestL)/NRA)
+    tbrR <- mean(DSET$Time[DSET$TestR], na.rm=TRUE)
+    tbrL <- mean(DSET$Time[DSET$TestL], na.rm=TRUE)
+    hmeanR <- c(hmeanR, hmnR)
+    hsdR   <- c(hsdR, hsdevR)
+    tbarR  <- c(tbarR, tbrR)
+    hmeanL <- c(hmeanL, hmnL)
+    hsdL   <- c(hsdL, hsdevL)
+    tbarL  <- c(tbarL, tbrL)
+  }
+  if (length (tbarL) < 3) {
+    print (sprintf ("CorrectHeading found too few qualifying turns (%d),\nso return is default of -0.08", length (tbarL)))
+    return (c(rep(.default, LD)))
+  }
+  if (GeneratePlot) {
+    clr <- c("right", "left", "spline")
+    col <- c ('blue', 'darkgreen', "red")
+  }
+  EH <- data.frame(tbar=c(tbarL, tbarR), hmeanR=c(rep(NA, length(tbarL)), hmeanR),
+                   hmeanL=c(hmeanL, rep(NA, length(tbarR))), 
+                   hsdR=c(rep(NA, length(tbarL)), hsdR), 
+                   hsdL=c(hsdL, rep(NA, length(tbarR))))
+  EH$tbar <- as.POSIXct (EH$tbar, origin="1970-01-01", tz="GMT")
+  ## whmean and whsd are not used; left here for reference
+  whmean <- weighted.mean (c(EH$hmeanR, EH$hmeanL), 
+                           c(1/EH$hsdR^2, 1/EH$hsdL^2), na.rm=TRUE)
+  whsd <- sqrt (1/sum(c(1/EH$hsdR^2, 1/EH$hsdL^2), na.rm=TRUE))
+  if (GeneratePlot) {
+    p <- ggplot(EH, aes(x=tbar), na.rm=TRUE)
+    p <- p + geom_errorbar(aes(ymin=hmeanR-hsdR, ymax=hmeanR+hsdR, colour=clr[1]),
+                           width=600, size=1.5, na.rm=TRUE) + ylim (-0.25,0.15)
+    p <- p + geom_point (aes(y = hmeanR, colour=clr[1]),size=3.5, na.rm=TRUE)
+    p <- p + geom_errorbar(aes(ymin=hmeanL-hsdL, ymax=hmeanL+hsdL, colour=clr[2]),
+                           width=600, size=1.5, na.rm=TRUE)
+    p <- p + geom_point (aes(y = hmeanL, colour=clr[2]), size=3.5, na.rm=TRUE)
+    p <- p + ylab(expression(paste(delta,psi,' [',degree,']')))
+    p <- p + xlab ("Time [UTC]")
+  }
+  yss <- c(EH$hmeanL[!is.na(EH$hmeanL)], EH$hmeanR[!is.na(EH$hmeanR)])
+  ywts <- 1/c(EH$hsdL[!is.na(EH$hsdL)], EH$hsdR[!is.na(EH$hsdR)])^2
+  SS <- smooth.spline(EH$tbar, yss, w=ywts, df=length(yss)-1, spar=0.7)
+  # # xss <- as.POSIXct (SS$x, origin="1970-01-01", tz="GMT")
+  # # p <- p + geom_line(aes(x=xss, y=SS$y, colour=clr[3]), lwd=2, na.rm=TRUE)
+  if (GeneratePlot) {
+    D1$HC <- predict(SS, as.numeric(D1$Time))$y
+    p <- p + geom_line (data=D1, aes (x=Time, y=HC, colour=clr[3]), lwd=2, na.rm=TRUE)
+    # SS2 <- smooth.spline(EH$tbar, yss, df=8, spar=0.4)
+    # xss2 <- as.POSIXct (SS2$x, origin="1970-01-01", tz="GMT")
+    # p <- p + geom_line(aes(x=xss2, y=SS2$y, colour=clr[3]), lwd=2, lty=2, na.rm=TRUE)
+    cols <- c("right"="blue", "left"="darkgreen", "spline"="red")
+    p <- p + scale_colour_manual("turn direction:", values=cols)
+    p <- p + guides(color=guide_legend(override.aes=list(shape=c(16,16,NA), 
+                                                         linetype=c(0,0,1))))
+    p <- p + theme_WAC()
+    print (p)
+  }
+  
+  ## construct the input-rate heading correction HC
+  HC <- predict(SS, as.numeric(D$Time))$y
+  return (HC)
+}
+
+@
+
+<<plot-heading-correction-rf15, include=TRUE, fig.height=4, fig.cap="The heading correction determined using the proposed algorithm, for the measurements from DEEPWAVE flight 15 (3 July 2014). Estimates from left and right turns are plotted separately and an interpolating spline fit is also shown. Error bars are approximately $2\\sigma_m$ where $\\sigma_m$ is the standard deviation in the mean value.">>=
+
+  .data <- D
+  GeneratePlot <- TRUE
+  PC <- CorrectPitch (.data)
+  .data$PITCHC <- .data$PITCH - PC[, 1]
+  Rate <- 1  
+  if ((.data$Time[2]-.data$Time[1]) <= 0.04) {Rate <- 25} 
+  LD <- nrow(.data)
+  ## Note: apply shift in time before calling, and
+  ##       do pitch correction if desired
+  D <- .data[!is.na (.data$Time), ]
+  if ("PITCHC" %in% names (D)) {D$PITCH <- D$PITCHC}
+  if ("ROLLC" %in% names (D)) {D$ROLL <- D$ROLLC}
+  
+  if (Rate > 1) {
+    D1 <- D[(as.numeric(D$Time) %% 1) < 0.01,]
+  } else {
+    D1 <- D
+  }
+  # plotTrack(D1)
+  
+  #interpolate if necessary:
+  MaxGap <- 1000
+  ggvns <- zoo::na.approx (as.vector(D1$GGVNS), maxgap=MaxGap, na.rm = FALSE)
+  ggvew <- zoo::na.approx (as.vector(D1$GGVEW), maxgap=MaxGap, na.rm = FALSE)
+  vndot <- signal::sgolayfilt (ggvns, 3, 21, m=1)  # m=1 for first deriv.
+  vedot <- signal::sgolayfilt (ggvew, 3, 21, m=1)
+  D1$BLONGA <- zoo::na.approx (as.vector (D1$BLONGA), maxgap=MaxGap, na.rm=FALSE)
+  D1$BLATA <- zoo::na.approx (as.vector (D1$BLATA), maxgap=MaxGap, na.rm=FALSE)
+  D1$BNORMA <- zoo::na.approx (as.vector (D1$BNORMA), maxgap=MaxGap, na.rm=FALSE)
+  D1$PITCH <- zoo::na.approx (as.vector (D1$PITCH), maxgap=MaxGap, na.rm=FALSE)
+  D1$PITCHC <- zoo::na.approx (as.vector (D1$PITCHC), maxgap=MaxGap, na.rm=FALSE)
+  D1$ROLL <- zoo::na.approx (as.vector (D1$ROLL), maxgap=MaxGap, na.rm=FALSE)
+  D1$THDG <- zoo::na.approx (as.vector (D1$THDG), maxgap=MaxGap, na.rm=FALSE)
+  D1$LATC <- zoo::na.approx (as.vector (D1$LATC), maxgap=MaxGap, na.rm=FALSE)
+  G <- Gravity (D1$LATC, D1$GGALT)
+  AV <- matrix(c(D1$BLONGA, D1$BLATA, D1$BNORMA+G), ncol=3) #aircraft-frame
+  LV <- XformLA (D1, AV)                                    #l-frame
+  ## now corrected for angular effects
+  ## See Noureldin et al, 2013, Eq. (5.55)
+  LV <- LV - RotationCorrection (D1, LV)
+  
+  D1$LACCX <- LV[, 1]
+  D1$LACCY <- LV[, 2]
+  D1$LACCZ <- LV[, 3] + G
+  
+  D1$LACCX <- signal::sgolayfilt (D1$LACCX, 3, 21, m=0)
+  D1$LACCY <- signal::sgolayfilt (D1$LACCY, 3, 21, m=0)
+  D1$LACCZ <- signal::sgolayfilt (D1$LACCZ, 3, 21, m=0)
+  
+  A2 <- D1$LACCX^2 + D1$LACCY^2
+  A <- sqrt(A2)
+  D1$herr <- (-D1$LACCY*(vedot-D1$LACCX)+D1$LACCX*(vndot-D1$LACCY)) / (Cradeg*A2)
+  DT <- D1
+  v <- DT$TASX > 130
+  v <- v & (A > 1) & abs (DT$herr) < 0.3 & abs(DT$GGVSPD) < 3
+  DT[!v,] <- NA
+  r <- DT$ROLL > 10
+  l <- DT$ROLL < -10
+  DT$TestR <- (!is.na(DT$Time) & (DT$ROLL > 10))
+  DT$TestL <- (!is.na(DT$Time) & (DT$ROLL < -10))
+  DSET <- data.frame ()
+  set <- vector("numeric")
+  hmean <- vector("numeric")
+  hsd <- vector("numeric")
+  tbar <- vector("numeric")
+  hmeanR <- vector("numeric")
+  hsdR <- vector("numeric")
+  tbarR <- vector("numeric")
+  hmeanL <- vector("numeric")
+  hsdL <- vector("numeric")
+  tbarL <- vector("numeric")
+  
+  setStart <- 0
+  NRA <- 40    ## effective averaging seconds for error-bar std. dev.
+  NSL <- 25    ## required seconds turn in each direction
+  TGAP <- 300  ## seconds constituting break in sets of turn values
+  for (k in 1:nrow(DT)) {
+    if (DT$TestR[k] || DT$TestL[k]) {
+      if (setStart == 0) {
+        setStart <- k
+        setEnd <- k
+        DSET <- rbind(DSET, DT[k,])
+      } else if (as.numeric(difftime(DT$Time[k], DT$Time[setEnd], units='sec')) > TGAP) {
+        if (length(DSET[DSET$TestR == TRUE, "herr"]) > NSL &&
+            length(DSET[DSET$TestL == TRUE, "herr"]) > NSL) {      
+          hmnR <- mean (DSET$herr[DSET$TestR], na.rm=TRUE)
+          hmnL <- mean (DSET$herr[DSET$TestL], na.rm=TRUE)
+          hsdevR <- sd (DSET$herr[DSET$TestR], na.rm=TRUE) / 
+            sqrt (length (DSET$TestR)/NRA)
+          hsdevL <- sd (DSET$herr[DSET$TestL], na.rm=TRUE) / 
+            sqrt (length (DSET$TestL)/NRA)
+          tbrR <- mean(DSET$Time[DSET$TestR], na.rm=TRUE)
+          tbrL <- mean(DSET$Time[DSET$TestL], na.rm=TRUE)
+          # print (sprintf ("R time %s count %d", as.POSIXct (tbrR, origin="2014-07-04", tz="GMT"), length(DSET$TestR)))
+          hmeanR <- c(hmeanR, hmnR)
+          hsdR   <- c(hsdR, hsdevR)
+          tbarR  <- c(tbarR, tbrR)
+          # print (sprintf ("L time %s count %d", as.POSIXct (tbrL, origin="2014-07-04", tz="GMT"), length(DSET$TestL)))
+          hmeanL <- c(hmeanL, hmnL)
+          hsdL   <- c(hsdL, hsdevL)
+          tbarL  <- c(tbarL, tbrL)
+        }
+        setStart <- k
+        setEnd <- k
+        DSET <- DT[k,]
+      } else {
+        setEnd <- k
+        DSET <- rbind(DSET, DT[k,])
+      }
+    }
+  }
+  if (length(DSET[DSET$TestR == TRUE, "herr"]) > NSL &&
+      length(DSET[DSET$TestL == TRUE, "herr"]) > NSL) { 
+    hmnR <- mean (DSET$herr[DSET$TestR], na.rm=TRUE)
+    hmnL <- mean (DSET$herr[DSET$TestL], na.rm=TRUE)
+    hsdevR <- sd (DSET$herr[DSET$TestR], na.rm=TRUE) / sqrt (length (DSET$TestR)/NRA)
+    hsdevL <- sd (DSET$herr[DSET$TestL], na.rm=TRUE) / sqrt (length (DSET$TestL)/NRA)
+    tbrR <- mean(DSET$Time[DSET$TestR], na.rm=TRUE)
+    tbrL <- mean(DSET$Time[DSET$TestL], na.rm=TRUE)
+    hmeanR <- c(hmeanR, hmnR)
+    hsdR   <- c(hsdR, hsdevR)
+    tbarR  <- c(tbarR, tbrR)
+    hmeanL <- c(hmeanL, hmnL)
+    hsdL   <- c(hsdL, hsdevL)
+    tbarL  <- c(tbarL, tbrL)
+  }
+  if (GeneratePlot) {
+    clr <- c("right", "left", "spline")
+    col <- c ('blue', 'darkgreen', "red")
+  }
+  EH <- data.frame(tbar=c(tbarL, tbarR), hmeanR=c(rep(NA, length(tbarL)), hmeanR),
+                   hmeanL=c(hmeanL, rep(NA, length(tbarR))), 
+                   hsdR=c(rep(NA, length(tbarL)), hsdR), 
+                   hsdL=c(hsdL, rep(NA, length(tbarR))))
+  EH$tbar <- as.POSIXct (EH$tbar, origin="1970-01-01", tz="GMT")
+  whmean15 <- weighted.mean (c(EH$hmeanR, EH$hmeanL), 
+                           c(1/EH$hsdR^2, 1/EH$hsdL^2), na.rm=TRUE)
+  whsd15 <- sqrt (1/sum(c(1/EH$hsdR^2, 1/EH$hsdL^2), na.rm=TRUE))
+  if (GeneratePlot) {
+    p <- ggplot(EH, aes(x=tbar), na.rm=TRUE)
+    p <- p + geom_errorbar(aes(ymin=hmeanR-hsdR, ymax=hmeanR+hsdR, colour=clr[1]),
+                           width=600, size=1.5, na.rm=TRUE) + ylim (-0.25,0.15)
+    p <- p + geom_point (aes(y = hmeanR, colour=clr[1]),size=3.5, na.rm=TRUE)
+    p <- p + geom_errorbar(aes(ymin=hmeanL-hsdL, ymax=hmeanL+hsdL, colour=clr[2]),
+                           width=600, size=1.5, na.rm=TRUE)
+    p <- p + geom_point (aes(y = hmeanL, colour=clr[2]), size=3.5, na.rm=TRUE)
+    p <- p + ylab(expression(paste(delta,psi,' [',degree,']')))
+    p <- p + xlab ("Time [UTC]")
+  }
+  yss <- c(EH$hmeanL[!is.na(EH$hmeanL)], EH$hmeanR[!is.na(EH$hmeanR)])
+  SS <- smooth.spline(EH$tbar, yss, df=length(yss)-1, spar=0.7)
+  # # xss <- as.POSIXct (SS$x, origin="1970-01-01", tz="GMT")
+  # # p <- p + geom_line(aes(x=xss, y=SS$y, colour=clr[3]), lwd=2, na.rm=TRUE)
+  D1$HC <- predict(SS, as.numeric(D1$Time))$y
+  if (GeneratePlot) {
+    p <- p + geom_line (data=D1, aes (x=Time, y=HC, colour=clr[3]), lwd=2, na.rm=TRUE)
+    # SS2 <- smooth.spline(EH$tbar, yss, df=8, spar=0.4)
+    # xss2 <- as.POSIXct (SS2$x, origin="1970-01-01", tz="GMT")
+    # p <- p + geom_line(aes(x=xss2, y=SS2$y, colour=clr[3]), lwd=2, lty=2, na.rm=TRUE)
+    cols <- c("right"="blue", "left"="darkgreen", "spline"="red")
+    p <- p + scale_colour_manual("turn direction:", values=cols)
+    p <- p + guides(color=guide_legend(override.aes=list(shape=c(16,16,NA), 
+                                                         linetype=c(0,0,1))))
+    p <- p + theme_WAC()
+    print (p)
+  }
+  
+@
+
+Figure \ref{fig:plot-heading-correction-rf15} shows the result from
+application of the proposed algorithm, as the red line. This result
+is reasonably consistent with that shown in the previous figure, but
+provides an estimated error that varies more slowly over the course
+of the flight. The weighted mean error obtained in this way is \Sexpr{round(whmean15,2)}$^{\circ}$
+with weighted standard deviation of \Sexpr{round(whsd15,2)}$^{\circ}$. 
+
+
+\subsubsection{DEEPWAVE flight 16}
+
+<<flight-16, include=FALSE, fig.cap="Flight track of DEEPWAVE flight 16, July 4 2014, with repeated passes over the South Island of New Zealand. Times are HH:MM UTC.">>=
+
+# require(maps)
+# require(mapdata)
+# require(mapproj)
+Flight <- "rf16h" 
+fname <- sprintf ("%s%s/%s%s.nc", DataDirectory(), Project, Project, Flight)
+
+SaveRData4 <- sprintf("%s4.Rdata", thisFileName)
+if (ReloadData) {
+  Data <- getNetCDF(fname, standardVariables(VarNames))
+  save (Data, file=SaveRData4)
+} else {
+  load (file=SaveRData4)
+}
+
+##### TEMPORARY #####
+# print("heading adjustment applied as test of sign")
+# Data$THDG <- Data$THDG + 0.08
+#####################
+
+Rate <- 1  
+if ((Data$Time[2]-Data$Time[1]) <= 0.04) {Rate <- 25} 
+LD <- nrow(Data)
+
+D <- Data[!is.na (Data$Time), ]
+s <- -60
+D$THDG <- ShiftInTime (D$THDG, Rate, s)
+D$VEW <- ShiftInTime (D$VEW, Rate, s)    ## this is needed for pitch correction
+D$VNS <- ShiftInTime (D$VNS, Rate, s)
+D$BLONGA <- ShiftInTime (D$BLONGA, Rate, s-80)
+D$BLATA <- ShiftInTime (D$BLATA, Rate, s-80)
+D$BNORMA <- ShiftInTime (D$BNORMA, Rate, s-80)
+C <- CorrectPitch(D)
+D$PITCHC <- D$PITCH - C[,1]
+D$ROLLC  <- D$ROLL  - C[,2]
+DataSave <- D
+D$PITCH <- D$PITCHC
+D$ROLL <- D$ROLLC
+
+if (Rate > 1) {
+  D1 <- D[(as.numeric(D$Time) %% 1) < 0.01,]
+} else {
+  D1 <- D
+}
+# plotTrack(D1)
+
+#interpolate if necessary:
+MaxGap <- 1000
+ggvns <- zoo::na.approx (as.vector(D1$GGVNS), maxgap=MaxGap, na.rm = FALSE)
+ggvew <- zoo::na.approx (as.vector(D1$GGVEW), maxgap=MaxGap, na.rm = FALSE)
+vndot <- signal::sgolayfilt (ggvns, 3, 21, m=1)  # m=1 for first deriv.
+vedot <- signal::sgolayfilt (ggvew, 3, 21, m=1)
+G <- Gravity (D1$LATC, D1$GGALT)
+AV <- matrix(c(D1$BLONGA, D1$BLATA, D1$BNORMA+G), ncol=3) #aircraft-frame
+LV <- XformLA (D1, AV)                                  #l-frame
+## now corrected for angular effects
+## See Noureldin et al, 2013, Eq. (5.55)
+LV <- LV - RotationCorrection (D1, LV)
+
+D1$LACCX <- LV[, 1]
+D1$LACCY <- LV[, 2]
+D1$LACCZ <- LV[, 3] + G
+
+D1$LACCX <- signal::sgolayfilt (D1$LACCX, 3, 21, m=0)
+D1$LACCY <- signal::sgolayfilt (D1$LACCY, 3, 21, m=0)
+D1$LACCZ <- signal::sgolayfilt (D1$LACCZ, 3, 21, m=0)
+
+@
+
+<<errors-rf16, fig.height=4.5, include=FALSE, fig.cap="Heading error as estimated from (\\ref{eq:estimator-equation}) for DEEPWAVE flight 16.">>=
+
+A2 <- D1$LACCX^2 + D1$LACCY^2
+A <- sqrt(A2)
+D1$herr <- (-D1$LACCY*(vedot-D1$LACCX)+D1$LACCX*(vndot-D1$LACCY)) / (Cradeg*A2)
+# plotWAC(D$Time, D$herr, ylim=c(-2,2))
+
+DT <- D1
+v <- DT$TASX > 130
+v <- v & (A > 1) & abs (DT$herr) < 0.3 & abs(DT$GGVSPD) < 3
+DT[!v,] <- NA
+r <- setRange(D1$Time, 80000, 82500)
+r <- setRange(D1$Time, 0, 0)
+r <- DT$ROLL > 10
+l <- DT$ROLL < -10
+plotWAC(DT$Time[r], DT$herr[r], ylim=c(-0.5,0.5), type='p', pch=20, col='blue',
+        ylab=expression(paste(delta,psi)))
+lineWAC(DT$Time[l], DT$herr[l], type='p', pch=20, col='darkgreen')
+ts <- DT[v,]
+meanDh16 <- mean(ts$herr)
+# plotWAC(ts[, c("Time", "herr"), ], ylab=expression(paste(delta,psi)))
+bf <- signal::butter(3,1/300)
+D1$hs <- rep(meanDh16, nrow(D1))
+for (i in 1:nrow(ts)) {
+  ix <- which(D1$Time == ts$Time[i])
+  D1$hs[ix] <- ts$herr[i]
+}
+hs <- zoo::na.approx (as.vector(D1$hs), maxgap=3000, na.rm = FALSE)
+hs <- signal::filtfilt(bf, hs)
+lineWAC(D1$Time, hs, col='red')
+legend('topright', legend=expression(paste("smoothed ",delta,psi)), col='red',
+       text.col='red', lwd=2, lty=1, bg='lightyellow')
+sdDh16 <- sd(hs, na.rm=TRUE)
+
+@
+
+<<spline-plot, include=TRUE, fig.height=4, fig.cap="Estimates of heading errors arising from turns during DEEPWAVE flight 16 (4 July 2014). Estimates from each left and right turn are plotted separately, and two spline fits with different degrees of smoothing are shown. Error bars are approximately $2\\sigma_m$ where $\\sigma_m$ is the standard deviation in the mean value.">>=
+
+formatTime <- function (time) {
+  t <- as.POSIXlt (time)
+  tt <- sprintf ("%d:%02d:%02d", t$hour, t$min, t$sec)
+  return (tt)
+}
+
+DT$TestR <- (!is.na(DT$Time) & (DT$ROLL > 10))
+DT$TestL <- (!is.na(DT$Time) & (DT$ROLL < -10))
+DSET <- data.frame ()
+set <- vector("numeric")
+hmean <- vector("numeric")
+hsd <- vector("numeric")
+tbar <- vector("numeric")
+hmeanR <- vector("numeric")
+hsdR <- vector("numeric")
+tbarR <- vector("numeric")
+hmeanL <- vector("numeric")
+hsdL <- vector("numeric")
+tbarL <- vector("numeric")
+
+setStart <- 0
+NRA <- 40
+for (k in 1:nrow(DT)) {
+  if (DT$TestR[k] || DT$TestL[k]) {
+    if (setStart == 0) {
+      setStart <- k
+      setEnd <- k
+      DSET <- rbind(DSET, DT[k,])
+    } else if (as.numeric(difftime(DT$Time[k], DT$Time[setEnd], units='sec')) > 300) {
+      if (length(DSET[DSET$TestR == TRUE, "herr"]) > 50 &&
+          length(DSET[DSET$TestL == TRUE, "herr"]) > 50) {      
+        hmnR <- mean (DSET$herr[DSET$TestR], na.rm=TRUE)
+        hmnL <- mean (DSET$herr[DSET$TestL], na.rm=TRUE)
+        hsdevR <- sd (DSET$herr[DSET$TestR], na.rm=TRUE) / 
+                      sqrt (length (DSET$TestR)/NRA)
+        hsdevL <- sd (DSET$herr[DSET$TestL], na.rm=TRUE) / 
+                     sqrt (length (DSET$TestL)/NRA)
+        tbrR <- mean(DSET$Time[DSET$TestR], na.rm=TRUE)
+        tbrL <- mean(DSET$Time[DSET$TestL], na.rm=TRUE)
+       # print (sprintf ("R time %s count %d", as.POSIXct (tbrR, origin="2014-07-04", tz="GMT"), length(DSET$TestR)))
+        hmeanR <- c(hmeanR, hmnR)
+        hsdR   <- c(hsdR, hsdevR)
+        tbarR  <- c(tbarR, tbrR)
+       # print (sprintf ("L time %s count %d", as.POSIXct (tbrL, origin="2014-07-04", tz="GMT"), length(DSET$TestL)))
+        hmeanL <- c(hmeanL, hmnL)
+        hsdL   <- c(hsdL, hsdevL)
+        tbarL  <- c(tbarL, tbrL)
+      }
+      setStart <- k
+      setEnd <- k
+      DSET <- DT[k,]
+    } else {
+      setEnd <- k
+      DSET <- rbind(DSET, DT[k,])
+    }
+  }
+}
+if (nrow(DSET) > 100) {
+  hmnR <- mean (DSET$herr[DSET$TestR], na.rm=TRUE)
+  hmnL <- mean (DSET$herr[DSET$TestL], na.rm=TRUE)
+  hsdevR <- sd (DSET$herr[DSET$TestR], na.rm=TRUE) / sqrt (length (DSET$TestR)/NRA)
+  hsdevL <- sd (DSET$herr[DSET$TestL], na.rm=TRUE) / sqrt (length (DSET$TestL)/NRA)
+  tbrR <- mean(DSET$Time[DSET$TestR], na.rm=TRUE)
+  tbrL <- mean(DSET$Time[DSET$TestL], na.rm=TRUE)
+  if (length(DSET[DSET$TestR == TRUE, "herr"]) > 50 &&
+      length(DSET[DSET$TestL == TRUE, "herr"]) > 50) {
+    hmeanR <- c(hmeanR, hmnR)
+    hsdR   <- c(hsdR, hsdevR)
+    tbarR  <- c(tbarR, tbrR)
+    hmeanL <- c(hmeanL, hmnL)
+    hsdL   <- c(hsdL, hsdevL)
+    tbarL  <- c(tbarL, tbrL)
+  }
+}
+
+clr <- c("right", "left", "spline")
+col <- c ('blue', 'darkgreen', "red")
+EH <- data.frame(tbar=c(tbarL, tbarR), hmeanR=c(rep(NA, length(tbarL)), hmeanR), hmeanL=c(hmeanL, rep(NA, length(tbarR))), hsdR=c(rep(NA, length(tbarL)), hsdR), hsdL=c(hsdL, rep(NA, length(tbarR))))
+EH$tbar <- as.POSIXct (EH$tbar, origin="1970-01-01", tz="GMT")
+whmean <- weighted.mean (c(EH$hmeanR, EH$hmeanL), 
+                         c(1/EH$hsdR^2, 1/EH$hsdL^2), na.rm=TRUE)
+whsd <- sqrt (1/sum(c(1/EH$hsdR^2, 1/EH$hsdL^2), na.rm=TRUE))
+p <- ggplot(EH, aes(x=tbar), na.rm=TRUE)
+p <- p + geom_errorbar(aes(ymin=hmeanR-hsdR, ymax=hmeanR+hsdR, colour=clr[1]),
+                       width=600, size=1.5, na.rm=TRUE) + ylim (-0.25,0.15)
+p <- p + geom_point (aes(y = hmeanR, colour=clr[1]),size=3.5, na.rm=TRUE)
+p <- p + geom_errorbar(aes(ymin=hmeanL-hsdL, ymax=hmeanL+hsdL, colour=clr[2]),
+                       width=600, size=1.5, na.rm=TRUE)
+p <- p + geom_point (aes(y = hmeanL, colour=clr[2]), size=3.5, na.rm=TRUE)
+p <- p + ylab(expression(paste(delta,psi,' [',degree,']')))
+p <- p + xlab ("Time [UTC]")
+yss <- c(EH$hmeanL[!is.na(EH$hmeanL)], EH$hmeanR[!is.na(EH$hmeanR)])
+SS <- smooth.spline(EH$tbar, yss, df=8, spar=0.7)
+# xss <- as.POSIXct (SS$x, origin="1970-01-01", tz="GMT")
+# p <- p + geom_line(aes(x=xss, y=SS$y, colour=clr[3]), lwd=2, na.rm=TRUE)
+D1$HC <- predict(SS, as.numeric(D1$Time))$y
+p <- p + geom_line (data=D1, aes (x=Time, y=HC, colour=clr[3]), lwd=2, na.rm=TRUE)
+SS2 <- smooth.spline(EH$tbar, yss, df=8, spar=0.4)
+xss2 <- as.POSIXct (SS2$x, origin="1970-01-01", tz="GMT")
+p <- p + geom_line(aes(x=xss2, y=SS2$y, colour=clr[3]), lwd=2, lty=2, na.rm=TRUE)
+cols <- c("right"="blue", "left"="darkgreen", "spline"="red")
+p <- p + scale_colour_manual("turn direction:", values=cols)
+p <- p + guides(color=guide_legend(override.aes=list(shape=c(16,16,NA), 
+                                                     linetype=c(0,0,1))))
+
+p <- p + theme_WAC()
+print (p)
+
+@
+<<construct-HR-correction>>=
+
+## construct the high-rate heading correction HC
+D$HC <- predict(SS, as.numeric(D$Time))$y
+DSAVE <- D    # save for use in later section
+
+@
+
+Flight 16 from the DEEPWAVE project was a more typical research flight,
+in which repeated passes were flown over the mountainous terrain of
+New Zealand. Legs of typically about 45 min duration started and ended
+with turns that usually reversed course and so provided good accelerations
+for correcting the measurement of heading. Figure~\ref{fig:spline-plot}
+shows the deduced heading errors for this flight. The weighted mean
+error was \Sexpr{round(whmean,2)}$^{\circ}$ and the standard deviation
+in the weighted mean error was \Sexpr{round(whsd, 2)}$^{\circ}$,
+so this indicates that for this flight the mean correction was close
+to that for flight 15. The standard deviation represents a low uncertainty
+that, translated to the lateral component of the horizontal wind,
+would amount to an uncertainty of about \Sexpr{round(whsd*220*pi/180, 2)}~m\,s$^{-1}$.
+This uncertainty is small in comparison to other contributions, as
+discussed more extensively in the Appendix. 
+
+
+
+
+
+
+\section{Some properties of the corrections}
+
+
+\subsection{The pitch correction}
+
+
+\subsubsection{Typical magnitudes}
+
+<<typical-errors, include=TRUE, fig.height=4, fig.cap="Probability distribution of individual 1-Hz estimate of the pitch error as determined using the algorithm of Sect.2.">>=
+
+Project <- "DEEPWAVE"
+Flight <- "rf16"
+DD <- getNetCDF (sprintf ("%s%s/%s%s.nc", DataDirectory(), Project, Project, Flight),
+                 c("PITCH", "ROLL", "THDG", "TASX", "VNS", "VEW", "GGVNS", "GGVEW",
+                   "LATC", "GGALT"))
+DD$PC <- CorrectPitch (DD)[,1]
+# hist(DD$PC, breaks=50, xlim=c(-0.05, 0.05), freq=FALSE, main=NULL)
+r <- (abs(DD$ROLL) < 5) & (DD$TASX > 130)
+ggplot (data=DD[r,], aes(x=PC)) +geom_density(fill='lightgrey')+xlim(-0.03, 0.03)+xlab(expression(paste("estimated pitch error [", degree, "]")))+theme_WAC()
+meanPC <- mean(DD[r, "PC"], na.rm=TRUE)
+sdPC <- sd(DD[r, "PC"], na.rm=TRUE)
+
+@
+
+As applied to most research flights, the corrections are fairly small.
+Figure~\ref{fig:typical-errors} shows the density distribution of
+corrections calculated for one flight, filght 16 of the DEEPWAVE project.
+The standard deviation of the calculated corrections to pitch is \Sexpr{round(sdPC, 2)}$^{\circ}$,
+which would propagate to a standard error in measurements of vertical
+wind of about \Sexpr{round(sdPC*Cradeg*220, 2)}\,m\,s$^{-1}$,
+and this is typical of most research flights examined including all
+but two of the 26 flights from the DEEPWAVE project. This is evidence
+that the measurement of pitch introduces little uncertainty into the
+measured vertical wind. Without this result, the instrument specification
+(0.05$^{\circ}$) would be the estimated uncertainty in pitch, so
+the uncertainty in vertical wind is reduced significantly by this
+algorithm even if the correction is not applied. 
+
+
+\subsubsection{Reverse-heading legs}
+
+If the pitch correction reduces the error in pitch, wind measurements
+made before and after level course reversal would be expected to match
+better after correction because, if there is a pitch error, its contribution
+to the vertical wind would reverse sign between the two legs. The
+following is a tabulation of four instances where the flight track
+reversed course and remained at the same altitude. Some other candidates
+were excluded because conditions were too variable along the legs
+to produce a small-uncertainty estimate of the vertical wind, or because
+(as was the normal case in these research flights) the flight level
+changed. For these selected cases, the sample standard deviation for
+the vertical wind was typically about 0.3\,m\,$^{-1}$, so in a
+5-min leg with typical autocorrelation among measurements of about
+10~s the uncertainty in the comparison of two such means is estimated
+to be around 0.08\,m\,s$^{-1}$. In each of the five cases, flight
+periods of about 5 min (sometimes adjusted in cases of strong wind
+to give similar-spatial-length segments flown upwind and downwind)
+are listed before and after the turn, but excluding the turn, to represent
+approximately overlapping flight segments where it would be expected
+that the vertical wind would be the same. 
+
+\begin{table}
+\caption{Flight segments before and after constant-altitude course reversal
+in relatively steady wind conditions.}
+
+
+\centering{}%
+\begin{tabular}{|c|c|c|}
+\hline 
+\textbf{Flight} & \textbf{before turn (UTC)} & \textbf{after turn (UTC)}\tabularnewline
+\hline 
+\hline 
+2 & 12:25:00--12:30:00 & 12:37:00--12:43:00\tabularnewline
+\hline 
+10 & 7:53:00--7:58:00 & 8:05:00--8:10:00\tabularnewline
+\hline 
+19 & 8:39:30--8:44:30 & 8:51:30--8:56:30\tabularnewline
+\hline 
+21 & 8:51:00--8:55:00 & 9:03:00--9:07:30\tabularnewline
+\hline 
+\end{tabular}
+\end{table}
+
+
+
+
+<<reverse-course-w-comparison, fig.height=3.5, fig.cap="Absolute difference in vertical wind for flight segments before and after level course-reversal maneuvers. The top panel shows the uncorrected measurements and the bottom panel shows the result of applying the pitch correction developed in Sect.\\ 2.", include=TRUE>>=
+
+ReverseW <- function (D, start1, end1, start2, end2) {
+  DD <- D[setRange (D$Time, start1, end1), ]
+  v1 <- mean (DD$WIC, na.rm=TRUE)
+  p1 <- mean (DD$PITCH, na.rm=TRUE)
+  DD <- D[setRange (D$Time, start2, end2), ]
+  v2 <- mean (DD$WIC, na.rm=TRUE)
+  p2 <- mean (DD$PITCH, na.rm=TRUE)
+  return (c(v1-v2, p1-p2))
+}
+RC <- c(1,81000,81500,82500,83000,
+        2, 122500, 123000, 123700, 124300,
+        10, 75300, 75800, 80500, 81000,
+        10, 100400, 100800, 101600, 102100,
+        10, 104500, 105000, 105700, 110200,
+        14, 101300, 101800, 102400, 102900,
+        14, 113700, 114200, 114830, 115330,
+        16, 94000, 94500, 95400, 95900,
+        19, 83930, 84430, 85130, 85630,
+        21, 85100, 85500, 90300, 90730,
+#         21, 95400, 95900, 100900, 101400,
+        21, 95630, 100130, 100800, 101300,
+        21, 102900, 103400, 104700, 105230,
+        21, 114600, 115100, 120400, 121000)
+# many of the above (4,5,6,7,8,12,13) removed because there was altitude change
+# RC <- c(1,81000,81500,82500,83000,  ## for this, GGQUAL indicates problems and
+#                                     ## error signals vary rapidly here; exclude
+# 2, 122500, 123000, 123700, 124300,
+# 19, 83930, 84430, 85130, 85630,
+# 21, 85100, 85500, 90300, 90730,
+# 21, 95430, 95930, 101000, 101500)  ## WIC sdev high for this test? (ca 0.3)
+dim(RC) <- c(5, length(RC)/5)
+wid <-vector("numeric", 13)
+pid <-vector("numeric", 13)
+widc <-vector("numeric", 13)
+pidc <-vector("numeric", 13)
+rr <- 1:dim(RC)[2]
+DDF <- data.frame()
+# ReloadData <- TRUE
+if (ReloadData) {
+  for (j in rr) {
+    fnm <- sprintf ("%s%s/%srf%02d.nc", DataDirectory (), Project, Project, RC[1,j])
+    df <- getNetCDF (fnm, c("VNS", "VEW", "GGVNS", "GGVEW", "WIC", "TASX",
+                            "LATC", "GGALT", "THDG", "PITCH", "ROLL"))
+    Ts <- -80
+    if (j == 3 || j == 11) {Ts <- -800}
+    df$VNS <- ShiftInTime (df$VNS, 1, Ts)
+    df$VEW <- ShiftInTime (df$VEW, 1, Ts)
+    Ts <- -60
+    df$THDG <- ShiftInTime (df$THDG, 1, Ts)
+    PC <- CorrectPitch (df, .span=1013)
+    df$PITCHC <- df$PITCH - PC[,1]
+    df$WIX <- df$WIC + df$TASX * PC[,1] * pi / 180
+    df <- df[setRange(df$Time, RC[2,j], RC[5,j]), ]
+    df$RF <- rep (j, nrow(df))
+    DDF <- rbind (DDF, df)
+  } 
+  save (DDF, file="DataFrames/SchulerdfAll.Rdata")
+} else {
+  load (file="DataFrames/SchulerdfAll.Rdata")
+}
+
+for (j in rr) {
+  df <- DDF[DDF$RF == j,]
+  if (j == 1) {next}     ## GPS problems here
+  if (sd (df$GGALT, na.rm=TRUE) > 200) {
+    rr[j] <- NA
+    next
+  }
+  x <- ReverseW (df, RC[2,j], RC[3,j], RC[4,j], RC[5,j])
+  wid[j] <- x[1]
+  pid[j] <- x[2]
+  df$PITCH <- df$PITCHC 
+  df$WIC <- df$WIX
+  x <- ReverseW (df, RC[2,j], RC[3,j], RC[4,j], RC[5,j])
+  widc[j] <- x[1]
+  pidc[j] <- x[2]
+  # print (sprintf ("set %d %.3f %.3f %.3f %.3f", j, wid[j], pid[j], widc[j], pidc[j]))
+}
+rr[1] <- NA
+rr[11] <- NA
+layout(matrix(1:2, ncol = 1), widths = 1, heights = c(5, 7))
+op <- par (mar=c(2,4,1,2.5)+0.1)
+# op <- par (mfrow=c(2,1), mar=c(2,5,2,2)+0.1)
+hist (abs(wid[rr]), border='blue', col=rgb(0,0,100,30, maxColorValue=255), 
+      breaks=20, angle=-45, xlim=c(0,0.2), 
+      xlab='absolute difference, uncorrected mean vertical wind [m/s]', main=NULL)
+legend('topright', legend='uncorrected', text.col='blue')
+op <- par (mar=c(5,4,1,2.5)+0.1)
+hist (abs(widc[rr]), border='red', col=rgb(100,0,0,30,maxColorValue=255),lwd=3, 
+      breaks=20, xlim=c(0,0.2), xlab='absolute difference, mean vertical wind [m/s]', main=NULL)
+legend('topright', legend="after correction", text.col='red')
+
+# print (sprintf ("mean uncorrected %f, corrected %f", mean(abs(wid[rr]), na.rm=TRUE), mean(abs(widc[rr]), na.rm=TRUE)))
+# print (wid)
+# print (widc)
+
+
+@
+
+The difference between average vertical wind measurements for each
+pair of legs was calculated before and after applying the pitch-correction
+algorithm developed in this subsection. The results are shown in Fig.~\ref{fig:reverse-course-w-comparison}.
+The measurements were in good agreement without any pitch correction,
+with an average absolute value of the difference between opposing
+legs of \Sexpr{round(mean(abs(wid[rr]), na.rm=TRUE),2)}\,m\,s$^{-1}$,
+about comparable to the uncertainty estimate from natural variability
+as developed in the preceding paragraph. The pitch correction kept
+the averages quite small and improved the agreement, reducing the
+mean value of the difference to \Sexpr{round(mean(abs(widc[rr]), na.rm=TRUE), 2)}\,m\,s$^{-1}$.
+This level of uncertainty would arise from an uncertainty in pitch
+of less than 0.01$^{\circ}$, but the residual uncertainty may well
+be smaller than this because the mean difference in vertical wind
+may arise mostly from natural variability. 
+
+
+\subsubsection{Estimated uncertainty in the corrected pitch}
+
+If the uncertainty in pitch is less than about 0.01$^{\circ}$, it
+may be unnecessary to refine that estimate because at that level other
+effects dominate the uncertainty in vertical wind. However, some additional
+estimates can be obtained by considering the terms affecting the estimates
+(\ref{eq:full-delta-pitch}) and (\ref{eq:delta-phi}), dependent
+on how well the derivative of the errors in ground-speed components
+can be determined and how well this derivative can be transformed
+via (\ref{eq:final-answer}) to the reference frame of the aircraft.
+Estimates based on this approach lead to exceptionally small uncertainty
+in the pitch correction, smaller than 0.0001$^{\circ}$, so uncertainties
+arising from other sources are likely dominant. Most sources of error,
+however, are addressed by the correction algorithm. The basic measurements
+from the INS are the body accelerations and body rotations. An error
+in the integration of the body rotations leads to an error in pitch
+that produces a false component of horizontal acceleration, so this
+will appear as an erroneous contribution to the ground-speed components
+and will be detected by the proposed algorithm. If the measured accelerations
+are in error, this leads to a position error and so to a pitch error,
+but again the erroneous accelerations are detected by comparison to
+GPS measurements and lead to a correction. 
+
+An error not addressed by the algorithm, however, is that arising
+from timing errors between INS and GPS. Especially in turns, a timing
+error will bias the measured errors in ground-speed components and
+so bias the result. Therefore, if the samples are not synchronous
+they must be shifted to match. This can be done by minimizing the
+perturbations that occur in turns. However, even small timing differences
+can have serious effects on the correction algorithm. A timing delay
+of 10\,ms when turning at a rate of 2$^{\circ}$\,s$^{-1}$ can
+lead to errors in ground-speed components of $0.02\pi V/180\simeq$0.08~m\,s$^{-1}$
+at a representative flight speed $V$ of 220\,m\,s$^{-1}$. This
+error changes direction at the turn rate so it leads to a false acceleration
+of about $0.08\times2\pi/180\simeq0.003$\,m\,s$^{-2}$. Equation
+(\ref{eq:full-delta-pitch}) then leads to an error in the pitch correction
+of about 0.015$^{\circ}$. While this appears to be the dominant source
+of uncertainty in the pitch correction, it only occurs in turns and
+should not affect measurements during straight flight segments. 
+
+It appears appropriate to use a conservative estimate of $\ll0.01{}^{\circ}$
+as the uncertainty to be applied to pitch. At this level, for the
+NSF/NCAR GV, the Appendix illustrates that the uncertainty in vertical
+wind is determined primarily by uncertainty in the measurement of
+angle of attack, and the pitch uncertainty is of little significance.
+
+
+
+
+\subsection{The heading correction}
+
+
+\subsubsection{Typical magnitudes}
+
+The examples from DEEPWAVE flights 15 and 16, discussed in Sect.~\ref{sub:Examples-roll},
+provide an illustration of the representative magnitude of the correction
+applied to heading. Unlike pitch, the heading correction does not
+vary with the Schuler oscillation but remains almost constant for
+most flights, with typical values of about \Sexpr{round(whmean15,2)}
+and \Sexpr{round(whmean,2)}$^{\circ}$ for flights 15 and 16, respectively,
+and standard deviations in these estimates of about 0.01$^{\circ}$. 
+
+
+\subsubsection{A check based on circle maneuvers}
+
+The circle maneuvers flown during flight 15 has been examined and
+discussed in some detail in \citet{Cooper2016ncartn}, Sect.~7.1.
+These flight patterns provide an alternate and independent way of
+estimating the heading error, because if the wind remains steady over
+the course of the circle then a positive heading error will lead to
+an erroneous eastward component of the wind while flying northward
+and a similar negative component when flying southward. A similar
+effect is present in the measured northward component of the wind.
+It is therefore possible to estimate the heading error by fitting
+a sinusoidal variation to the wind speed or to components of the wind
+speed. The result of that analysis was an indicated heading error
+of $-$0.09$^{\circ}$, consistent with the error found here, although
+with a significantly larger uncertainty of 0.09$^{\circ}$ arising
+from variations among the three circle maneuvers analyzed. This variation
+likely arose from unsteady wind conditions around the circles.
+
+
+\section{Conclusions}
+
+
+\conclusions[Summary and conclusions]{}
+
+An algorithm for correcting measurements of all three attitude angles
+(roll, pitch, and heading) apparently leads to significant improvement
+in conventional measurements from a high-quality inertial navigation
+system (INS) that does not use Kalman-filter updates to improve the
+measurements. The corrections are based on fits to centered portions
+of the flight and so can have advantages over recursive single-directional
+Kalman filters, and they do not require detailed knowledge of the
+error characteristics of the INS. In the case of pitch and roll, the
+procedure used neglects possible accelerometer biases by assuming
+that the velocity errors (determined by comparison to GPS-derived
+values) and attitude-angle errors are coupled via the Schuler oscillation.
+In the case of heading, the measured accelerations are transformed
+to an Earth-reference frame and compared to GPS measurements of acceleration,
+so this also neglects possible biases in the accelerometers. It is
+also necessary that the measurements from the INS and the GPS receiver
+be coincident in time or be shifted to coincide, preferably to a tolerance
+of around 20 ms. With these assumptions, corrections to pitch and
+roll result in residual uncertainties of less than 0.01$^{\circ}$,
+and similar corrections to heading have uncertainty of about 0.01$^{\circ}$
+if there are periodic turns (at about 45-min intervals) that give
+the accelerations required for this estimate.
+
+The algorithms are documented and available as R scripts in supplementary
+material included with this paper. Those algorithms can be applied
+to past measurements as well as future projects to improve the measurements
+of wind. This document is constructed in ways that support duplication
+or extension of the study. The processing programs are incorporated
+into the same file that generates this document, using principles
+and techniques described by \citet{Xie2014a} as implemented in the
+R package \textquoteright knitr\textquoteright{} (\citet{Xie2014b}).
+The core program, \textquoteright AMTD-AAC.Rnw\textquoteright , is
+archived on \textquoteright GitHub\textquoteright{} in the directory
+at https://github.com/WilliamCooper/AMTD-AAC.git. The calculations
+use the programming language R (\citet{Rlanguage}) and were run within
+RStudio (\citet{RStudio2012}), so this is the most straightforward
+way to replicate the calculations and the generation of this document.
+An R package named Ranadu, containing auxiliary functions, is used
+extensively in the R code. It is available on GitHub at https://github.com/WilliamCooper/Ranadu.git.
+It includes functions ``CorrectPitch ()'' and ``CorrectHeading
+()'' that implement the algorithms described here. The supplementary
+material also contains an extensive description of the workflow leading
+to this document. Finally, the data sets are archived by NCAR/EOL/RAF
+and are available via links from http://www.eol.ucar.edu/all-field-projects-and-deployments.
+
+\appendix%
+
+
+\section{Summary of uncertainty in wind measurements}
+
+\global\long\def\myparallel{{\mkern3mu\vphantom{\perp}\vrule depth 0pt\mkern3mu\vrule depth 0pt\mkern3mu}}
+An extensive analysis of uncertainty in the measurements of wind from
+the NSF/NCAR GV is contained in \citet{Cooper2016ncartn}. Here two
+tables from that technical note are reproduced to provide context
+for the importance of the correction procedure described in the present
+note. For justification of the tabulated entries and further description
+of the measuring system, that technical note should be consulted.
+
+Tables~\ref{tab:Elemental-w} and \ref{tab:Elemental-h}summarize
+the results for the measurements of the vertical and horizontal wind.
+The individual elements in the tables are standard uncertainties where
+possible. For horizontal wind, he elemental uncertainties are listed
+separately for the lateral (denoted $\perp$) and longitudinal (denoted
+$\myparallel$) components of the horizontal wind because these depend
+differently on the fundamental measurements.
+
+\begin{table*}
+\centering{}\caption[\foreignlanguage{british}{Elemental contributions to the uncertainty in measurement of vertical
+wind provided by the radome-based system.}]{\selectlanguage{english}%
+\foreignlanguage{british}{Elemental contributions to the uncertainty
+in measurement of vertical wind provided by the radome-based system.
+Separate estimates of systematic error (bias) and random error (which
+is reduced by averaging measurements) are listed, and Type-A uncertainty
+estimates are accompanied by an estimate of the degrees of freedom
+(DOF) when it is smaller than 50. The last two columns represent how
+the tabulated uncertainties propagate to estimates of bias and random
+error in the measurement of vertical wind ($w$). All entries pertain
+to 1-Hz measurements. Entries '--' indicate negligible contribution
+to uncertainty. \label{tab:Elemental-w}ADIFR and BDIFR are pressure
+measurements on the radome for angle of attack and sideslip, AKRD
+coefficients are the calibration coefficients for that pressure, the
+QCF transducer measures dynamic pressure, the PSF transducer measures
+static or ambient pressure, and ATX is the temperature measurement.}\selectlanguage{british}%
+}
+\vskip0.1truein %
+\begin{tabular}{ccccccc}
+\toprule 
+\textbf{element}  & \textbf{uncertainty source}  & \textbf{bias}  & \textbf{random}  & \textbf{DOF}  & \textbf{$\delta w$ bias}  & \textbf{$\delta w$ random }\tabularnewline
+ &  & {[}type{]}  & {[}type{]}  &  & {[}m/s{]}  & {[}m/s{]} \tabularnewline
+\midrule
+\midrule 
+1  & ADIFR transducer  & 0.1~hPa  & 0.1~hPa  & $\gg$50  & --  & 0.05\tabularnewline
+ &  & {[}B{]}  & {[}A{]} &  &  & \tabularnewline
+\midrule 
+2  & AKRD coefficients  & 0.1$^{\circ}$  & 0.001$^{\circ}$  & 10 / $\gg$50\footnote{The two entries represent the degrees of freedom for the Type-A evaluations
+for bias and random uncertainty, respectively.} & 0.04  & 0.004\tabularnewline
+ &  & {[}A{]}/{[}B{]} & {[}A{]} &  &  & \tabularnewline
+\midrule 
+3  & BDIFR transducer  & 0.1~hPa  & 0.1~hPa  & $\gg$50  & --  & --\tabularnewline
+ &  & {[}B{]}  & {[}A{]} &  &  & \tabularnewline
+\midrule 
+4  & QCF transducer  & 0.3~hPa  & 0.1~hPa  & $\gg$50  & <0.02  & 0.001\tabularnewline
+ &  & {[}A{]} & {[}A{]} & (both) &  & \tabularnewline
+\midrule 
+5  & pitch\footnote{for measurement periods short compared to $T_{Sch}/4$}  & 0.01$^{\circ}$  & 0.007$^{\circ}$  & $>50$ & 0.08  & 0.03\tabularnewline
+ &  & {[}A{]} & {[}A{]} & (both) &  & \tabularnewline
+\midrule 
+6  & GV vertical velocity  & 0.03~m/s  & <0.03~m/s  & -- & 0.03  & <0.03\tabularnewline
+ &  & {[}B{]} & {[}B{]} &  &  & \tabularnewline
+\midrule 
+7  & PSF transducer  & 0.1\,hPa  & 0.1\,hPa  & $\approx$5 & --  & --\tabularnewline
+ &  & {[}A{]} & {[}A{]} & (both) &  & \tabularnewline
+\midrule 
+8  & ATX  & 0.3$^{\circ}$  & 0.1$^{\circ}$C  & $\gg$50 & --  & --\tabularnewline
+ &  & {[}A{]} & {[}A{]} & (both) &  & \tabularnewline
+\bottomrule
+\end{tabular}
+\end{table*}
+
+
+\begin{table*}
+\centering{}\protect\caption[Elemental contributions to the uncertainty in measurement of horizontal
+wind by the radome-based system.]{\selectlanguage{english}%
+\foreignlanguage{british}{Elemental contributions to the uncertainty
+in measurement of horizontal wind by the radome-based system. Entries
+'--' indicate negligible contribution to uncertainty. Entries with
+subscript $\perp$ refer to the lateral component of the horizontal
+wind, and those with subscript % indicating parallel $\protect\myparallel$
+refer to the longitudinal component (along the axis of the aircraft).
+See Table~\ref{tab:Elemental-w} for further information on the elements
+in this table. All entries apply to 1-Hz measurements.}\label{tab:Elemental-h}\foreignlanguage{british}{The
+SSRD coefficients represent the calibration for sideslip in terms
+of the radome pressure measurement BDIFR, and $\delta q$ is the correction
+applied to static and dynamic pressure that represents the ``static
+defect,'' the difference between the measured pressure PSF and the
+actual pressure at the flight level. See Table~\ref{tab:Elemental-w}
+for explanation of some of the remaining terms.}\selectlanguage{british}%
+}
+\vskip0.1truein %
+\begin{tabular}{ccccccc}
+\toprule 
+\textbf{element}  & \textbf{uncertainty}  & \textbf{bias}  & \textbf{random}  & \textbf{DOF}  & $\delta u_{\perp,\,\myparallel}$ \textbf{bias}  & $\delta u_{\perp,\,\myparallel}$ \textbf{random }\tabularnewline
+ & \textbf{source}  & {[}type & {[}type{]} &  & {[}m/s{]}  & {[}m/s{]} \tabularnewline
+\midrule
+\midrule 
+1  & BDIFR  & 0.1~hPa  & 0.1~hPa  & $\gg$50  & --  & (0.05, --)\tabularnewline
+ & transducer  & {[}B{]} & {[}A{]} &  &  & \tabularnewline
+\midrule 
+2  & SSRD  & 0.03$^{\circ}$  & 0.002$^{\circ}$  & $\gg$50 & (0.12, --)  & (0.01, --)\tabularnewline
+ & coefficients & {[}B{]} & {[}A{]} &  &  & \tabularnewline
+\midrule 
+3  & ADIFR  & 0.1~hPa  & 0.1~hPa  & $\gg$50 & --  & --\tabularnewline
+ & transducer & {[}B{]} & {[}A{]} &  &  & \tabularnewline
+\midrule 
+4  & QCF  & 0.3~hPa  & 0.1~hPa  & $\gg$50 & (see item 10)  & (--, 0.15)\tabularnewline
+ & transducer  & {[}A{]}  & {[}A{]} & (both)  &  & \tabularnewline
+\midrule 
+5  & heading  & 0.09$^{\circ}$  & 0.04$^{\circ}$  & 5/$\gg$50 & (~0.38, --)  & (0.17, --)\tabularnewline
+ &  & {[}A{]} & {[}A{]} &  &  & \tabularnewline
+\midrule 
+6  & pitch  & 0.02$^{\circ}$  & 0.007$^{\circ}$  & $>50$ & --  & --\tabularnewline
+ &  & {[}A{]} & {[}A{]} & (both) &  & \tabularnewline
+\midrule 
+7  & GV horiz. & 0.03~m/s  & <0.03~m/s  & -- & 0.03  & 0.03\tabularnewline
+ & velocity & {[}B{]} & {[}B{]} &  &  & \tabularnewline
+\midrule 
+8  & PSF  & 0.1\,hPa  & 0.1\,hPa  & $\approx$5 & --  & --\tabularnewline
+ & transducer  & {[}A{]} & {[}A{]} & (both) &  & \tabularnewline
+\midrule 
+9  & ATX  & 0.3$^{\circ}$  & 0.1$^{\circ}$C  & $>$50 & (--, 0.16)  & (--, 0.05)\tabularnewline
+ &  & {[}A{]} & {[}A{]} & (both) &  & \tabularnewline
+\midrule 
+10  & $\delta q$  & 0.2\,hPa  & 0.1\,hPa  & $\gg$50 & (--,~0.3)  & (--,~0.15)\tabularnewline
+ &  & {[}A{]} & {[}A{]} & (both) &  & \tabularnewline
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\begin{acknowledgements}
+The instrument development and data collection were supported by the
+NCAR Earth Observing Laboratory. Data used in this study were collected
+during the DEEPWAVE field campaign led by Ron Smith, Dave Fritts,
+Jim Doyle, Mike Taylor, Steve Eckermann, Steve Smith, Andreas D\"ornbrack,
+and Michael Uddstrom. During this field campaign, based in New Zealand,
+the Research Aviation Facility pilots, mechanics, technicians, and
+software engineers operated the NSF/NCAR Gulfstream~GV. The National
+Center for Atmospheric Research is sponsored by the National Science
+Foundation. 
+
+Almost all of the analyses reported here were performed using R (\citet{Rlanguage}),
+with RStudio (\citet{RStudio2012}) and knitr (\citet{Xie2014a,Xie2014b}).
+The \textquotedbl{}ggplot2\textquotedbl{} package (\citet{wickham2009})
+was used for many of the figures. The effort to make these results
+reproducible benefited greatly from the work represented in these
+analysis tools, especially that provided by Y. Xie. The book by C.
+Gandrud (\citet{Gandrud2014}) and material and presentations related
+to the ``Geoscience Paper of the Future'' (http://www.ontosoft.org/gpf/)
+also had a strong influence on the approach to this work.
+
+\clearpage
+\end{acknowledgements}
+\bibliographystyle{copernicus}
+\bibliography{WAC}
+
+
+\pagebreak{}
+
+<<make-workflow-diagram, echo=FALSE, eval=FALSE>>=
+ 
+## these are saved and inserted into the workflow document
+library(DiagrammeR)
+grViz ("./DGM-PC.dot")
+grViz ("./DGM-HC.dot")
+
+@
+
+
+\end{document}

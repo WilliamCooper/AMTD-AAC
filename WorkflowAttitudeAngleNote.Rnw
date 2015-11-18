@@ -1,0 +1,797 @@
+%% LyX 2.1.4 created this file.  For more info, see http://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[12pt,british,english]{article}
+\usepackage{mathptmx}
+\usepackage[T1]{fontenc}
+\usepackage[letterpaper]{geometry}
+\geometry{verbose,tmargin=3.54cm,bmargin=2.54cm,lmargin=2.54cm,rmargin=2.54cm,headheight=1cm,headsep=2cm,footskip=0.5cm}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}
+\setlength{\parskip}{\medskipamount}
+\setlength{\parindent}{0pt}
+\usepackage{color}
+\usepackage{babel}
+\usepackage{calc}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[authoryear]{natbib}
+\usepackage[unicode=true]
+ {hyperref}
+\usepackage{breakurl}
+
+\makeatletter
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% LyX specific LaTeX commands.
+\providecommand{\LyX}{\texorpdfstring%
+  {L\kern-.1667em\lower.25em\hbox{Y}\kern-.125emX\@}
+  {LyX}}
+%% Because html converters don't know tabularnewline
+\providecommand{\tabularnewline}{\\}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Textclass specific LaTeX commands.
+\newenvironment{lyxcode}
+{\par\begin{list}{}{
+\setlength{\rightmargin}{\leftmargin}
+\setlength{\listparindent}{0pt}% needed for AMS classes
+\raggedright
+\setlength{\itemsep}{0pt}
+\setlength{\parsep}{0pt}
+\normalfont\ttfamily}%
+ \item[]}
+{\end{list}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
+\input colordvi
+\usepackage{color}
+\fancyhead{}
+\fancyfoot[CE,CO]{}
+\newtoks{\addressee} \global\addressee={}
+\newdimen\longindent \longindent=3.5truein
+\fancyhead[L]{Memo to: \the\addressee \\ \datetoday \\ Page \thepage \hfill}
+\renewcommand{\headrulewidth}{0.0pt}
+\newenvironment{lyxlist}[1]
+{\begin{list}{}
+{\settowidth{\labelwidth}{#1}
+\setlength{\leftmargin}{\labelwidth}
+\addtolength{\leftmargin}{\labelsep}
+\renewcommand{\makelabel}[1]{##1\hfil}}}
+{\end{list}}
+\newcommand{\datetoday}{\number\day\space
+     \ifcase\month\or January\or February\or March\or April\or May\or
+     June\or July\or August\or September\or October\or November\or
+     December\fi
+     \space\number\year}
+\newcommand{\EOLmemo}{\null \vskip-1.5truein
+{\raggedright \textsf{\textsc{\large \textcolor{blue}{Earth Observing Laboratory}}}}\par
+{\raggedright \textsf{\textsl{\textcolor{blue}{Memorandum:}}}} \par \vskip6pt
+{\color{blue}{\hrule}}\par
+\vskip0.3truein \leftline{\hskip \longindent \datetoday} \vskip0.2truein
+\thispagestyle{empty}}
+\newcommand{\attachm}[1]{\begin{lyxlist}{Attachments:00}
+\item [Attachments:] {#1}
+\end{lyxlist}}
+\newcommand{\cc}[1]{\begin{lyxlist}{Attachments:00}
+\item [cc:] {#1}
+\end{lyxlist}}
+\newcommand{\attach}[1]{\begin{lyxlist}{Attachments:00}
+\item [Attachment:] {#1}
+\end{lyxlist}}
+%usage: \encl{A\\B\\C} or \cc{ma,e1\\name2\\name3}
+
+\makeatother
+
+\begin{document}
+\EOLmemo 
+
+\global\addressee={AMTD-AAC file, manuscript for AMT}  % >>change "File" to the "To:" name desired
+
+\begin{tabular}{ll}
+\textsf{\textsc{\textcolor{blue}{To:}}} & \the\addressee\tabularnewline
+\textsf{\textsc{\textcolor{blue}{From:}}} & William Cooper\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Subject:}}} & workflow for generating this manuscript\tabularnewline
+\end{tabular}
+
+\bigskip
+
+<<initialization,echo=FALSE,include=FALSE>>=
+
+
+library(knitr)
+opts_chunk$set(echo=FALSE, include=FALSE, fig.lp="fig:")
+opts_chunk$set(fig.width=6, fig.height=5, fig.pos="center", digits=4)
+thisFileName <- "WorkflowAttitudeAngleNote"
+require(Ranadu, quietly = TRUE, warn.conflicts=FALSE)
+require(ggplot2)
+require(grid)
+require(ggthemes)
+Directory <- DataDirectory ()
+Flight <- "rf01" 				# XXX change this
+Project = "DEEPWAVE"			 # XXX change this
+ProjectDir <- "DEEPWAVE"
+fname = sprintf("%s%s/%s%s.nc", Directory,ProjectDir,Project,Flight)
+Data <- getNetCDF (fname, standardVariables())		#XXX set variables needed here
+SaveRData <- sprintf("%s.Rdata", thisFileName)
+
+@
+
+
+\section{Purpose}
+
+This section describes the workflow for the code and text in \textquotedbl{}AMTD-AAC.Rnw\textquotedbl{}
+that generates the manuscript for the proposed journal article ``Algorithms
+for Correcting Measurements of Attitude Angles.'' AMTD-AAC.Rnw contains
+both text (in \LaTeX{} format) and R processing script for the analysis
+in this Technical Note. The description of workflow provided here
+includes the process of collecting the observations and processing
+them to data files, the data archives used, the steps required to
+generate the plots and other results including the instances where
+manual intervention is required to identify appropriate subsets of
+the data, the relevant R code and \LaTeX{} documents, and all the
+steps leading to the generation of the text in the manuscript. \textquotedbl{}AMTD-AAC.Rnw\textquotedbl{}
+is the authoritative reference, but this overview and these diagrams
+will help explain the workflow at a general level and so should substitute
+for reading the R and \LaTeX{} code in most cases. The intent is to
+describe the workflow in sufficient detail to support replication
+of the analysis and figures presented in this manuscript, to facilitate
+changes based on new data or new analysis approaches, and to make
+it practical to apply the proposed algorithms to data collected by
+research aircraft used in atmospheric studies.
+
+This document is proposed to be a journal article, with two purposes:
+(1) to describe a method for correcting attitude angles measured by
+an INS, and (2) to call attention to the NCAR Technical Note ``Uncertainty
+in Measurements of Wind from the NSF/NCAR Gulfstream Aircraft'' \citet{Cooper2016ncartn}.
+An ancillary goal is to provide extensive documentation that can lead
+to full reproducibility of this research using archived and preserved
+information, and this description of the workflow is part of that
+documentation.
+
+
+\section{Acquisition of the primary data}
+
+The measurements used in this report were collected using the NSF/NCAR
+GV research aircraft during the DEEPWAVE project of 2014. The onboard
+data-acquisition program 'aeros' recorded the data in digital format,
+and those data files were then processed by the program 'nimbus' to
+produce an archive in NetCDF format. The software management group
+of NCAR/EOL maintains a version-controlled archive of these programs,
+so if they are of interest they can be obtained by contacting the
+data-management group of EOL (\href{mailto:raf-dm@eol.ucar.edu}{at this }
+or \href{mailto:datahelp@eol.ucar.edu}{this} address). The data files
+available from NCAR/EOL can be found at links on \href{https://www.eol.ucar.edu/all-field-projects-and-deployments}{this URL}.
+The details of the processing algorithms are documented here: \href{https://drive.google.com/open?id=0B1kIUH45ca5Ab2Z6cld1M1cydjA}{Processing Algorithms}.
+These procedures as they pertain to the measurement of wind are also
+documented in \citet{Cooper2016ncartn}. The resulting data files
+contain measurements in scientific units and brief descriptions of
+each measurement, included as netCDF attributes for the files and
+for each variable.. 
+
+
+\section{The AMTD-AAC.Rnw file}
+
+The structure of the .Rnw file is that it is basically \LaTeX{}, generated
+for simplicity using \LyX{} and exported to .Rnw format and then processed
+in RStudio (\citet{RStudio2012}). The .lyx file will run equivalently
+and produce a PDF-format version of the manuscript, but it proved
+easier to tailor the file to Copernicus requirements within RStudio.
+Within that file or within the .lyx file there are ``chunks'' of
+R code (\citet{Rlanguage}), delineated by a header having this format:
+\begin{lyxcode}
+\fbox{\begin{minipage}[t]{1\columnwidth}%
+\begin{lyxcode}
+<\textcompwordmark{}<title,~var=setting,~...>\textcompwordmark{}>=
+
+...R~code
+
+@\end{lyxcode}
+%
+\end{minipage}}
+\end{lyxcode}
+These generate plots and other results of analysis that are incorporated
+into the manuscript using 'knitr' (\citet{Xie2014a,Xie2014b}) In
+RStudio, the chunks appear as gray sections in the file when it is
+edited. Where tasks involve execution of R code, the chunk containing
+the code is referenced in the discussion below. Any results from the
+processing can be incorporated into the \LaTeX{} text via ``\textbackslash{}Sexpr\{\}''
+calls embedded in the \LaTeX{} portion of the file.
+
+The file and the manuscript are organized into two main sections where
+the two correction algorithms, one for pitch and roll and the other
+for heading, are developed. A third section discusses the results
+and presents some checks and estimates of the magnitude of the typical
+corrections, and a final section summarizes the results and also discusses
+some aspects of how reproducibility is documented. The latter topic
+is discussed in much more detail in this workflow description. Each
+of those sections is discussed in some detail in this memo.
+
+
+\section{Required R packages including Ranadu}
+
+The R code used for analysis reported in this paper relies heavily
+on a package of routines for R called ``Ranadu.'' This is a set
+of R scripts for working with the NetCDF archive data files produced
+by NCAR/EOL/RAF, and it includes some convenience routines for generating
+plots and performing other data-analysis tasks with the archived data.
+The Ranadu package is available at this \href{https://github.com/WilliamCooper/Ranadu.git}{GitHub address}
+and is also included in the supplementary material accompanying this
+manuscript. To run the R code referenced here, that package should
+be included in the R installation. The AMTD-AAC.Rnw routine requires
+that package and also some others referenced in the file, including
+``knitr'', ``ggplot2'', ``grid'', ``ggthemes'', ``zoo''
+and ``signal''. In addition, Ranadu requires ``ncdf4'', ``tcltk'',
+``stats'', and ``reshape2''. Some parts of ``Ranadu'' reference
+additional packages as needed, but they are not used in AMTD-AAC.Rnw
+so do not need to be available for this routine to run.
+
+The data processing for this manuscript involved revising some parts
+of the Ranadu package, as listed below. The relative timing among
+measurements is particularly important in this study, so some development
+of utilities to aid in studies of timing was useful. The netCDF files
+sometimes have mixed rates, e.g., 5\_Hz for GPS-provided measurements
+and 25~Hz for some others including interpolation to 25~Hz from
+13~Hz for IRS-provided measurements. In ``Ranadu'', this required
+some modifications to getNetCDF(), which generates an R data.frame
+by reading the netCDF file, and the addition of a new function ShiftInTime()
+to shift particular variables forward or backward in time, as described
+below.
+
+
+\subsection{getNetCDF () modifications}
+
+To handle data files with mixed-rate variables (e.g., 5-Hz GPS but
+25-Hz IRS and others at 1 Hz), this script for reading the netCDF
+data files incorporates code to produce a single-rate R data.frame.
+For this purpose, there is a function ``IntFilter()'' in that script
+that interpolates and filters variables. The RAF data archives follow
+the convention that each sample is tagged with a time that is the
+\emph{beginning} of the time interval, not the center. For example,
+for 50-Hz samples averaged to one second, the sample represents the
+average of 50 samples beginning at the specified time and so should
+be interpreted as a sample average at 0.5~s past that specified time.
+The ``IntFilter()'' routine observes this convention by interpolating
+a low-rate sample to the specified higher rate and then shifting the
+resulting time series forward in time by half the original time interval,
+with duplication of the first measurement to fill the initial 1/2-period
+slots and also replication of the trailing 1/2-period slots that are
+not filled by the linear interpolation routine. Tests verified that
+this provided an appropriate representation of the measurement as
+interpolated to the higher rate and shifted forward to match other
+higher-rate measurements.
+
+
+\subsection{ShiftInTime ()}
+
+To shift time series variables forward or backward, this new function
+was added to the ``Ranadu'' package. The function interpolates the
+supplied time series to a higher rate (125~Hz), uses the R function
+``stats::approx()'' for linear interpolation, shifts the interpolated
+series an appropriate number of bins forward or backward (duplicating
+or truncating the end values as necessary), optionally applies a smoothing
+filter, and then returns an appropriate subset to represent the time
+series at the original sample rate.
+
+
+\subsection{XformLA ()}
+
+The algorithm for heading correction requires that the accelerations
+measured by an inertial navigation system (IRS) be transformed from
+the aircraft or $a$-frame reference coordinates to a local-level
+Earth-relative frame or $l$-frame in which the \{x, y, z\} coordinates
+are respectively east, north, and up. This transformation was coded
+as a new ``Ranadu'' function. This function takes as input a data.frame
+containing the attitude angles measured by the INS is variables named
+PITCH, ROLL, and THDG (true heading), all in units of degrees. It
+transforms an $a$-frame vector to an $l$-frame vector and returns
+the result. It would be preferable to do this in vectorized form,
+but such a representation hasn't yet been found, so the function uses
+a loop. As noted in the routine, the approach using R 'apply()' functions
+was slower than the loop, but that is because the specific approach
+tried here is likely unnecessarily convoluted. This is an area of
+needed improvement, but the loop as coded is practical and adequate
+for this study. 
+
+The transformation coded in this routine was obtained in standard
+ways using rotations $\phi$ about the roll axis, then $\theta$ about
+the pitch axis, and then $\psi$ about the heading axis. The text
+lists sources for this transformation, but they differ from the matrix
+used here in that this transformation starts from what is called here
+the $a$-frame or aircraft reference frame with $x$ forward, $y$
+starboard, and $z$ downward and transforms to the local frame or
+$l$-frame with $x$ east, $y$ north, and $z$ upward. The transformation
+matrix $\mathbf{R}_{a}^{l}$ is obtained as follows, where the first
+matrix changes the axis definitions:\\
+\[
+\mathbf{R}_{a}^{l}=\left(\begin{array}{ccc}
+0 & 1 & 0\\
+1 & 0 & 0\\
+0 & 0 & -1
+\end{array}\right)\left(\begin{array}{ccc}
+\cos\psi & -\sin\psi & 0\\
+\sin\psi & \cos\psi & 0\\
+0 & 0 & 1
+\end{array}\right)\left(\begin{array}{ccc}
+\cos\theta & 0 & -\sin\theta\\
+0 & 1 & 0\\
+\sin\theta & 0 & \cos\theta
+\end{array}\right)\left(\begin{array}{ccc}
+1 & 0 & 0\\
+0 & \cos\phi & \sin\phi\\
+0 & -\sin\phi & \cos\phi
+\end{array}\right)
+\]
+\\
+\[
+R_{a}^{l}=\begin{bmatrix}\sin\psi\cos\theta & \sin\psi\sin\theta\sin\phi+\cos\psi\cos\phi & \cos\psi\sin\phi-\sin\psi\sin\theta\cos\phi\\
+\cos\psi\cos\theta & \cos\psi\sin\theta\sin\phi-\sin\psi\cos\phi & -\cos\psi\sin\theta\cos\phi-\sin\psi\sin\phi\\
+-\sin\theta & \cos\theta\sin\phi & -\cos\theta\cos\phi
+\end{bmatrix}
+\]
+
+
+
+\subsection{CorrectPitch () and CorrectHeading ()}
+
+Two scripts were also included in the ``Ranadu'' package to calculate
+the corrections to pitch, roll, and heading as described in the manuscript.
+They are discussed below in the respective sections for those two
+corrections.
+
+
+\section{The pitch-correction algorithm}
+
+
+\subsection*{Manuscript Section 2.1: The basis for the correction}
+
+After an introduction, Sect.~2 of the manuscript develops and applies
+the algorithm for correcting pitch and roll. Section~2.1 is an outline
+of basic theory, as also developed in more detail in \citet{Cooper2016ncartn}.
+This is based on standard analysis such as is available in \citet{noureldin2013fundamentals}.
+One subtlety may be worth mention here. The Schuler oscillation involves
+coupling among the errors in Earth-relative velocity, pitch or roll
+angle, and latitude or longitude. These are strongly coupled through
+the INS in order to maintain bounds on the growth of the errors. The
+choice developed here, represented in Equations (2) and (3), is to
+relate the pitch or roll errors to the acceleration errors. An acceleration
+error also leads to a position error and so to errors in latitude
+and longitude, and it might appear that those errors should also enter
+the error in pitch, but the IRS includes the measured acceleration
+and so the measured position in its integration and so already compensates
+the measured pitch for this error. Other representations of the Schuler
+coupling among these errors could be used, but they are equivalent
+so it is most straightforward to represent the error in pitch or roll
+in terms of the errors in acceleration. 
+
+
+\subsection*{Manuscript Section 2.2: An example}
+
+In general, it is necessary to transform the errors in pitch obtained
+from (2) and (3) to the reference frame of the aircraft, but there
+is one flight of the NSF/NCAR GV that was almost directly southbound
+for the full flight so for that flight the angle transformations are
+not necessary except for the need to reverse the signs of the pitch
+and roll errors to account for the flight direction. For the purpose
+of illustrating how the pitch error is coupled to the ground-speed
+errors through the Earth-relative acceleration, measurements from
+that flight (from 1 June 2014, flying from Kona, Hawaii to Pago-Pago)
+were used. Figure 1, top, shows the ground-speed errors estimated
+by the difference between IRS-provided measurements and those from
+a GPS receiver. In the data file for this flight, these are variables
+\{VEW, VNS\} from the INS and \{GGVEW, GGVNS\} from the GPS receiver.
+The netCDF file was called DEEPWAVEff02.nc, and the plot was generated
+in R chunk ``v-errors-straight-leg'' using ``plotWAC()'' and ``lineWAC()'',
+convenience functions in Ranadu that call the standard R graphics
+routines with particular options. For the bottom plot, the derivatives
+of the error components shown in the top plot were calculated using
+signal::sgolayfilt(), which has the option of calculating the derivative
+while using a Savitzky-Golay filter. A length of 1013 points was chosen
+because that spans about 1/5 of a Schuler oscillation, and a third-order
+filter was chosen. There are about 15~s of missing values in the
+time series for VEW and VNS, and the filter call fails if the time
+series includes missing values, so before calling the filter the routine
+zoo::na.approx() was used to interpolate across the gap. The steps
+in the correction algorithm will be discussed again in the subsequent
+section where the pitch-correction function is described.
+
+
+\subsection*{Manuscript Section 2.3: Transformation of the attitude angles}
+
+This section develops the transformation needed to obtain the pitch
+and roll errors in the aircraft-body frame or $a$-frame from the
+$l$-frame errors provided by (2) and (3). The transformation is a
+simple rotation by the negative of the heading angle. The transformation
+is developed by using a unit vector representing the platform orientation
+and considering how the components of that unit vector transform under
+rotation. The the definitions of the pitch and roll angles are used
+in Eqs.~(6) to obtain the pitch and roll errors in the $a$-frame.
+The signs can be checked as follows: For $\psi=\pi/2$, $\delta\theta^{(a)}=-\delta\phi^{(l)}$
+and $\delta\phi^{(a)}=\delta\theta^{(l)}$; for $\psi=-\pi/2,$ $\delta\theta^{(a)}=\delta\phi^{(l)}$
+and $\delta\phi^{(a)}=-\delta\theta^{(l)}$; and for $\psi=\pi$ both
+components change sign. This conforms to expected behavior from visualization
+of the misalignment vector under these conditions.
+
+
+\subsection*{The Ranadu::CorrectPitch() function:}
+
+<<pitch-correction-workflow, include=FALSE, eval=FALSEfig.cap="General workflow diagram for the Ranadu function CorrectPitch(), which returns error values of pitch and roll that should be subtracted from the measurements.">>=
+
+library (DiagrammeR)
+setwd ("~/RStudio/DEEPWAVE/WindUncertainty")
+grViz ("./DGM-PC.dot", engine='dot')
+
+@
+
+\begin{figure}
+\noindent \begin{centering}
+\includegraphics[width=0.9\textwidth]{DGM-PC}
+\par\end{centering}
+
+\caption{Workflow diagram for the Ranadu function CorrectPitch(), which returns
+estimates of errors in measurements of pitch and roll. The returned
+values, with units of degrees, should be subtracted from the measurements
+to obtain corrected values.\label{fig:pitch-correction-workflow}}
+
+
+\end{figure}
+
+
+A function to calculate the errors in pitch and roll was developed
+and incorporated into the Ranadu package on the basis of the above
+steps, to facilitate correction of the measurements. That function
+is described in detail here, and the authoritative reference is the
+code contained in ``PitchCorrection.R'' at the Ranadu GitHub site
+referenced earlier. The function takes as input a data.frame containing
+the variables VNS, VEW, GGVNS, GGVEW, LAT or LATC, GGALT, PITCH, ROLL,
+and THDG, which are respectively the north and east component of the
+ground speed from the IRS, the corresponding components from the GPS,
+the latitude, the geometric altitude, and the pitch, roll, and heading
+angles, in units of m\,s$^{-1}$ or m or $^{\circ}$ as appropriate.
+A workflow diagram for the function is shown in Fig.~\ref{fig:pitch-correction-workflow}.
+The steps in the algorithm are these:
+\begin{enumerate}
+\item Determines the data rate of the input data.frame from the time difference
+between samples. If it is higher than 1~Hz, extract a working 1-Hz
+data frame to use for the calculations. This greatly improves performance
+for high-rate files. 
+\item Interpolate to fill in missing values for VNS, VEW, GGVNS, GGVEW,
+using the zoo::na.approx() function. If there are remaining missing-value
+elements in the time series (which can occur if the gaps exceed 1000~s),
+set the values to zero for those regions to avoid failure at the next
+step. The variable MaxGap in the function determines the maximum gap
+for interpolation; it can be changed only by changing the code.
+\item Calculate the derivatives of the error terms (VNS-GGVNS) and (VEW-GGVEW)
+using third-order Savitzky-Golay filters, specifically the R function
+signal::sgolayfilt(). Use a span of 1013 points (changeable via an
+argument to CorrectPitch()) and calculate the first derivative by
+supplying an appropriate argument (m=1) to the filter routine.
+\item Calculate the acceleration of gravity as a function of latitude and
+altitude using the Ranadu function Gravity() and divide the derivatives
+(with appropriate sign) by this value to get the $l$-frame errors
+in pitch and roll.
+\item Transform the result to the $a$-frame using manuscript equation (6).
+\item If the data rate of the original data.frame is higher than 1~Hz,
+interpolate the result in terms of the temporary 1-Hz data.frame to
+the original rate.
+\item Return a two-dimensional array with the two components being the $a$-frame
+errors in pitch and roll, so that the result can be used to obtain
+corrected values of the pitch and roll via\\
+\texttt{~~~~PITCHC <- D\$PITCH - CorrectPitch (D){[},1{]}}~\\
+\texttt{~~~~ROLLC ~<- D\$ROLL - CorrectPitch (D){[},2{]}}
+\end{enumerate}
+All steps in this function are vectorized, to operate on the entire
+time series in vectorized function calls. Even for high-rate data.frames,
+the processing involves little delay: On a modest linux desktop system,
+processing a 7-h 25-Hz file takes about 2~s.
+
+
+\section*{Applanix studies}
+
+Mention is included here of an attempt to use an INS with incorporated
+Kalman filter as a reference, even though that did not prove useful.
+During the DEEPWAVE project, files from an Applanix INS were recorded
+at 10~Hz, so those can be compared to the measurements from the standard
+Honeywell IRS without Kalman filtering but adjusted using the procedures
+developed in this note. Several problems were encountered when attempting
+to use the measurements from the Applanix, so this line of investigation
+was abandoned, although it may be worth further investigation, especially
+because there are post-processing steps available for the Applanix
+unit that improve the measurements. Without such post-processing,
+these problems led to difficulties:
+\begin{enumerate}
+\item The Applanix and Honeywell units were evidently installed with mean
+differences in orientation of about 0.1$^{\circ}$ in all three attitude
+angles. Because the heading algorithm applied to the Honeywell measurements
+indicated a net offset, it was unresolved if the difference arose
+from installation differences or from IRS differences. The corrected
+heading from the Honeywell IRS differed from the Applanix heading
+more than the uncorrected heading from the Honeywell IRS, but it could
+be the case that this indicates an installation-angle difference.
+The standard deviation of the differences of the corrected or uncorrected
+Honeywell heading vs the Applanix heading were essentially the same.
+\item The available measurements included body accelerations and components
+labeled as x, y, and z velocity and x, y, and z body acceleration,
+but these don't match any of the velocities or accelerations (body
+or local) determined from the Honeywell system, so it is unclear what
+these represent. For example, they can't be used to determine the
+orientation of the Applanix system by comparing ground-speed components
+to those determined from the GPS because the measurements do not appear
+to be valid representations of the ground-speed components. 
+\end{enumerate}
+
+\section*{Notes regarding pitch uncertainty}
+
+Modern GPS receivers, especially if augmented by special signals or
+special processing, produce 1-Hz measurements with uncertainty of
+around 0.03\,m\,s$^{-1}${[}ref{]} The consistency of the Schuler
+oscillation, as illustrated by the top panels in Figs.~1 and 2, suggest
+that derivatives in velocity can be determined by averaging over periods
+of at least 10 min or more, so if the ground-speed measurements from
+the INS have uncertainty of about 0.03\,m\,s$^{-1}$ (where variance
+spectra for the 1-Hz measurements begin to show noise), the uncertainty
+in differences between these two signals might be expected to be $0.03\,\sqrt{2}\approx0.04$\,m\,s$^{-1}$,
+and averaged over 10~min or perhaps 60 autocorrelation times the
+resulting difference could be resolved to $0.04/\sqrt{60}\approx0.005$\,m\,s$^{-1}$.
+Over intervals separated by 10\,min, the derivative then might be
+determined to $0.005\times1/600\approx10^{-5}$\,m\,s$^{-2}$, leading
+to an uncertainty in the pitch correction from (\ref{eq:delta-theta})
+of about 10$^{-6}$ or 0.00005$^{\circ}$. S-G polynomials reduce
+noise in an average by a factor of $\sqrt{(3(3m^{2}-7)/4m(m^{2}-4)}\simeq0.05$
+for m=1013 or $0.06$ for m=601. $0.04*0.06=0.0024$m/s, 600-s separation
+gives acceleration uncertainty of about $0.0024/600=4e-6$ or pitch
+uncertainty of 2e-5$^{\circ}$. Reference: Ziegler, Horst (1981).
+\textquotedbl{}Properties of Digital Smoothing Polynomial (DISPO)
+Filters\textquotedbl{}. Applied Spectroscopy 35 (1): 88\textendash 92.
+doi:10.1366/0003702814731798.
+
+\begin{figure}
+\noindent \begin{centering}
+\includegraphics[width=0.95\textwidth]{../../Reprocessing/DGF}
+\par\end{centering}
+
+\caption{\selectlanguage{british}%
+Workflow chart for the ``FilterForWIC'' project, with reference
+file ``FilterForWIC.Rnw''.\selectlanguage{english}%
+}
+\end{figure}
+The workflow is organized into five tasks, shown schematically in
+Fig.~1 and discussed in the numbered items below:
+\begin{enumerate}
+\item \emph{Documentation. }The first task is to provide documentation for
+what is being done. In this case, that has taken the form of a memo
+generated earlier, called \href{https://drive.google.com/open?id=0B1kIUH45ca5AOXNueHBuS3plVHc}{WICforHIPPO.pdf},
+that describes the problem and the approach being taken. There is
+also some \LaTeX{} text incorporated into the file FilterForWIC.Rnw
+to provide some context for the processing. That file starts with
+a large amount of header information typical for a \LaTeX{} file generated
+via \LyX{}. From the start to ``\textbackslash{}begin\{document\}''
+this can be ignored and left in place. The table that follows provides
+a header for the memo to be generated. For the HIPPO project, there
+is additional information on the quality of the vertical wind measurements
+in notes describing the results of data-quality review. Those notes
+are in these documents: \href{https://drive.google.com/open?id=1joGHoiv1-ky2XQHevu3jYYFyLZYRbLh9RVMM4by2S80}{HIPPO-1},
+\href{https://drive.google.com/open?id=1qDzsTZnvOoxjcQIxQRtMp4oWumV-M431HVqfsDVIqr8}{HIPPO-2},
+\href{https://drive.google.com/open?id=1q9yHJzyo0L-PMQuD-83UQeGEIY5P7PFotpJGduOYpVg}{HIPPO-3},
+\href{https://drive.google.com/open?id=1bNQap0oWBio74soe23NNtZKUeu2shwJDzwsSePtvLo0}{HIPPO-4},
+\href{https://drive.google.com/open?id=1f87_reAR198TGOHZ5C3bUhiPXcnOzOdVKhCDFgS6tPo}{HIPPO-5}.
+\item \emph{Selecting the project, flight, and options.} 
+
+\begin{enumerate}
+\item The file processes a single flight for each run and must be run repeatedly
+to process an entire project. For each run, it is necessary to specifu
+the ``Project'' (e.g., ``HIPPO-5''), the ``Flight'' (e.g., ``rf05''),
+and the variable to be used for WIX in the revised file (e.g., ``WIF''
+for the filtered result). There are several ways to specify these
+arguments. The simplest is the edit the appropriate lines in the first
+``chunk'' named ``initialization'' when running in RStudio. The
+option for WIX is specified as the text variable ``Wchoice''; i.e.,
+Wchoice <- ``WIF''. The default cutoff period for the filter is
+600 s, but this can be changed by changing the variable ``CutoffFreq''
+where it is set in the ``initialization'' chunk. This value is adjusted
+later if necessary to match the data rate of the file being produced.
+A batch-processing approach that permits passing the run parameters
+as arguments is described in task 5.
+\item Once initialization arguments are specified, the same R chunk uses
+a call to ``Ranadu::getNetCDF()'', part of the ``Ranadu'' package
+for RAF data manipulations, to fetch the needed variable(s), in this
+case just WIC, from the data file. The Ranadu package is installed
+on tikal.eol.ucar.edu and is also available from github at \href{https://github.com/WilliamCooper/Ranadu.git}{this URL}.
+When the ``Data'' data.frame is created by Ranadu::getNetCDF(),
+it is created with attributes matching those of the netCDF file, so
+those dimensions are checked to determine the data rate of the file
+(1, 25, or 50 Hz) so that the filter time constant can be adjusted
+appropriately.
+\item Next the netCDF file is copied, to avoid changing the original file.
+The copy has the same name with an ``F'' added before the final
+``.nc''. The copy is then opened for read/write operations using
+the ``nc\_open()'' function provided by the R package ``ncdf4'',
+which must be one of the R packages available. (It is present on tikal.eol.ucar.edu
+and can be obtained from the standard ``RTAN'' repository for R.) 
+\end{enumerate}
+\item \emph{Constructing the filtered result. }(R chunk ``filter-WIC'')
+
+\begin{enumerate}
+\item The filter function to be used with return an error if the time series
+has missing values, so the first step is to interpolate to fill short
+gaps in the time series. If gaps are present that are longer than
+100 s, the interpolation will be skipped, but after interpolation
+any still-missing values are set to zero. 
+\item The ``CutoffFreq'' (default: 600 s) is then multiplied by the data
+rate of the file as determined in 2b above.
+\item The filtering itself is accomplished by a call to the R function ``signal::filtfilt()''
+provided by the R package ``signal''. This function applies recursive
+filter coefficients to the time series forward and backward to avoid
+phase delays. The coefficients are determined by a call to ``signal::butter()'',
+which as implemented provides third-order Butterworth filter coefficients
+having the specified cutoff period. The result is added to the data.frame
+``Data'' as variable ``Data\$WIF''.
+\item In the .Rnw implementation, the result for WIF is plotted along with
+the original ``WIC'' and the plot is placed in the documentation
+memo by ``knitr''. The plot is generated by a call to ``Ranadu::plotWAC()'',
+documented as part of the ``Ranadu'' package. A title is placed
+above the plot to record the project and flight. These run characteristics
+also appear in the text of the generated memo.
+\end{enumerate}
+\item \emph{Adding WIF to the netCDF file }(R chunk ``add-to-netCDF-file'')
+
+\begin{enumerate}
+\item The funcion calls used to add the variable to the new file are provided
+by the R package ncdf4, so documentation for that package can be consulted
+for more details. Calls to ``ncvar\_def()'' construct definitions
+of the two variables to be added, here saved in variables named ``varF''
+and ``varX''. The dimensions of these variables were determined
+earlier in the ``get-netCDF-file'' chunk where they were saved in
+the variable ``Dim'' that is one of the arguments provided here.
+Long names and units for the new variables are provided in these calls
+and can be changed as needed; the missing-value entry normally should
+stay as listed. The variable then is added to the netCDF file definition
+by calls to ``ncvar\_add()''. Note that this function returns a
+new descriptor for the file, here called ``newfile'', so that argument
+must be supplied to the second ``ncvar\_add()'' call so that both
+variables will be added. Note also that, at this point, the data values
+for the variable have not been included and still need to be added.
+\item The variable attributes for the new variables are set in two steps.
+First, because these variables are derived from WIC and should have
+most of the same attributes, a function ``copy\_attributes()'',
+defined at the beginning of this R chunk, is used to copy WIC attributes
+to the new variables. Second, calls to ``ncatt\_put()'' are used
+to change or add attributes as needed. Here the ``standard\_name''
+and ``Dependencies'' attributes are changed and, for WIF, an attribute
+specifying the ``filter\_time\_constant'' is added.
+\item ``ncvar\_put()'' calls then write the data values for the new variables
+into the new netCDF file description. 
+\item The final call to ``nc\_close()'' is important because it is at
+this point that the new file is written.
+\end{enumerate}
+\item \emph{Batch steps and reproducibility.}
+
+\begin{enumerate}
+\item The reference file for this process, ``FilterForWIC.Rnw'', can be
+used repeatedly to process a series of files, but the process requires
+awkward editing of that file. A better process for batch processing
+is to extract the R code from that file and run the result as an R
+script. To do this:
+
+\begin{enumerate}
+\item Run knitr::purl(``FilterForWIC.Rnw'') from within R or RStudio.
+That extracts the R code into a file named ``FilterForWIC.R''. 
+\item This script can be used with run-time arguments as follows: \\
+Rscript FilterForWIC.R HIPPO-5 rf03 WIF 600\\
+where the arguments are the project name, file name, variable selected
+for WIX, and the filter time constant. A batch file consisting of
+a series of lines like the above can then be used to process all flights
+in a given project. If the full sequence is not provided, defaults
+are used (HIPPO-5 rf02 WIF 600) so, for example, it is adequate to
+use ``Rscript FilterForWIC.R HIPPO-4 rf05''. However, arguments
+must be provided in this order.
+\end{enumerate}
+\item It will be necessary to determine which variable, WIC or WIF, should
+be selected for WIX, unless the same choice is made for all flights
+in the batch-processed project. The data-quality-review notes referenced
+above have comments regarding how well WIC performed and when WIF
+is prefeerable, so these may be useful where such data review has
+already occurred. However, some review may be needed. One approach
+that might be useful is to use the plots generated by each Rscript
+run. These are left in a file called Rplots.pdf, so in batch processing
+it might be useful to intersperse lines in the batch file like ``mv
+Rplots.pdf Rplotrf02.pdf'' to save all the plots for review after
+the batch run.
+\item Included in the workflow for this process of adding WIF to the files
+is documentation for reproducibility. In the ``FilterForWIC.Rnw''
+file, there is an appended section on reproducibility. That section
+references the R variable ``thisFileName'', set in the ``initialization''
+chunk in this case to ``FilterForWIC''. For new uses, that should
+be changed to an appropriate name. In the Reproducibility section,
+that variable then specifies the .Rnw, .pdf, and .Rdata files as well
+as where the project archive (consisting of a zip file containing
+the attachments) is located, in this case on github. Some special
+steps are required to construct this archive:
+
+\begin{enumerate}
+\item Ensure that the text entries in the reproducibility table are correct,
+editing if necessary.
+\item Check that the ``make-zip-archive'' chunk defines the zip archive
+to have the desired components for archival.
+\item Construct the workflow description (this document) as a PDF file and
+place it in the same directory where the .Rnw routine is located.
+In this case, I used a file called DGF.dot and the R routine DiagrammeR::gfViz()
+to construct the workflow chart, and I included DGF.dot in the zip
+archive as an example. This chart was exported from RStudio to DGF.png
+and then placed into the workflow description.
+\item after processing, transfer the generated zip archive as indicated,
+in this case to github. This step is not automatic and so requires
+a special manual step.
+\end{enumerate}
+\end{enumerate}
+\end{enumerate}
+
+\subsection*{Data Derivation Graph}
+
+In case it will be useful, the structure of the R code in this routine
+is also presented here in a DDG (Data Derivation Graph) format, generated
+using the R package RDataTracker\footnote{Lerner B, Boose E, Ellison A, Osterweil L. 2014. Scientific Data Provenance
+in R: RDataTracker and DDG Explorer. Harvard Forest Data Archive:
+HF091.} and the java routine DDGExplorer\footnote{ibid.}. Two plots are
+presented, one a high-level plot showing the individual R ``chunks''
+and another providing an expanded view of the filtering step in chunk
+``filter-WIC''. The other sections can also be expanded to provide
+more detail. This is available by running DDGExplorer.jar and selecting
+the file ``FilterForWIC.R'' with time-tag 2015-10-22T00.58.54MDT,
+saved in the directory \textasciitilde{}cooperw/.ddg on tikal.eol.ucar.edu.
+That provides an interactive display that can be used to check values
+of variables, expand or collapse sections (via mouse right-click),
+move or rearrange the diagram, etc.
+
+\selectlanguage{british}%
+\noindent \begin{center}
+\includegraphics[width=0.95\textwidth]{../../Reprocessing/DDGExplorerFilterForWIC1}
+\par\end{center}
+
+\noindent \begin{center}
+\includegraphics[width=0.95\textwidth]{../../Reprocessing/DDGExplorerFilterForWIC2}
+\par\end{center}
+
+\selectlanguage{english}%
+\clearpage
+
+\selectlanguage{british}%
+\bibliographystyle{copernicus}
+\bibliography{WAC}
+
+
+\selectlanguage{english}%
+\begin{center}
+\textsf{\textcolor{blue}{-- End of Memo --}}
+\par\end{center}
+
+Reproducibility:
+
+\begin{tabular}{ll}
+\textsf{\textsc{\textcolor{blue}{Project:}}} & \Sexpr{thisFileName}\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Archive package:}}} & \Sexpr{thisFileName}.zip\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Contains:}}} & attachment list below\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Program:}}} & \Sexpr{thisFileName}.Rnw\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Original Data:}}} & /scr/raf\_data/\Sexpr{Project}/\Sexpr{Flight}.nc \tabularnewline
+\textsf{\textsc{\textcolor{blue}{Workflow:}}} & Workflow\Sexpr{thisFileName}.pdf\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Git:}}} & https://github.com/WilliamCooper/\Sexpr{thisFileName}.git\tabularnewline
+\end{tabular}
+
+\attachm{\Sexpr{thisFileName}.Rnw\\\Sexpr{thisFileName}.pdf\\\Sexpr{SaveRData}\\SessionInfo}
+%\cc{first attachment\\second\\3rd att}
+%\attach{attachment}
+%\attachm{first\\second} %\cc{first attachment\\second\\3rd att}
+<<save-system-info, echo=FALSE>>= 
+cat (toLatex(sessionInfo()), file="SessionInfo")
+
+@ 
+<<make-zip-archive, echo=TRUE, INCLUDE=TRUE>>=
+system (sprintf("zip %s.zip %s.Rnw %s.pdf Workflow%s.pdf SessionInfo %s", thisFileName, thisFileName, thisFileName, thisFileName, SaveRData))
+
+@ 
+
+% \attach{attachment}
+
+% \attachm{ProgramFile\\Document.pdf\\SaveRData}
+
+%\cc{first attachment\\second\\3rd att}
+\end{document}

@@ -1,0 +1,51 @@
+digraph GPC {
+  subgraph "cluster3" {
+    node [style=filled,color=white,fontcolor=blue];
+    style=filled;
+    color=lightgrey;
+    "construct high-\nrate variables\nby interpolation" -> "concatenate to matrix" -> "set dimensions of matrix" [weight=9];
+    label="calculate matrix to return";
+  }
+  subgraph "cluster2" {
+    node [style=filled,color=white,fontcolor=blue];
+    style=filled;
+    color=lightgrey;
+    "divide derivatives\nby g" -> "rotate to a-frame" [];
+    label="find errors";
+  }
+  subgraph "cluster1" {
+    node [style=filled,color=white,fontcolor=blue];
+    style=filled;
+    color=lightgrey;
+    "Savitzky-Golay filter\napplied to velocity errors" [];
+    label="calculate derivatives";
+  }
+  subgraph "cluster0" {
+    node [style=filled,color=white,fontcolor=blue];
+    style=filled;
+    color=lightgrey;
+    "check for\nrequired variables" -> "construct 1-Hz version\nif needed" -> "select latitude variable" -> "interpolate for\nmissing values" [weight=9];
+    label="prepare data.frame";
+  }
+    
+  size ="8,6";
+   node [style=filled, color=lightblue];
+  "CorrectPitch ()" [shape=Mdiamond];
+  "Return" [shape=Mdiamond];
+   node [style=filled, color=white];
+  ## {rank=same;"check for\nrequired variables";"Savitzky-Golay filter\napplied to velocity errors";"construct high-\nrate variables\nby interpolation";}
+  "Savitzky-Golay filter\napplied to velocity errors" [shape=box, width=3];
+  "construct 1-Hz version\nif needed" [shape=box, width=2.5]
+  "construct high-\nrate variables\nby interpolation" [shape=box,width=2];
+  "divide derivatives\nby g" [shape=box, width=2];
+  "check for\nrequired variables" [shape=box,width=2.2]
+  "interpolate for\nmissing values" [shape=box,width=2.2]
+  "rotate to a-frame" [shape=box, width=2];
+  "CorrectPitch ()" -> "check for\nrequired variables" [weight=8];
+  "CorrectPitch ()" -> "Savitzky-Golay filter\napplied to velocity errors" [weight=8];
+  "Savitzky-Golay filter\napplied to velocity errors" -> "divide derivatives\nby g" [weight=8];
+  "CorrectPitch ()" -> "construct high-\nrate variables\nby interpolation" [weight=8];
+  "set dimensions of matrix" -> "Return" [weight=1]
+  "rotate to a-frame" -> "Return" [style="invis",weight=1]
+  # "interpolate for\nmissing values" -> "Savitzky-Golay filter\napplied to velocity errors" [color=red, weight=0]
+}

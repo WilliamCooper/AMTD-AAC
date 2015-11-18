@@ -1,0 +1,55 @@
+digraph GHC {
+  subgraph "cluster0" {
+    node [style=filled,color=white,fontcolor=blue];
+    style=filled;
+    color=lightgrey;
+    "check for\nrequired variables" -> "construct 1-Hz version\nif needed" -> "interpolate for\nmissing values" [weight=9];
+    label="prepare data.frame";
+  }
+  subgraph "cluster1" {
+    node [style=filled,color=white,fontcolor=blue];
+    style=filled;
+    color=lightgrey;
+    "Savitzky-Golay filter\napplied to GPS velocity"->"transform a-frame\naccelerations\nto l-frame"->"correct accelerations\nfor rotation terms" [];
+    label="calculate accelerations";
+  }
+  subgraph "cluster2" {
+    node [style=filled,color=white,fontcolor=blue];
+    style=filled;
+    color=lightgrey;
+    "calculate estimates\nof error using (10)"-> "accumulate measurements\nfrom turns"->"form data.frame holding\naverage values from\nqualified turns" [weight=8];
+    label="find error in heading";
+  }
+  subgraph "cluster3" {
+    node [style=filled,color=white,fontcolor=blue];
+    style=filled;
+    color=lightgrey;
+    "fit cubic spline\nto sets of measurements\nfrom turns"->"construct sample-\nrate variables\nusing fitted spline" [weight=9];
+    label="calculate vector\nto return";
+  }
+    
+   size ="8,6";
+   node [style=filled, color=lightblue];
+  "CorrectHeading ()" [shape=Mdiamond];
+  "Return" [shape=Mdiamond];
+   node [shape=box,style=filled, color=white];
+  ##{rank=same;"check for\nrequired variables";"Savitzky-Golay filter\napplied to GPS velocity";"calculate estimates\nof error using (10)";"construct sample-\nrate variables\nusing fitted spline";}
+  "Savitzky-Golay filter\napplied to GPS velocity" [shape=box, width=3];
+  "construct 1-Hz version\nif needed" [shape=box, width=2.5]
+  "construct sample-\nrate variables\nusing fitted spline" [shape=box,width=2];
+  "fit cubic spline\nto sets of measurements\nfrom turns" [shape=box, width=2.5]
+  "transform a-frame\naccelerations\nto l-frame" [shape=box,width=2.2]
+  "calculate estimates\nof error using (10)" [shape=box, width=2];
+  "check for\nrequired variables" [shape=box,width=2.2]
+  "interpolate for\nmissing values" [shape=box,width=2.2]
+  "accumulate measurements\nfrom turns" [shape=box, width=3];
+  "form data.frame holding\naverage values from\nqualified turns" [shape=box,width=3]
+  "CorrectHeading ()" -> "check for\nrequired variables" [label='(1)',fontcolor=red,weight=8];
+  "CorrectHeading ()" -> "Savitzky-Golay filter\napplied to GPS velocity" [label='(2)',fontcolor=red,weight=8];
+  #"transform a-frame\naccelerations\nto l-frame" -> "divide derivatives\nby g" [weight=8];
+  "CorrectHeading ()" -> "calculate estimates\nof error using (10)" [label="(3)",fontcolor=red,weight=8]
+  "CorrectHeading ()" -> "fit cubic spline\nto sets of measurements\nfrom turns" [label='(4)',fontcolor=red,weight=8];
+  "construct sample-\nrate variables\nusing fitted spline" -> "Return" [weight=1]
+  "form data.frame holding\naverage values from\nqualified turns" -> "Return" [style="invis",weight=0]
+  #"interpolate for\nmissing values" -> "Savitzky-Golay filter\napplied to GPS velocity" [color=red,compound=true,lhead=cluster1,constraint=false,weight=2]
+}
