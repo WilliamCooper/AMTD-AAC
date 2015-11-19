@@ -1269,7 +1269,7 @@ status open
 \noindent
 \align center
 \begin_inset Graphics
-	filename DGM-PC.png
+	filename DGM-PC-r.png
 	lyxscale 50
 	width 90text%
 
@@ -1898,7 +1898,7 @@ status open
 \noindent
 \align center
 \begin_inset Graphics
-	filename DGM-HC.png
+	filename DGM-HC-r.png
 	lyxscale 50
 	width 90text%
 

@@ -7,7 +7,7 @@
 \usepackage{lineno}
 \linenumbers
 \end_preamble
-\options amt,bookmarks=false,unicode=true
+\options amtd,bookmarks=false,unicode=true
 \use_default_options true
 \begin_modules
 knitr
@@ -172,8 +172,8 @@ nts of wind.
 \begin_inset Formula $^{\circ}$
 \end_inset
 
- or less, and that this leads to a significant reduction in uncertainty
- associated with the measurements of wind.
+ or less and that this leads to a significant reduction in uncertainty associate
+d with the measurements of wind.
  The use of Global Positioning System receivers to improve these measurements
  has a long history and the general basis for the approach developed here
  is not new, but the specific implementation is particularly suited to improving
@@ -218,7 +218,7 @@ ty in pitch of 0.05
 \end_inset
 
 m/s.
- A separate analysis of uncertainty for that measurements (
+ A separate analysis of uncertainty for that measurement (
 \begin_inset CommandInset citation
 LatexCommand citet
 key "Cooper2016ncartn"
@@ -426,12 +426,17 @@ status open
 
 \begin_layout Plain Layout
 
+PlotsAtEnd <- TRUE
+\end_layout
+
+\begin_layout Plain Layout
+
 ReloadData <- FALSE
 \end_layout
 
 \begin_layout Plain Layout
 
-ReloadData <- TRUE
+#ReloadData <- TRUE
 \end_layout
 
 \begin_layout Plain Layout
@@ -486,12 +491,12 @@ Directory <- DataDirectory ()
 
 \begin_layout Plain Layout
 
-Flight <- "ff02" 				# XXX change this
+Flight <- "ff02" 		
 \end_layout
 
 \begin_layout Plain Layout
 
-Project = "DEEPWAVE"			 # XXX change this
+Project = "DEEPWAVE"	
 \end_layout
 
 \begin_layout Plain Layout
@@ -552,17 +557,220 @@ Cradeg <- pi / 180
 
 \begin_layout Plain Layout
 
-source ("~/RStudio/Ranadu/R/ShiftInTime.R")
+## the following are provided by the Ranadu package, so sourcing is no longer
+ needed
 \end_layout
 
 \begin_layout Plain Layout
 
-source("~/RStudio/Ranadu/R/XformLA.R")
+# source ("~/RStudio/Ranadu/R/ShiftInTime.R")
 \end_layout
 
 \begin_layout Plain Layout
 
-source ("~/RStudio/Ranadu/R/PitchCorrection.R")
+# source("~/RStudio/Ranadu/R/XformLA.R")
+\end_layout
+
+\begin_layout Plain Layout
+
+# source ("~/RStudio/Ranadu/R/PitchCorrection.R")
+\end_layout
+
+\begin_layout Plain Layout
+
+# source ("~/RStudio/Ranadu/R/HeadingCorrection.R")
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<captions>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+FigCap1 <- "Top: Errors in the IRS measurements of the northward and eastward
+ components of groundspeed ($V_n^{(IRS)}$ and $V_e^{(IRS)}$) as determined
+ by comparison to measurements from a GPS receiver ($V_n^{(GPS)}$ and $V_e^{(GPS
+)}$) for DEEPWAVE flight ff02, a ferry flight starting on 1 June 2014 and
+ traveling from Hawaii to Pago-Pago.
+ Bottom: Errors in pitch ($
+\backslash
+
+\backslash
+delta
+\backslash
+
+\backslash
+theta$) and roll ($
+\backslash
+
+\backslash
+delta
+\backslash
+
+\backslash
+phi$) as obtained from (
+\backslash
+
+\backslash
+ref{eq:full-delta-pitch}) and (
+\backslash
+
+\backslash
+ref{eq:delta-phi})."
+\end_layout
+
+\begin_layout Plain Layout
+
+FigCap2 <- "Top: Errors in pitch ($
+\backslash
+
+\backslash
+delta
+\backslash
+
+\backslash
+theta^{(l)}$) and roll ($
+\backslash
+
+\backslash
+delta
+\backslash
+
+\backslash
+phi^{(l)}$) determined from the measured errors in ground-speed components
+ via (
+\backslash
+
+\backslash
+ref{eq:final-answer}), as measured in the $l$-frame.
+ Measurements are from the DEEPWAVE project, research flight 1.
+ Bottom: Errors in pitch ($
+\backslash
+
+\backslash
+delta
+\backslash
+
+\backslash
+theta$) and roll ($
+\backslash
+
+\backslash
+delta
+\backslash
+
+\backslash
+phi$) determined from the measured errors in ground-speed components, after
+ transformation of the errors shown in the previous plot to the reference
+ frame that is the body frame of the aircraft.
+ Measurements are from the DEEPWAVE project, research flight 1.
+ The limits $
+\backslash
+
+\backslash
+pm$0.02 correspond to roll angle of $
+\backslash
+
+\backslash
+pm 20^{
+\backslash
+
+\backslash
+circ}$ after division by 1000."
+\end_layout
+
+\begin_layout Plain Layout
+
+FigCap3 <- "Accelerations ($a_x$, $a_y$, $a_z$) measured by an INS during
+ a circle maneuver, 3:40:00--3:55:00 UTC on 3 July 2014, DEEPWAVE flight
+ 15.
+ Also shown as dotted lines are the accelerations deduced from differentiating
+ the corresponding GPS-measured ground-speed components ($v_n$ and $v_e$)."
+\end_layout
+
+\begin_layout Plain Layout
+
+FigCap4 <- "Heading error as estimated from (
+\backslash
+
+\backslash
+ref{eq:estimator-equation}) for each 1-s measurement meeting the qualification
+ test, for DEEPWAVE flight 15 (3 July 2014)."
+\end_layout
+
+\begin_layout Plain Layout
+
+FigCap5 <- "The heading correction determined using the proposed algorithm,
+ for the measurements from DEEPWAVE flight 15 (3 July 2014).
+ Estimates from left and right turns are plotted separately and an interpolating
+ spline fit is also shown.
+ Error bars are approximately $2
+\backslash
+
+\backslash
+sigma_m$ where $
+\backslash
+
+\backslash
+sigma_m$ is the standard deviation in the mean value."
+\end_layout
+
+\begin_layout Plain Layout
+
+FigCap6 <- "Estimates of heading errors arising from turns during DEEPWAVE
+ flight 16 (4 July 2014).
+ Estimates from each left and right turn are plotted separately, and two
+ spline fits with different degrees of smoothing are shown.
+ Error bars are approximately $2
+\backslash
+
+\backslash
+sigma_m$ where $
+\backslash
+
+\backslash
+sigma_m$ is the standard deviation in the mean value."
+\end_layout
+
+\begin_layout Plain Layout
+
+FigCap7 <- "Probability distribution of individual 1-Hz estimate of the
+ pitch error as determined using the algorithm of Sect.2."
+\end_layout
+
+\begin_layout Plain Layout
+
+FigCap8 <- "Absolute difference in vertical wind for flight segments before
+ and after level course-reversal maneuvers.
+ The top panel shows the uncorrected measurements and the bottom panel shows
+ the result of applying the pitch correction developed in Sect.
+\backslash
+
+\backslash
+ 2."
 \end_layout
 
 \begin_layout Plain Layout
@@ -604,39 +812,7 @@ If
 
 \end_inset
 
-
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-need to include 
-\begin_inset Formula $\delta\lambda$
-\end_inset
-
- term, not negl.
- vs 
-\begin_inset Formula $\delta\theta$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
 where 
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-\begin_inset Formula $\delta\lambda$
-\end_inset
-
- is the error in latitude and
-\end_layout
-
-\end_inset
-
- 
 \begin_inset Formula $\delta\theta^{(l)}$
 \end_inset
 
@@ -662,93 +838,6 @@ status open
 \begin{equation}
 \delta\theta^{(l)}=-\frac{1}{g}\frac{d(\delta v_{n}^{(l)})}{dt}\,\,\,.\label{eq:full-delta-pitch}
 \end{equation}
-
-\end_inset
-
-
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-\begin_inset Formula 
-\begin{equation}
-\frac{d(\delta v_{n})}{dt}=-g\delta\theta^{(l)}\label{eq:delta-vn-dot}
-\end{equation}
-
-\end_inset
-
-leads to the standard Schuler oscillation with angular frequency 
-\begin_inset Formula $\omega=\sqrt{g/R_{e}}\simeq0.00124$
-\end_inset
-
-
-\begin_inset space \thinspace{}
-\end_inset
-
-s
-\begin_inset Formula $^{-1}$
-\end_inset
-
-.
-\begin_inset Note Note
-status collapsed
-
-\begin_layout Plain Layout
-\begin_inset Formula 
-\begin{equation}
-\frac{d(\delta\theta^{(l)})}{dt}=\frac{\delta v_{n}}{R_{e}}=-\frac{1}{g}\frac{d^{2}(\delta v_{n})}{dt^{2}}\label{eq:delta-theta-dot}
-\end{equation}
-
-\end_inset
-
-which has the solution:
-\begin_inset Newline newline
-\end_inset
-
-
-\begin_inset Formula 
-\begin{equation}
-\delta v_{n}=V_{n}\cos(\omega t+\zeta_{n})\label{eq:delta-vn-solution}
-\end{equation}
-
-\end_inset
-
-where 
-\begin_inset Formula $\omega=\sqrt{g/R_{e}}\simeq0.00124$
-\end_inset
-
- is the Schuler angular velocity.
- 
-\end_layout
-
-\end_inset
-
- The error in the north component of the velocity and the error in pitch
- therefore both oscillate with the Schuler period.
- 
-\begin_inset Note Note
-status collapsed
-
-\begin_layout Plain Layout
-Integrating in time gives
-\begin_inset Newline newline
-\end_inset
-
-
-\begin_inset Formula 
-\begin{equation}
-\delta x_{n}=\int\delta v_{n}dt=\frac{V_{n}}{\omega}\sin(\omega t+\zeta_{n})\label{eq:delta-xn-solution}
-\end{equation}
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
 
 \end_inset
 
@@ -793,64 +882,6 @@ The different signs arise from the different definitions of the angles,
 \end_inset
 
 -axis direction.
-\end_layout
-
-\end_inset
-
-
-\begin_inset Note Note
-status collapsed
-
-\begin_layout Plain Layout
-\begin_inset Formula 
-\begin{equation}
-\delta\theta^{(l)}=-\frac{1}{g}\frac{d(V_{n}\cos(\omega t+\zeta_{n})}{dt}=\frac{V_{n}\omega}{g}\sin(\omega t+\zeta_{n})\label{eq:solution-delta-theta-1}
-\end{equation}
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-Analogous equations lead to a similar coupling between the roll angle and
- the east component of the ground velocity:
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset Formula 
-\begin{equation}
-\delta\phi^{(l)}=-\frac{V_{e}\omega}{g}\sin(\omega t+\zeta_{e})\label{eq:solution-delta-phi-1}
-\end{equation}
-
-\end_inset
-
-where 
-\begin_inset Formula $\phi$
-\end_inset
-
- is the roll angle and 
-\begin_inset Formula $V_{e}$
-\end_inset
-
- and 
-\begin_inset Formula $\zeta_{e}$
-\end_inset
-
- are determined from fits to the observed error 
-\begin_inset Formula $\delta v_{e}=\mathrm{VEW-GGVEW}$
-\end_inset
-
-.
- The errors can be determined directly from the time-derivatives of the
- error terms in (
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "eq:delta-vn-dot"
-
-\end_inset
-
-) and the analogous equation for roll, restated as:
 \end_layout
 
 \end_inset
@@ -919,56 +950,6 @@ In general an additional transformation of angles is needed to obtain the
 \end_inset
 
  axis reversed to be downward, as is conventional for aircraft.
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-The solution to (
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "eq:full-delta-pitch"
-
-\end_inset
-
-) is obtained by writing the position error as 
-\begin_inset Formula $\delta y=A\cos(\omega t+\gamma)$
-\end_inset
-
- where 
-\begin_inset Formula $A$
-\end_inset
-
- and 
-\begin_inset Formula $\gamma$
-\end_inset
-
- are respectively the amplitude and phase of the oscillation and 
-\begin_inset Formula $\omega$
-\end_inset
-
-=
-\begin_inset Formula $\sqrt{g/R_{e}}$
-\end_inset
-
- is the angular frequency of the Schuler oscillation.
- Then the acceleration error is (
-\begin_inset Formula $g/R_{e})\delta y$
-\end_inset
-
- and the latitude error is 
-\begin_inset Formula $\delta y/R_{e}$
-\end_inset
-
-, leading to a pitch error of 
-\begin_inset Formula $\delta\theta=-\delta y/R_{e}$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
 \end_layout
 
 \begin_layout Subsection
@@ -981,41 +962,32 @@ status open
 
 \begin_layout Plain Layout
 
-<<v-errors-straight-leg, fig.height=5.5, fig.lp="fig:",fig.cap="Top: Errors
- in the IRS measurements of the northward and eastward components of groundspeed
- ($V_n^{(IRS)}$ and $V_e^{(IRS)}$) as determined by comparison to measurements
- from a GPS receiver ($V_n^{(GPS)}$ and $V_e^{(GPS)}$) for DEEPWAVE flight
- ff02, a ferry flight starting on 1 June 2014 and traveling from Hawaii
- to Pago-Pago.
- Bottom: Errors in pitch ($
-\backslash
-
-\backslash
-delta
-\backslash
-
-\backslash
-theta$) and roll ($
-\backslash
-
-\backslash
-delta
-\backslash
-
-\backslash
-phi$) as obtained from (
-\backslash
-
-\backslash
-ref{eq:full-delta-pitch}) and (
-\backslash
-
-\backslash
-ref{eq:delta-phi}).", include=TRUE>>=
+<<v-errors-straight-leg, fig.height=5.5, fig.lp="fig:",fig.cap=FigCap1, include=if
+ (PlotsAtEnd) FALSE else TRUE>>=
 \end_layout
 
 \begin_layout Plain Layout
 
+\end_layout
+
+\begin_layout Plain Layout
+
+if (PlotsAtEnd) {
+\end_layout
+
+\begin_layout Plain Layout
+
+  cairo_pdf ("./Graphics/Fig1.pdf")
+\end_layout
+
+\begin_layout Plain Layout
+
+  dev.control("enable")
+\end_layout
+
+\begin_layout Plain Layout
+
+}
 \end_layout
 
 \begin_layout Plain Layout
@@ -1040,7 +1012,7 @@ plotWAC (D$Time, D$VNS-D$GGVNS, ylab="error [m/s]", ylim=c(-2.5,3.5))
 
 \begin_layout Plain Layout
 
-Z <- lineWAC (D$Time, D$VEW-D$GGVEW, col='darkgreen')
+lineWAC (D$Time, D$VEW-D$GGVEW, col='darkgreen')
 \end_layout
 
 \begin_layout Plain Layout
@@ -1108,6 +1080,11 @@ NAV <- 1013 * Rate
 
 \begin_layout Plain Layout
 
+## note the Rate factor needed for cases where Rate != 1
+\end_layout
+
+\begin_layout Plain Layout
+
 vndot <- signal::sgolayfilt (VNS-GGVNS, 3, NAV, m=1) * Rate  # m=1 for first
  deriv.
 \end_layout
@@ -1155,6 +1132,26 @@ lineWAC (D$Time, deltaRoll/Cradeg, col="darkgreen")
 legend('top', legend=c(expression(paste(delta, theta)), expression(paste(delta,p
 hi))), lwd=2, col=c("blue", "darkgreen"), text.col=c("blue", "darkgreen"),
  cex=0.8, horiz=TRUE)
+\end_layout
+
+\begin_layout Plain Layout
+
+if (PlotsAtEnd) {
+\end_layout
+
+\begin_layout Plain Layout
+
+  # Fig1 <- recordPlot()
+\end_layout
+
+\begin_layout Plain Layout
+
+  invisible(dev.off())
+\end_layout
+
+\begin_layout Plain Layout
+
+}
 \end_layout
 
 \begin_layout Plain Layout
@@ -1247,17 +1244,6 @@ ref{fig:v-errors-straight-leg}
 \end_inset
 
 .
- 
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-Savitzky-Golay polynomials were chosen because they are computationally
- efficient, don't introduce a time shift, and can provide derivatives directly.
-\end_layout
-
-\end_inset
-
  A rather long averaging period of 1013 s, or about 1/5 of a Schuler oscillation
 , was used to reduce noise in the result.
 \end_layout
@@ -1534,126 +1520,6 @@ subtracted
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-
-\lang english
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-<<Xform-l-from-b-pitch, eval=FALSE>>=
-\end_layout
-
-\begin_layout Plain Layout
-
-XformLB-old <- function (bvector, .roll, .pitch, .heading, .reverse=FALSE) {
-\end_layout
-
-\begin_layout Plain Layout
-
-  Cradeg <- pi/180
-\end_layout
-
-\begin_layout Plain Layout
-
-  sr <- sin(.roll*Cradeg); cr <- cos(.roll*Cradeg)
-\end_layout
-
-\begin_layout Plain Layout
-
-  sp <- sin(.pitch*Cradeg); cp <- cos(.pitch*Cradeg)
-\end_layout
-
-\begin_layout Plain Layout
-
-  sh <- sin(.heading*Cradeg); ch <- cos(.heading*Cradeg)
-\end_layout
-
-\begin_layout Plain Layout
-
-  if (.reverse) {   # note that entries are in column order; transpose before
- use
-\end_layout
-
-\begin_layout Plain Layout
-
-    M <- c(sh*cr+ch*sp*sr, ch*cr-sh*sp*sr, -cp*sr,
-\end_layout
-
-\begin_layout Plain Layout
-
-           ch*cp, -sh*cp, sp,
-\end_layout
-
-\begin_layout Plain Layout
-
-           -sh*sr+ch*sp*cr, -ch*sr-sh*sp*cr, -cp*cr)
-\end_layout
-
-\begin_layout Plain Layout
-
-  } else {
-\end_layout
-
-\begin_layout Plain Layout
-
-    M <- c(sh*cp, ch*cr+sh*sp*sr, ch*sr-sh*sp*cr,
-\end_layout
-
-\begin_layout Plain Layout
-
-            ch*cp, -sh*cr+ch*sp*sr, -sh*sr-ch*sp*cr,
-\end_layout
-
-\begin_layout Plain Layout
-
-            -sp, cp*sr, cp*cr)
-\end_layout
-
-\begin_layout Plain Layout
-
-  }
-\end_layout
-
-\begin_layout Plain Layout
-
-  dim (M) <- c(3,3)
-\end_layout
-
-\begin_layout Plain Layout
-
-  return (t(M) %*% bvector)
-\end_layout
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-@
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
 \begin_inset ERT
 status open
 
@@ -1669,6 +1535,12 @@ status open
 
 \begin_layout Plain Layout
 
+\end_layout
+
+\begin_layout Plain Layout
+
+## the plot generated here is not included in the manuscript draft -- "include=F
+ALSE" agove
 \end_layout
 
 \begin_layout Plain Layout
@@ -1739,6 +1611,11 @@ Rate <- 1
 
 \begin_layout Plain Layout
 
+## apply needed shifts in time
+\end_layout
+
+\begin_layout Plain Layout
+
 Ts <- -120
 \end_layout
 
@@ -1790,66 +1667,6 @@ lineWAC (D$Time, D$GGVNS-D$VNS, col='darkgreen', lwd=1)
 
 legend ('topleft', legend=c('VEW-GGVEW', 'VNS-GGVNS'), lwd=c(2,1), col=c('blue',
  'darkgreen'), text.col=c('blue', 'darkgreen'), ncol=2)
-\end_layout
-
-\begin_layout Plain Layout
-
-figcapP2=c("Top: Errors in pitch ($
-\backslash
-
-\backslash
-delta
-\backslash
-
-\backslash
-theta^{(l)}$) and roll ($
-\backslash
-
-\backslash
-delta
-\backslash
-
-\backslash
-phi^{(l)}$) determined from the measured errors in ground-speed components
- via (
-\backslash
-
-\backslash
-ref{eq:final-answer}), as measured in the $l$-frame.
- Measurements are from the DEEPWAVE project, research flight 1.
- Bottom: Errors in pitch ($
-\backslash
-
-\backslash
-delta
-\backslash
-
-\backslash
-theta$) and roll ($
-\backslash
-
-\backslash
-delta
-\backslash
-
-\backslash
-phi$) determined from the measured errors in ground-speed components, after
- transformation of the errors shown in the previous plot to the reference
- frame that is the body frame of the aircraft.
- Measurements are from the DEEPWAVE project, research flight 1.
- The limits $
-\backslash
-
-\backslash
-pm$0.02 correspond to roll angle of $
-\backslash
-
-\backslash
-pm 20^{
-\backslash
-
-\backslash
-circ}$ after division by 1000.")
 \end_layout
 
 \begin_layout Plain Layout
@@ -1920,26 +1737,7 @@ ref{fig:processing-2}
 \end_inset
 
 .
- 
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-
-\lang english
-There are also some times when there are noise and jumps in the differences.
- These arise in turns and appear to be the result of small timing differences,
- which have not been corrected here because 1-Hz data rates were used while
- the indicated difference was found consistent with about 160
-\begin_inset space ~
-\end_inset
-
-ms lag in the IRS measurements.
-\end_layout
-
-\end_inset
-
-In straight-and-level flight, the needed corrections are about 
+ In straight-and-level flight, the needed corrections are about 
 \begin_inset Formula $\pm$
 \end_inset
 
@@ -2169,18 +1967,13 @@ For research applications, the roll correction is seldom of much consequence,
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-
-\lang english
 \begin_inset ERT
 status open
 
 \begin_layout Plain Layout
 
-<<calculate-pitch-correction, eval=FALSE>>=
+<<processing-2, fig.height=6.5, fig.cap=FigCap2, include=if (PlotsAtEnd) FALSE
+ else TRUE>>=
 \end_layout
 
 \begin_layout Plain Layout
@@ -2189,161 +1982,22 @@ status open
 
 \begin_layout Plain Layout
 
-## The correction should be subtracted from PITCH to get PITCHC;
+if (PlotsAtEnd) {
 \end_layout
 
 \begin_layout Plain Layout
 
-## it is the error in pitch, so you get the true value by subtraction
+  cairo_pdf ("./Graphics/Fig2.pdf")
 \end_layout
 
 \begin_layout Plain Layout
 
-## This calculates corrections for an entire flight in one call.
-\end_layout
-
-\begin_layout Plain Layout
-
-## D must be a dataframe containing at least VNS, VEW, GGVNS, GGVEW,
-\end_layout
-
-\begin_layout Plain Layout
-
-## LATC, GGALT, THDG, PITCH, ROLL, 
-\end_layout
-
-\begin_layout Plain Layout
-
-CorrectPitch <- function (D, .span=1013) {
-\end_layout
-
-\begin_layout Plain Layout
-
-  Rate <- 1
-\end_layout
-
-\begin_layout Plain Layout
-
-  MaxGap <- 300 * Rate
-\end_layout
-
-\begin_layout Plain Layout
-
-  .vns <- zoo::na.approx (as.vector(D$VNS), maxgap=MaxGap, na.rm = FALSE)
-\end_layout
-
-\begin_layout Plain Layout
-
-  .vew <- zoo::na.approx (as.vector(D$VEW), maxgap=MaxGap, na.rm = FALSE)
-\end_layout
-
-\begin_layout Plain Layout
-
-  .ggvns <- zoo::na.approx (as.vector(D$GGVNS), maxgap=MaxGap, na.rm = FALSE)
-\end_layout
-
-\begin_layout Plain Layout
-
-  .ggvew <- zoo::na.approx (as.vector(D$GGVEW), maxgap=MaxGap, na.rm = FALSE)
-\end_layout
-
-\begin_layout Plain Layout
-
-  # 1013 points (must be odd) to span about 1/5 Schuler osc.
- -- about 16.8 min
-\end_layout
-
-\begin_layout Plain Layout
-
-  NAV <- .span * Rate
-\end_layout
-
-\begin_layout Plain Layout
-
-  vndot <- signal::sgolayfilt (.vns-.ggvns, 3, NAV, m=1) * Rate  # m=1 for
- first deriv.
-\end_layout
-
-\begin_layout Plain Layout
-
-  vedot <- signal::sgolayfilt (.vew-.ggvew, 3, NAV, m=1) * Rate
-\end_layout
-
-\begin_layout Plain Layout
-
-  deltaPitchL <- -vndot/Ranadu::Gravity (D$LATC, D$GGALT)
-\end_layout
-
-\begin_layout Plain Layout
-
-  deltaRollL  <- vedot/Ranadu::Gravity (D$LATC, D$GGALT)
-\end_layout
-
-\begin_layout Plain Layout
-
-  .hdg <- D$THDG*Cradeg
-\end_layout
-
-\begin_layout Plain Layout
-
-  deltaPitch <- (sin(.hdg)*deltaRollL + cos(.hdg)*deltaPitchL)/Cradeg
-\end_layout
-
-\begin_layout Plain Layout
-
-  deltaRoll <- (cos(.hdg)*deltaRollL - sin(.hdg)*deltaPitchL)/Cradeg
-\end_layout
-
-\begin_layout Plain Layout
-
-  C <- c(deltaPitch, deltaRoll)
-\end_layout
-
-\begin_layout Plain Layout
-
-  dim(C) <- c(nrow(D), 2)
-\end_layout
-
-\begin_layout Plain Layout
-
-  return (C)
+  dev.control ("enable")
 \end_layout
 
 \begin_layout Plain Layout
 
 }
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-@
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-<<processing-2, fig.height=6.5, fig.cap=figcapP2, include=TRUE>>=
-\end_layout
-
-\begin_layout Plain Layout
-
 \end_layout
 
 \begin_layout Plain Layout
@@ -2440,7 +2094,7 @@ D$deltaRoll <- (cos(HDG)*deltaRollL - sin(HDG)*deltaPitchL)/Cradeg
 
 \begin_layout Plain Layout
 
-# DeltaPitch2 <- CorrectPitch(D)
+# DeltaPitch2 <- CorrectPitch(D)[,1]
 \end_layout
 
 \begin_layout Plain Layout
@@ -2462,11 +2116,6 @@ plotWAC (D[, c("Time", "dPL", "dRL")], ylab=expression (paste (delta, theta^(l),
 
 \begin_layout Plain Layout
 
-# lineWAC(D$Time, D$THDG/10000, col='red')
-\end_layout
-
-\begin_layout Plain Layout
-
 legend('top', legend=c(expression (paste (delta, theta^(l))), expression
  (paste (delta, phi^(l)))), lwd=c(2.5,2), lty=c(1,1), col=c("blue", "darkgreen"),
  text.col=c("blue", "darkgreen"), cex=0.8, bg='lightyellow', horiz=TRUE)
@@ -2483,16 +2132,6 @@ op <- par (mar=c(5,4,1,2.5)+0.1)
 
 \begin_layout Plain Layout
 
-# D$deltaRoll <- SmoothInterp(D$deltaRoll, .Length=121)
-\end_layout
-
-\begin_layout Plain Layout
-
-# D$deltaPitch <- SmoothInterp(D$deltaPitch, .Length=121)
-\end_layout
-
-\begin_layout Plain Layout
-
 plotWAC (D[, c("Time", "deltaPitch", "deltaRoll")], ylab=expression (paste
  (delta, theta, ' or ', delta, phi, ' [', degree, ']')), lwd=c(2.5, 2, 1.5),
   lty=c(1,1,3), ylim=c(-0.04,0.05), legend.position=NA)
@@ -2500,22 +2139,7 @@ plotWAC (D[, c("Time", "deltaPitch", "deltaRoll")], ylab=expression (paste
 
 \begin_layout Plain Layout
 
-#Z <- lineWAC (D$Time, deltaRoll2, col='darkgreen')
-\end_layout
-
-\begin_layout Plain Layout
-
-#Z <- lineWAC (D$Time, deltaPitch, col='darkorange', lty=2, lwd=1.2)
-\end_layout
-
-\begin_layout Plain Layout
-
-#Z <- lineWAC (D$Time, deltaRoll, col='red', lty=2, lwd=1.2)
-\end_layout
-
-\begin_layout Plain Layout
-
-Z <- lineWAC (D$Time, D$ROLL/1000, col='red', lwd=1.5, lty=1)
+lineWAC (D$Time, D$ROLL/1000, col='red', lwd=1.5, lty=1)
 \end_layout
 
 \begin_layout Plain Layout
@@ -2553,16 +2177,27 @@ Valid[abs(D$ROLL) > 5] <- FALSE
 
 \begin_layout Plain Layout
 
-SDofCorrection = sd (CorrectPitch(D)[Valid], na.rm=TRUE)
+SDofCorrection = sd (CorrectPitch(D)[Valid,1], na.rm=TRUE)
 \end_layout
 
 \begin_layout Plain Layout
 
+if (PlotsAtEnd) {
 \end_layout
 
 \begin_layout Plain Layout
 
-## check how this would change with an accelerometer bias of 1%
+  #Fig2 <- recordPlot()
+\end_layout
+
+\begin_layout Plain Layout
+
+  invisible (dev.off())
+\end_layout
+
+\begin_layout Plain Layout
+
+}
 \end_layout
 
 \begin_layout Plain Layout
@@ -2895,113 +2530,6 @@ reference "eq:estimator-equation"
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-
-\lang english
-An alternate and simpler (but equivalent) approach is to transform the component
-s of acceleration measured in the 
-\begin_inset Formula $b$
-\end_inset
-
--frame to the 
-\begin_inset Formula $l$
-\end_inset
-
--frame, use them to determine the Earth-relative direction of the acceleration
- vector 
-\begin_inset Formula $\alpha^{(l)}$
-\end_inset
-
- in the 
-\begin_inset Formula $l$
-\end_inset
-
--frame, and find the difference between that result and the direction found
- for Earth-based acceleration 
-\begin_inset Formula $\alpha^{*}$
-\end_inset
-
- obtained by differentiating the measurements of velocity components by
- a GPS receiver.
- In this case,
-\begin_inset Newline newline
-\end_inset
-
-
-\begin_inset Formula 
-\begin{equation}
-\alpha^{*}=\arctan\frac{\dot{v}_{x}^{(l)}}{\dot{v}_{y}^{(l)}}\label{eq:alpha-GPS}
-\end{equation}
-
-\end_inset
-
-
-\begin_inset Formula 
-\begin{equation}
-\alpha^{(l)}=\arctan\frac{a_{x}^{(l)}}{a_{y}^{(l)}}\label{eq:alpha-l}
-\end{equation}
-
-\end_inset
-
-where 
-\begin_inset Formula $\dot{v}_{1}$
-\end_inset
-
- and 
-\begin_inset Formula $\dot{v}_{2}$
-\end_inset
-
- refer to the accelerations determined by differentiating the measurements
- of ground-speed components 
-\begin_inset Formula $v_{1}$
-\end_inset
-
- and 
-\begin_inset Formula $v_{2}$
-\end_inset
-
-, the eastward and northward components of the ground speed measured by
- a GPS receiver.
- If there are no other sources of error, the difference between these two
- directions will arise from the heading error that causes the components
- {
-\begin_inset Formula $a_{1}^{(l)},\,a_{2}^{(l)},\,a_{3}^{(l)}$
-\end_inset
-
-} to point in an incorrect direction in the 
-\begin_inset Formula $l$
-\end_inset
-
--frame.
- Therefore, an estimate of the heading error can be obtained from
-\begin_inset Newline newline
-\end_inset
-
-
-\begin_inset Formula 
-\begin{equation}
-\delta\psi=\alpha^{*}-\alpha^{(l)}\,\,\,.\label{eq:error-estimate-2}
-\end{equation}
-
-\end_inset
-
-Other sources of error can arise from biases or other errors in the measurements
- of acceleration, from timing errors (e.g., displacing the measurements of
- heading and so introducing errors in turns), or from the measurements by
- GPS of the velocity components relative to the Earth.
- Any of those possibilities can compromise the results that follow, so these
- error sources will need further discussion later in this note.
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
 To use (
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -3156,152 +2684,6 @@ s
  of the uncorrected error.
 \end_layout
 
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-The components of the accelerations of the aircraft in an Earth-relative
- coordinate system like the 
-\begin_inset Formula $l$
-\end_inset
-
--frame can be determined solely from measurements provided by a GPS and
- so are independent of the IRS.
- They are determined from
-\begin_inset Newline newline
-\end_inset
-
-
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-begin{equation}
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-left[
-\backslash
-begin{array}{c}
-\end_layout
-
-\begin_layout Plain Layout
-
-a_{x}^{*}
-\backslash
-
-\backslash
-
-\end_layout
-
-\begin_layout Plain Layout
-
-a_{y}^{*}
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-end{array}
-\backslash
-right]=
-\backslash
-left[
-\backslash
-begin{array}{c}
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-frac{dv_{x}}{dt}
-\backslash
-
-\backslash
-
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-frac{dv_{y}}{dt}
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-end{array}
-\backslash
-right]=
-\backslash
-left[
-\backslash
-begin{array}{c}
-\end_layout
-
-\begin_layout Plain Layout
-
-d(GGVEW)/dt
-\backslash
-
-\backslash
-
-\end_layout
-
-\begin_layout Plain Layout
-
-d(GGVNS)/dt
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-end{array}
-\backslash
-right]
-\backslash
- 
-\backslash
- 
-\backslash
- .
-\backslash
-label{eq:acceleration-from-GPS}
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-end{equation}
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
 \begin_layout Subsection
 The transformation from 
 \begin_inset Formula $a$
@@ -3315,46 +2697,6 @@ The transformation from
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-In NCAR/EOL/RAF data archives, the appropriate body-relative accelerations
- are represented by the netCDF variables BLONGA, BLATA, BNORMA for respectively
- the 
-\begin_inset Formula $x$
-\end_inset
-
-, 
-\begin_inset Formula $y$
-\end_inset
-
-, and 
-\begin_inset Formula $z$
-\end_inset
-
- components (in the aircraft coordinate system with 
-\begin_inset Formula $x$
-\end_inset
-
- forward, 
-\begin_inset Formula $y$
-\end_inset
-
- starboard, and 
-\begin_inset Formula $z$
-\end_inset
-
- downward), except that BNORMA represents the 
-\begin_inset Formula $z$
-\end_inset
-
--upward component and is adjusted by subtraction of the acceleration of
- gravity.
-\end_layout
-
-\end_inset
-
 Measurements of body accelerations are provided by most inertial systems
  used on research aircraft, so the procedure developed here is not unique
  to the NCAR aircraft.
@@ -3470,52 +2812,6 @@ R_{a}^{l}=\begin{bmatrix}\sin\psi\cos\theta & \sin\psi\sin\theta\sin\phi+\cos\ps
 
 \end_inset
 
-
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-
-\lang english
-by the rotation matix
-\end_layout
-
-\begin_layout Plain Layout
-
-\lang english
-\begin_inset Formula 
-\begin{equation}
-R_{b}^{l}=\begin{bmatrix}\sin\psi\cos\theta & \sin\psi\sin\theta\sin\phi+\cos\psi\cos\phi & -\sin\psi\sin\theta\cos\phi+\cos\psi\sin\phi\\
-\cos\psi\cos\theta & \cos\psi\sin\theta\sin\phi-\sin\psi\cos\phi & -\cos\psi\sin\theta\cos\phi-\sin\psi\sin\phi\\
--\sin\theta & \cos\theta\sin\phi & \cos\theta\cos\phi
-\end{bmatrix}\label{eq:transform-b-to-l}
-\end{equation}
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-
-\lang english
-so 
-\begin_inset Newline newline
-\end_inset
-
-
-\begin_inset Formula 
-\begin{equation}
-\mathbf{a^{(l)}}=R_{b}^{l}\mathbf{a^{(b)}}\label{eq:matrix-multiplication-eq}
-\end{equation}
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
  This transformation then gives the accelerations in the local reference
  frame with 
 \begin_inset Formula $x$
@@ -3544,17 +2840,6 @@ so
 \end_inset
 
 ).
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-
-\lang english
-signs of roll and pitch are reversed but heading is kept unchanged
-\end_layout
-
-\end_inset
-
  
 \end_layout
 
@@ -3701,6 +2986,11 @@ n for DEEPWAVE flight rf15, obtained via differentiation of the GPS-measured
 
 \begin_layout Plain Layout
 
+## this plot is not included in the manuscript
+\end_layout
+
+\begin_layout Plain Layout
+
 # deal with missing values:
 \end_layout
 
@@ -3764,18 +3054,13 @@ plotWAC(D[, c("Time", "vndot", "vedot", "vzdot")])
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-
-\lang english
 \begin_inset ERT
 status open
 
 \begin_layout Plain Layout
 
-<<Xform, eval=FALSE>>=
+<<get-b-vector-and-transform, fig.height=4, fig.cap=FigCap3, include=if (PlotsAtEn
+d) FALSE else TRUE>>=
 \end_layout
 
 \begin_layout Plain Layout
@@ -3784,287 +3069,22 @@ status open
 
 \begin_layout Plain Layout
 
-Xform <- function (data) { # data must contain ROLL, PITCH, HEADING, 
+if (PlotsAtEnd) {
 \end_layout
 
 \begin_layout Plain Layout
 
-                           # BLATA, BLONGA, BNORMA
+  cairo_pdf ("./Graphics/Fig3.pdf")
 \end_layout
 
 \begin_layout Plain Layout
 
-  Cradeg <- pi/180
-\end_layout
-
-\begin_layout Plain Layout
-
-  if ("PITCHC" %in% names(data)) {data$PITCH <- data$PITCHC}
-\end_layout
-
-\begin_layout Plain Layout
-
-  
-\end_layout
-
-\begin_layout Plain Layout
-
-  ## note minus signs in the next line
-\end_layout
-
-\begin_layout Plain Layout
-
-  PITCH <- -data$PITCH * Cradeg; ROLL <- -data$ROLL * Cradeg
-\end_layout
-
-\begin_layout Plain Layout
-
-  THDG <- data$THDG * Cradeg
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-  cosphi <- cos (ROLL)
-\end_layout
-
-\begin_layout Plain Layout
-
-  sinphi <- sin (ROLL)
-\end_layout
-
-\begin_layout Plain Layout
-
-  costheta <- cos (PITCH)
-\end_layout
-
-\begin_layout Plain Layout
-
-  sintheta <- sin (PITCH)
-\end_layout
-
-\begin_layout Plain Layout
-
-  cospsi <- cos (THDG)
-\end_layout
-
-\begin_layout Plain Layout
-
-  sinpsi <- sin (THDG)
-\end_layout
-
-\begin_layout Plain Layout
-
-  G <- Gravity (data$LATC, data$GGALT)
-\end_layout
-
-\begin_layout Plain Layout
-
-  d <- data.frame("X" = data$BLONGA)
-\end_layout
-
-\begin_layout Plain Layout
-
-  d$Y <- data$BLATA
-\end_layout
-
-\begin_layout Plain Layout
-
-  d$Z <- data$BNORMA + G    ## need to add G for transform; 
-\end_layout
-
-\begin_layout Plain Layout
-
-                            ## it was removed from sensed accel.
-\end_layout
-
-\begin_layout Plain Layout
-
-  A <- as.matrix(d)
-\end_layout
-
-\begin_layout Plain Layout
-
-  DL <- nrow(data)
-\end_layout
-
-\begin_layout Plain Layout
-
-  One <- rep (1, DL)
-\end_layout
-
-\begin_layout Plain Layout
-
-  ZZ <- rep (0, DL)
-\end_layout
-
-\begin_layout Plain Layout
-
-  T1 <- aperm(array (c(One,ZZ,ZZ,ZZ,cosphi,-sinphi,ZZ,sinphi,cosphi), 
-\end_layout
-
-\begin_layout Plain Layout
-
-                     dim=c(DL,3,3)))
-\end_layout
-
-\begin_layout Plain Layout
-
-  T2 <- aperm(array (c (costheta,ZZ,sintheta,ZZ,One,ZZ,-sintheta,ZZ,costheta),
- 
-\end_layout
-
-\begin_layout Plain Layout
-
-                     dim=c(DL,3,3)))
-\end_layout
-
-\begin_layout Plain Layout
-
-  T3 <- aperm(array (c (cospsi,-sinpsi,ZZ,sinpsi,cospsi,ZZ,ZZ,ZZ,One), 
-\end_layout
-
-\begin_layout Plain Layout
-
-                     dim=c(DL,3,3)))
-\end_layout
-
-\begin_layout Plain Layout
-
-  AX <- vector ("numeric", DL)
-\end_layout
-
-\begin_layout Plain Layout
-
-  AY <- vector ("numeric", DL)
-\end_layout
-
-\begin_layout Plain Layout
-
-  AZ <- vector ("numeric", DL)
-\end_layout
-
-\begin_layout Plain Layout
-
-  X <- zoo::na.approx (as.vector(d$X), maxgap=1000, na.rm = FALSE)
-\end_layout
-
-\begin_layout Plain Layout
-
-  Y <- zoo::na.approx (as.vector(d$Y), maxgap=1000, na.rm = FALSE)
-\end_layout
-
-\begin_layout Plain Layout
-
-  Z <- zoo::na.approx (as.vector(d$Z), maxgap=1000, na.rm = FALSE)
-\end_layout
-
-\begin_layout Plain Layout
-
-  X[is.na(X)] <- 0
-\end_layout
-
-\begin_layout Plain Layout
-
-  Y[is.na(Y)] <- 0
-\end_layout
-
-\begin_layout Plain Layout
-
-  Z[is.na(X)] <- 0
-\end_layout
-
-\begin_layout Plain Layout
-
- 
-\end_layout
-
-\begin_layout Plain Layout
-
-  for (i in 1:DL) {
-\end_layout
-
-\begin_layout Plain Layout
-
-    Y1 <- T1[,,i] %*% matrix (A[i,], 3, 1)
-\end_layout
-
-\begin_layout Plain Layout
-
-    Y2 <- T2[,,i] %*% Y1
-\end_layout
-
-\begin_layout Plain Layout
-
-    Y3 <- T3[,,i] %*% Y2
-\end_layout
-
-\begin_layout Plain Layout
-
-    AX[i] <- Y3[1]; AY[i] <- Y3[2]; AZ[i] <- Y3[3]
-\end_layout
-
-\begin_layout Plain Layout
-
-  }
-\end_layout
-
-\begin_layout Plain Layout
-
-  AZ <- AZ - G
-\end_layout
-
-\begin_layout Plain Layout
-
-  return (data.frame(AX=AX, AY=AY, AZ=AZ))
+  dev.control ("enable")
 \end_layout
 
 \begin_layout Plain Layout
 
 }
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-@
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-<<get-b-vector-and-transform, include=TRUE, fig.height=4, fig.cap=c("Accelerations
- ($a_x$, $a_y$, $a_z$) measured by an INS during a circle maneuver, 3:40:00--3:5
-5:00 UTC on 3 July 2014, DEEPWAVE flight 15.
- Also shown as dotted lines are the accelerations deduced from differentiating
- the corresponding GPS-measured ground-speed components ($v_n$ and $v_e$).")>>=
-\end_layout
-
-\begin_layout Plain Layout
-
 \end_layout
 
 \begin_layout Plain Layout
@@ -4218,7 +3238,7 @@ LV <- XformLA (D, AV)                                  #l-frame
 
 \begin_layout Plain Layout
 
-## now corrected for angular effects
+## now correct for angular effects
 \end_layout
 
 \begin_layout Plain Layout
@@ -4263,7 +3283,19 @@ D$LACCY <- signal::sgolayfilt (D$LACCY, 3, 21, m=0)
 
 \begin_layout Plain Layout
 
-D$LACCZ <- signal::sgolayfilt (D$LACCZ, 3, 7, m=0)
+D$LACCZ <- signal::sgolayfilt (D$LACCZ, 3, 7, m=0)  ## smaller averaging
+ for z because
+\end_layout
+
+\begin_layout Plain Layout
+
+                                                    ## z component varies
+ rapidly in
+\end_layout
+
+\begin_layout Plain Layout
+
+                                                    ## pitch maneuver
 \end_layout
 
 \begin_layout Plain Layout
@@ -4280,6 +3312,11 @@ V <- c("Time", "LACCX", "LACCY", "LACCZ", "vedot", "vndot")
 \begin_layout Plain Layout
 
 r <- setRange(D$Time, 33500,35500)
+\end_layout
+
+\begin_layout Plain Layout
+
+## plotWAC(D[r,V],...) plots the variables in V over the time range in r
 \end_layout
 
 \begin_layout Plain Layout
@@ -4315,6 +3352,11 @@ legend('bottomleft', legend=c(expression(a[x]), expression(a[y]), expression(a[z
 
 \begin_layout Plain Layout
 
+## the following is a pitch maneuver; plot not included in the manuscript
+\end_layout
+
+\begin_layout Plain Layout
+
 # r <- setRange(D$Time, 42500, 42830)
 \end_layout
 
@@ -4331,6 +3373,26 @@ legend('bottomleft', legend=c(expression(a[x]), expression(a[y]), expression(a[z
 \begin_layout Plain Layout
 
 # lineWAC(D$Time[r], D$vzdot[r], col='green', lwd=2, lty=2)
+\end_layout
+
+\begin_layout Plain Layout
+
+if (PlotsAtEnd) {
+\end_layout
+
+\begin_layout Plain Layout
+
+  #Fig3 <- recordPlot ()
+\end_layout
+
+\begin_layout Plain Layout
+
+  invisible (dev.off())
+\end_layout
+
+\begin_layout Plain Layout
+
+}
 \end_layout
 
 \begin_layout Plain Layout
@@ -4382,328 +3444,6 @@ ref{fig:get-b-vector-and-transform}
 s period while flying without roll and allowing the aircraft to climb and
  descend in response to the changes in pitch.
  
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-
-\lang english
-Equations (
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "eq:ax-error"
-
-\end_inset
-
---
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "eq:estimator-equation"
-
-\end_inset
-
-) could then be used to estimate the heading error.
- However, if the accelerations (
-\begin_inset Formula $a_{x},\,a_{y}$
-\end_inset
-
-) are small, as is common in straight-and-level flight, the resulting estimates
- may have large uncertainty.
- A more robust estimate is to calculate the difference 
-\begin_inset Formula $\delta\psi=\psi_{g}-\psi_{a}$
-\end_inset
-
- where 
-\begin_inset Formula $\psi_{g}$
-\end_inset
-
- is the angle obtained from the arctangent of the GPS-measured accelerations
- 
-\begin_inset Formula $\dot{V}$
-\end_inset
-
- and 
-\begin_inset Formula $\psi_{a}$
-\end_inset
-
- is the corresponding angle obtained from the measured body accelerations
- after translation to the l
-\emph on
--frame:
-\begin_inset Newline newline
-\end_inset
-
-
-\begin_inset Formula 
-\begin{align}
-\psi_{g} & =\arctan\frac{\dot{V_{e}}}{\dot{V_{n}}}=\mathrm{atan2(\dot{V_{n}},\,\dot{V_{e}})}\label{eq:psi-g}\\
-\psi_{a} & =\arctan\frac{a_{x}}{a_{y}}=\mathrm{atan2}(a_{y},\,a_{x})\label{eq:psi-a}
-\end{align}
-
-\end_inset
-
-
-\emph default
-A difference between these angles could arise from several sources:
-\end_layout
-
-\begin_layout Enumerate
-
-\lang english
-An error in the heading measurement would result in incorrect rotation of
- the measured accelerations to the 
-\emph on
-l
-\emph default
--frame;
-\end_layout
-
-\begin_layout Enumerate
-
-\lang english
-There might be bias or scale errors in the accelerometers, leading to incorrect
- components of acceleration;
-\end_layout
-
-\begin_layout Enumerate
-
-\lang english
-There could be offsets in the times at which the measured accelerations
- and the GPS ground-speed components are measured.
- This would appear clearly in turns, where clockwise and counterclockwise
- turns would reverse sign if other effects are negligible.
-\end_layout
-
-\begin_layout Plain Layout
-
-\lang english
-These will be examined in following subsections.
-\end_layout
-
-\end_inset
-
-
-\begin_inset Note Note
-status open
-
-\begin_layout Subsection
-
-\lang english
-The GPS-derived estimate of accelerations
-\end_layout
-
-\begin_layout Plain Layout
-
-\lang english
-The variables 
-\begin_inset Formula $\dot{V_{n}}$
-\end_inset
-
- and 
-\begin_inset Formula $\dot{V_{e}}$
-\end_inset
-
- must be found from derivatives of the GPS-measured velocity components.
- For this purpose, as in the pitch-correction algorithm, the choice made
- here is to estimate the derivatives using Savitzky-Golay polynomials, which
- are computationally efficient, don't introduce a time shift, and can provide
- derivatives directly.
- A rather long averaging period of 1009 s, or about 1/5 of a Schuler oscillation
-, was used to reduce noise in the result, and interpolation filled some
- gaps in the measurements.
- The ground-speed components measured via GPS are shown in Fig.
-\begin_inset space ~
-\end_inset
-
-
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-ref{fig:sg-poly-smoothing1}
-\end_layout
-
-\end_inset
-
-, and the derivative calculated and smoothed as described above is shown
- in Fig.
-\begin_inset space ~
-\end_inset
-
-
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-ref{fig:sg-poly-smoothing2}
-\end_layout
-
-\end_inset
-
-.
- 
-\end_layout
-
-\begin_layout Subsection
-
-\lang english
-The 
-\emph on
-l
-\emph default
--frame accelerations
-\end_layout
-
-\begin_layout Plain Layout
-
-\lang english
-The result of transforming the accelerations in the 
-\emph on
-b
-\emph default
--frame to the 
-\emph on
-l
-\emph default
--frame is shown in Fig.
-\begin_inset space ~
-\end_inset
-
-
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-ref{fig:get-b-vector-and-transform1}
-\end_layout
-
-\end_inset
-
-.
- This flight was devoted to calibration maneuvers, so there are circle maneuvers
- (e.g., about 3:45:00), pitch maneuvers (e.g., about 4:27:00) and yaw maneuvers
- (e.g., about 4:33:00) as well as speed runs (e.g., about 5:05:00).
- This accounts for the large horizontal accelerations (in the circles) and
- the large vertical accelerations (in the pitch maneuvers).
- The good matches between measured accelerations translated to the 
-\emph on
-l
-\emph default
--frame and those deduced from the derivative of the GPS-measured ground-speed
- components, shown in Figs.
-\begin_inset space ~
-\end_inset
-
-
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-ref{fig:get-b-vector-and-transform2}
-\end_layout
-
-\end_inset
-
- and 
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-ref{fig:get-b-vector-and-transform3}
-\end_layout
-
-\end_inset
-
- provide good evidence for the approach being taken and the suitability
- of the transformation used.
- One aspect that is troubling, however, is the poorer agreement for the
- vertical accelerations compared in Fig.\SpecialChar \-
-
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-ref{fig:get-b-vector-and-transform3}
-\end_layout
-
-\end_inset
-
-, dotted-green vs red lines.
- Peak values for the measured accelerations consistently exceed those determined
- by differentiation of the rat-of-climb of the aircraft.
- [look into this further]
-\end_layout
-
-\begin_layout Subsection
-
-\lang english
-The differences in angles determined from the acceleration components
-\end_layout
-
-\begin_layout Plain Layout
-
-\lang english
-Equation 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "eq:estimator-equation"
-
-\end_inset
-
- is the basis for estimating the error in heading, so it is useful to consider
- the two terms in that equation and the combined prediction, to check for
- consistency.
- Figure
-\begin_inset space ~
-\end_inset
-
-
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-ref{fig:error-components}
-\end_layout
-
-\end_inset
-
- shows the two estimates of error and their combination as in (
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "eq:estimator-equation"
-
-\end_inset
-
-).
-\end_layout
-
-\end_inset
-
-
 \end_layout
 
 \begin_layout Standard
@@ -4930,78 +3670,9 @@ Shift the timing of the heading measurement as needed to match the GPS-receiver
  measurements of ground velocity.
  
 \emph default
-
-\begin_inset Note Note
-status collapsed
-
-\begin_layout Plain Layout
-
-\emph on
-where necessary using fractional increments in the time series.
-
-\emph default
- For example, the standard high-rate data sets provided by the NCAR/EOL/RAF
- data processing are 25
-\begin_inset space \thinspace{}
-\end_inset
-
-Hz time series, so a shift of 140
-\begin_inset space \thinspace{}
-\end_inset
-
-ms represents a 3.5-increment.
- This can be accomplished using interpolation to higher-rate series, filtering
- of the high-rate file, and resampling at the original rate.
-\end_layout
-
-\end_inset
-
 The result of this procedure is very sensitive to differences in timing
  of measurements from the IRS and GPS, because in turns any lag appears
  as an offset in the accelerations that mimics a heading error.
-\begin_inset Note Note
-status collapsed
-
-\begin_layout Plain Layout
-
-\emph on
-For data files produced at rates above 1
-\begin_inset space \thinspace{}
-\end_inset
-
-Hz, construct a 1
-\begin_inset space \thinspace{}
-\end_inset
-
-Hz data set to use when calculating the heading correction.
-
-\emph default
- These results change only slowly, as suggested in Fig.
-\begin_inset space ~
-\end_inset
-
-
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-ref{fig:spline-plot}
-\end_layout
-
-\end_inset
-
- Because the application of the transformations, differentiations, and pitch
- corrections require considerable calculation, this results in considerably
- faster calculations.
- 
-\end_layout
-
-\end_inset
-
-
 \end_layout
 
 \begin_layout Enumerate
@@ -5317,13 +3988,8 @@ status open
 
 \begin_layout Plain Layout
 
-<<error-components, fig.height=4.5, include=TRUE, fig.cap="Heading error as
- estimated from (
-\backslash
-
-\backslash
-ref{eq:estimator-equation}) for each 1-s measurement meeting the qualification
- test, for DEEPWAVE flight 15 (3 July 2014).">>=
+<<error-components, fig.height=4.5, fig.cap=FigCap4, include=if (PlotsAtEnd)
+ FALSE else TRUE>>=
 \end_layout
 
 \begin_layout Plain Layout
@@ -5332,97 +3998,22 @@ ref{eq:estimator-equation}) for each 1-s measurement meeting the qualification
 
 \begin_layout Plain Layout
 
-# D$err1 <- (D$vedot - D$LACCX) / D$LACCY * 180/pi
+if (PlotsAtEnd) {
 \end_layout
 
 \begin_layout Plain Layout
 
-# D$err2 <- -(D$vndot - D$LACCY) / D$LACCX * 180/pi
+  cairo_pdf ("./Graphics/Fig4.pdf")
 \end_layout
 
 \begin_layout Plain Layout
 
-# hlim <- 0.1
+  dev.control ("enable")
 \end_layout
 
 \begin_layout Plain Layout
 
-# D$herr <- D$err1
-\end_layout
-
-\begin_layout Plain Layout
-
-# t <- abs(D$LACCY) < abs(D$LACCX)
-\end_layout
-
-\begin_layout Plain Layout
-
-# D$herr[t] <- D$err2[t]
-\end_layout
-
-\begin_layout Plain Layout
-
-# t <- abs(D$LACCX) + abs(D$LACCY) < hlim*2
-\end_layout
-
-\begin_layout Plain Layout
-
-# D$herr[t] <- NA
-\end_layout
-
-\begin_layout Plain Layout
-
-# D$herr <- zoo::na.approx (as.vector(D$herr), maxgap=100, na.rm = FALSE)
-\end_layout
-
-\begin_layout Plain Layout
-
-# t <- is.na(D$herr)
-\end_layout
-
-\begin_layout Plain Layout
-
-# D$herr[t] <- 0
-\end_layout
-
-\begin_layout Plain Layout
-
-# D$herr <- signal::sgolayfilt (D$herr, 3, 1021, m=0)  
-\end_layout
-
-\begin_layout Plain Layout
-
-# D$herr[t] <- NA
-\end_layout
-
-\begin_layout Plain Layout
-
-# r <- setRange(D$Time, 33800,35500)
-\end_layout
-
-\begin_layout Plain Layout
-
-# plotWAC (D[r, c("Time", "err1", "err2", "herr")], ylim=c(-10.,10.))
-\end_layout
-
-\begin_layout Plain Layout
-
-D$ang1 <- atan2(D$vndot, D$vedot) / Cradeg
-\end_layout
-
-\begin_layout Plain Layout
-
-D$ang2 <- atan2(D$LACCY, D$LACCX) / Cradeg
-\end_layout
-
-\begin_layout Plain Layout
-
-#plotWAC(D[, c("Time", "ang1", "ang2")])
-\end_layout
-
-\begin_layout Plain Layout
-
-#plotWAC(D$Time, D$ang1-D$ang2, ylim=c(-2,2))
+}
 \end_layout
 
 \begin_layout Plain Layout
@@ -5471,78 +4062,17 @@ DT[!v,] <- NA
 
 \begin_layout Plain Layout
 
+## plot only the qualified points
+\end_layout
+
+\begin_layout Plain Layout
+
 plotWAC(DT$Time, DT$herr, ylim=c(-0.2,0.2), type='p', pch=20, col='blue',
 \end_layout
 
 \begin_layout Plain Layout
 
         ylab=expression(paste(delta,psi," [",degree,"]")))
-\end_layout
-
-\begin_layout Plain Layout
-
-# he <- 0
-\end_layout
-
-\begin_layout Plain Layout
-
-# tau <- 10
-\end_layout
-
-\begin_layout Plain Layout
-
-# hea <- vector ('numeric', nrow(D))
-\end_layout
-
-\begin_layout Plain Layout
-
-# k <- 0
-\end_layout
-
-\begin_layout Plain Layout
-
-# for (i in 1:nrow(D)) {
-\end_layout
-
-\begin_layout Plain Layout
-
-#   if (D$TASX[i] > 130 && A[i] > 1 && abs(D$herr[i]) < 0.3 && abs(D$GGVSPD[i])
- < 2) {
-\end_layout
-
-\begin_layout Plain Layout
-
-#     he <- he + (D$herr[i]-he)/tau
-\end_layout
-
-\begin_layout Plain Layout
-
-#     k <- k + 1
-\end_layout
-
-\begin_layout Plain Layout
-
-#     if (k > 20) {tau = 60}
-\end_layout
-
-\begin_layout Plain Layout
-
-#   }
-\end_layout
-
-\begin_layout Plain Layout
-
-#   hea[i] <- he
-\end_layout
-
-\begin_layout Plain Layout
-
-# }
-\end_layout
-
-\begin_layout Plain Layout
-
-# lineWAC(D$Time, hea, col='red')
 \end_layout
 
 \begin_layout Plain Layout
@@ -5628,6 +4158,26 @@ legend('topleft', legend=expression(paste("smoothed ",delta,psi)), col='red',
 \begin_layout Plain Layout
 
        text.col='red', lwd=2, lty=1, bg='lightyellow')
+\end_layout
+
+\begin_layout Plain Layout
+
+if (PlotsAtEnd) {
+\end_layout
+
+\begin_layout Plain Layout
+
+  #Fig4 <- recordPlot ()
+\end_layout
+
+\begin_layout Plain Layout
+
+  invisible (dev.off())
+\end_layout
+
+\begin_layout Plain Layout
+
+}
 \end_layout
 
 \begin_layout Plain Layout
@@ -5733,108 +4283,6 @@ min to smooth departures from the mean only where the estimate of
 \end_inset
 
  was considered valid as defined above.:
-\begin_inset Note Note
-status collapsed
-
-\begin_layout Enumerate
-A new variable was initialized at the mean value of 
-\begin_inset Formula $\delta\psi$
-\end_inset
-
- for the flight.
-\end_layout
-
-\begin_layout Enumerate
-At each point where there was a valid estimate of 
-\begin_inset Formula $\delta\psi$
-\end_inset
-
-, as defined above and displayed as blue dots in Fig.
-\begin_inset space ~
-\end_inset
-
-
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-ref{fig:error-components}
-\end_layout
-
-\end_inset
-
-, the value of the new variable was replaced by that estimate.
-\end_layout
-
-\begin_layout Enumerate
-The resulting time series was then filtered via a Butterworth third-order
- low-pass filter with a cutoff frequency corresponding to a period of 5
- min.
- The filtering was applied both forward and backward to minimize phase shift.
- (Short periods at the start and end then turn down toward zero are the
- result of zero-padding to initialize the filter.)
-\end_layout
-
-\begin_layout Plain Layout
-The result was a smoothly varying estimate of the heading correction that,
- in this case, showed little variation over the time of the flight.
- The mean value of the correction, quoted above, is also a reasonable estimate
- of the correction for the entire flight.
-\end_layout
-
-\end_inset
-
-
-\begin_inset Note Note
-status collapsed
-
-\begin_layout Plain Layout
-The result of this procedure is very sensitive to differences in timing
- of measurements from the IRS and GPS, because in turns any lag appears
- as an offset in the accelerations that mimics a heading error.
- In the circle maneuvers shown, the circles were flown first in left and
- then in right turns, so any timing errors would result in an offset between
- the estimated errors for the two turn directions.
- Simulated shifts in the signals showed that even a 10
-\begin_inset space ~
-\end_inset
-
-ms shift led to an evident offset, so this is a very sensitive test of the
- accuracy of the signal timing.
- The fluctuations shown in Fig.
-\begin_inset space ~
-\end_inset
-
-
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-ref{fig:error-components}
-\end_layout
-
-\end_inset
-
-, for any of the indicated segments, can be eliminated by appropriate shifting
- of the heading measurement, but slightly different values are then required
- for each circle pattern so there may be small changes in the time shift
- of the heading measurement during the flight.
- When applied to another dataset or another aircraft, this is an important
- check that is made best by using circles such as were flown here.
- However, it may be best to find the time shift that minimizes these fluctuation
-s, as done here, and then use the mean correction for the flight because
- there is no indication of a change with time for this case.
-\end_layout
-
-\end_inset
-
-
 \end_layout
 
 \begin_layout Standard
@@ -5843,7 +4291,8 @@ status open
 
 \begin_layout Plain Layout
 
-<<correct-heading>>=
+<<plot-heading-correction-rf15, fig.height=4, fig.cap=FigCap5, include=if
+ (PlotsAtEnd) FALSE else TRUE>>=
 \end_layout
 
 \begin_layout Plain Layout
@@ -5852,113 +4301,17 @@ status open
 
 \begin_layout Plain Layout
 
-CorrectHeading <- function (.data=Data, .span=21, .default=-0.08) {
+  if (PlotsAtEnd) {
 \end_layout
 
 \begin_layout Plain Layout
 
-  ## note: before calling, should apply timing corrections and to pitch/roll
- corrections if desired.
+    cairo_pdf ("./Graphics/Fig5.pdf")
 \end_layout
 
 \begin_layout Plain Layout
 
-  GeneratePlot <- FALSE
-\end_layout
-
-\begin_layout Plain Layout
-
-  Cradeg <- pi/180
-\end_layout
-
-\begin_layout Plain Layout
-
-  RotationCorrection <- function (.data=Data, .V) {
-\end_layout
-
-\begin_layout Plain Layout
-
-    Cradeg <- pi/180
-\end_layout
-
-\begin_layout Plain Layout
-
-    omegaE <- StandardConstant ('Omega')
-\end_layout
-
-\begin_layout Plain Layout
-
-    Re <- StandardConstant ('Re')
-\end_layout
-
-\begin_layout Plain Layout
-
-    DL <- nrow (.data)
-\end_layout
-
-\begin_layout Plain Layout
-
-    C <- vector ('numeric', 3*DL); dim(C) <- c(DL,3)
-\end_layout
-
-\begin_layout Plain Layout
-
-    lat <- .data$LAT * Cradeg
-\end_layout
-
-\begin_layout Plain Layout
-
-    sinLat <- sin(lat); cosLat <- cos(lat); tanLat <- tan(lat)
-\end_layout
-
-\begin_layout Plain Layout
-
-    M12 <- -2*omegaE*sinLat-.V[,1]*tanLat/Re
-\end_layout
-
-\begin_layout Plain Layout
-
-    M13 <- 2*omegaE*cosLat+.V[,1]/Re
-\end_layout
-
-\begin_layout Plain Layout
-
-    M21 <- 2*omegaE*sinLat+.V[,1]*tanLat/Re
-\end_layout
-
-\begin_layout Plain Layout
-
-    M23 <- .V[,2]/Re
-\end_layout
-
-\begin_layout Plain Layout
-
-    M31 <- -2*omegaE*cosLat-.V[,1]/Re
-\end_layout
-
-\begin_layout Plain Layout
-
-    M32 <- -.V[,2]/Re
-\end_layout
-
-\begin_layout Plain Layout
-
-    C[,1] <- M12*.V[,2]+M13*.V[,3]
-\end_layout
-
-\begin_layout Plain Layout
-
-    C[,2] <- M21*.V[,1]+M23*.V[,3]
-\end_layout
-
-\begin_layout Plain Layout
-
-    C[,3] <- M31*.V[,1]+M32*.V[,2]
-\end_layout
-
-\begin_layout Plain Layout
-
-    return (C)
+    dev.control ("enable")
 \end_layout
 
 \begin_layout Plain Layout
@@ -5968,998 +4321,7 @@ CorrectHeading <- function (.data=Data, .span=21, .default=-0.08) {
 
 \begin_layout Plain Layout
 
-  ## check for required variables:
-\end_layout
-
-\begin_layout Plain Layout
-
-  Required <- c("BLATA", "BLONGA", "BNORMA", "GGVNS", "GGVEW", "GGALT",
-\end_layout
-
-\begin_layout Plain Layout
-
-                "THDG", "PITCH", "ROLL")
-\end_layout
-
-\begin_layout Plain Layout
-
-  .names <- names(.data)
-\end_layout
-
-\begin_layout Plain Layout
-
-  for (.R in Required) {
-\end_layout
-
-\begin_layout Plain Layout
-
-    if (.R %in% .names) {next}
-\end_layout
-
-\begin_layout Plain Layout
-
-    print (sprintf ("in CorrectHeading, required variable %s not found;
- returning 0", .R))
-\end_layout
-
-\begin_layout Plain Layout
-
-    return(0)
-\end_layout
-
-\begin_layout Plain Layout
-
-  }
-\end_layout
-
-\begin_layout Plain Layout
-
-  if (!("LATC" %in% .names) && !("LAT" %in% .names)) {
-\end_layout
-
-\begin_layout Plain Layout
-
-    print (sprintf ("in CorrectHeading, required variable LAT or LATC not
- found; returning 0"))
-\end_layout
-
-\begin_layout Plain Layout
-
-    return(0)
-\end_layout
-
-\begin_layout Plain Layout
-
-  }
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-  ## get the data rate
-\end_layout
-
-\begin_layout Plain Layout
-
-  Rate <- 1  
-\end_layout
-
-\begin_layout Plain Layout
-
-  if ((.data$Time[2]-.data$Time[1]) <= 0.04) {Rate <- 25} 
-\end_layout
-
-\begin_layout Plain Layout
-
-  LD <- nrow(.data)
-\end_layout
-
-\begin_layout Plain Layout
-
-  D <- .data[!is.na (.data$Time), ]  ## eliminate bad-time records
-\end_layout
-
-\begin_layout Plain Layout
-
-  
-\end_layout
-
-\begin_layout Plain Layout
-
-  if (Rate > 1) {
-\end_layout
-
-\begin_layout Plain Layout
-
-    D1 <- D[(as.numeric(D$Time) %% 1) < 0.01,]
-\end_layout
-
-\begin_layout Plain Layout
-
-  } else {
-\end_layout
-
-\begin_layout Plain Layout
-
-    D1 <- D
-\end_layout
-
-\begin_layout Plain Layout
-
-  }
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-  if ("PITCHC" %in% names (D1)) {D1$PITCH <- D1$PITCHC}
-\end_layout
-
-\begin_layout Plain Layout
-
-  if ("ROLLC" %in% names (D1)) {D1$ROLL <- D1$ROLLC}
-\end_layout
-
-\begin_layout Plain Layout
-
-  if ("LATC" %in% names (D1)) {D1$LAT <- D1$LATC}
-\end_layout
-
-\begin_layout Plain Layout
-
-  # plotTrack(D1)
-\end_layout
-
-\begin_layout Plain Layout
-
-  
-\end_layout
-
-\begin_layout Plain Layout
-
-  #interpolate if necessary:
-\end_layout
-
-\begin_layout Plain Layout
-
-  MaxGap <- 1000
-\end_layout
-
-\begin_layout Plain Layout
-
-  ggvns <- zoo::na.approx (as.vector(D1$GGVNS), maxgap=MaxGap, na.rm = FALSE)
-\end_layout
-
-\begin_layout Plain Layout
-
-  ggvew <- zoo::na.approx (as.vector(D1$GGVEW), maxgap=MaxGap, na.rm = FALSE)
-\end_layout
-
-\begin_layout Plain Layout
-
-  D1$BLONGA <- zoo::na.approx (as.vector (D1$BLONGA), maxgap=MaxGap, na.rm=FALSE)
-\end_layout
-
-\begin_layout Plain Layout
-
-  D1$BLATA <- zoo::na.approx (as.vector (D1$BLATA), maxgap=MaxGap, na.rm=FALSE)
-\end_layout
-
-\begin_layout Plain Layout
-
-  D1$BNORMA <- zoo::na.approx (as.vector (D1$BNORMA), maxgap=MaxGap, na.rm=FALSE)
-\end_layout
-
-\begin_layout Plain Layout
-
-  D1$GGALT <- zoo::na.approx (as.vector (D1$GGALT), maxgap=MaxGap, na.rm=FALSE)
-\end_layout
-
-\begin_layout Plain Layout
-
-  D1$PITCH <- zoo::na.approx (as.vector (D1$PITCH), maxgap=MaxGap, na.rm=FALSE)
-\end_layout
-
-\begin_layout Plain Layout
-
-  D1$ROLL <- zoo::na.approx (as.vector (D1$ROLL), maxgap=MaxGap, na.rm=FALSE)
-\end_layout
-
-\begin_layout Plain Layout
-
-  D1$THDG <- zoo::na.approx (as.vector (D1$THDG), maxgap=MaxGap, na.rm=FALSE)
-\end_layout
-
-\begin_layout Plain Layout
-
-  D1$LAT <- zoo::na.approx (as.vector (D1$LAT), maxgap=MaxGap, na.rm=FALSE)
-\end_layout
-
-\begin_layout Plain Layout
-
-  vndot <- signal::sgolayfilt (ggvns, 3, .span, m=1)  # m=1 for first deriv.
-\end_layout
-
-\begin_layout Plain Layout
-
-  vedot <- signal::sgolayfilt (ggvew, 3, .span, m=1)
-\end_layout
-
-\begin_layout Plain Layout
-
-  G <- Gravity (D1$LAT, D1$GGALT)
-\end_layout
-
-\begin_layout Plain Layout
-
-  AV <- matrix(c(D1$BLONGA, D1$BLATA, D1$BNORMA+G), ncol=3) #aircraft-frame
-\end_layout
-
-\begin_layout Plain Layout
-
-  LV <- XformLA (D1, AV)                                    #l-frame
-\end_layout
-
-\begin_layout Plain Layout
-
-  ## now corrected for angular effects
-\end_layout
-
-\begin_layout Plain Layout
-
-  ## See Noureldin et al, 2013, Eq.
- (5.55)
-\end_layout
-
-\begin_layout Plain Layout
-
-  LV <- LV - RotationCorrection (D1, LV)
-\end_layout
-
-\begin_layout Plain Layout
-
-  
-\end_layout
-
-\begin_layout Plain Layout
-
-  D1$LACCX <- LV[, 1]
-\end_layout
-
-\begin_layout Plain Layout
-
-  D1$LACCY <- LV[, 2]
-\end_layout
-
-\begin_layout Plain Layout
-
-  D1$LACCZ <- LV[, 3] + G
-\end_layout
-
-\begin_layout Plain Layout
-
-  
-\end_layout
-
-\begin_layout Plain Layout
-
-  D1$LACCX <- signal::sgolayfilt (D1$LACCX, 3, .span, m=0)
-\end_layout
-
-\begin_layout Plain Layout
-
-  D1$LACCY <- signal::sgolayfilt (D1$LACCY, 3, .span, m=0)
-\end_layout
-
-\begin_layout Plain Layout
-
-  D1$LACCZ <- signal::sgolayfilt (D1$LACCZ, 3, .span, m=0)
-\end_layout
-
-\begin_layout Plain Layout
-
-  
-\end_layout
-
-\begin_layout Plain Layout
-
-  A2 <- D1$LACCX^2 + D1$LACCY^2
-\end_layout
-
-\begin_layout Plain Layout
-
-  A <- sqrt(A2)
-\end_layout
-
-\begin_layout Plain Layout
-
-  D1$herr <- (-D1$LACCY*(vedot-D1$LACCX)+D1$LACCX*(vndot-D1$LACCY)) / (Cradeg*A2
-)
-\end_layout
-
-\begin_layout Plain Layout
-
-  DT <- D1
-\end_layout
-
-\begin_layout Plain Layout
-
-  v <- DT$TASX > 130
-\end_layout
-
-\begin_layout Plain Layout
-
-  v <- v & (A > 1) & abs (DT$herr) < 0.3 & abs(DT$GGVSPD) < 3
-\end_layout
-
-\begin_layout Plain Layout
-
-  DT[!v,] <- NA
-\end_layout
-
-\begin_layout Plain Layout
-
-  r <- DT$ROLL > 10
-\end_layout
-
-\begin_layout Plain Layout
-
-  l <- DT$ROLL < -10
-\end_layout
-
-\begin_layout Plain Layout
-
-  DT$TestR <- (!is.na(DT$Time) & (DT$ROLL > 10))
-\end_layout
-
-\begin_layout Plain Layout
-
-  DT$TestL <- (!is.na(DT$Time) & (DT$ROLL < -10))
-\end_layout
-
-\begin_layout Plain Layout
-
-  DSET <- data.frame ()
-\end_layout
-
-\begin_layout Plain Layout
-
-  set <- vector("numeric")
-\end_layout
-
-\begin_layout Plain Layout
-
-  hmean <- vector("numeric")
-\end_layout
-
-\begin_layout Plain Layout
-
-  hsd <- vector("numeric")
-\end_layout
-
-\begin_layout Plain Layout
-
-  tbar <- vector("numeric")
-\end_layout
-
-\begin_layout Plain Layout
-
-  hmeanR <- vector("numeric")
-\end_layout
-
-\begin_layout Plain Layout
-
-  hsdR <- vector("numeric")
-\end_layout
-
-\begin_layout Plain Layout
-
-  tbarR <- vector("numeric")
-\end_layout
-
-\begin_layout Plain Layout
-
-  hmeanL <- vector("numeric")
-\end_layout
-
-\begin_layout Plain Layout
-
-  hsdL <- vector("numeric")
-\end_layout
-
-\begin_layout Plain Layout
-
-  tbarL <- vector("numeric")
-\end_layout
-
-\begin_layout Plain Layout
-
-  
-\end_layout
-
-\begin_layout Plain Layout
-
-  setStart <- 0
-\end_layout
-
-\begin_layout Plain Layout
-
-  NRA <- 40    ## effective averaging seconds for error-bar std.
- dev.
-\end_layout
-
-\begin_layout Plain Layout
-
-  NSL <- 25    ## required seconds turn in each direction
-\end_layout
-
-\begin_layout Plain Layout
-
-  TGAP <- 300  ## seconds constituting break in sets of turn values
-\end_layout
-
-\begin_layout Plain Layout
-
-  for (k in 1:nrow(DT)) {
-\end_layout
-
-\begin_layout Plain Layout
-
-    if (DT$TestR[k] || DT$TestL[k]) {
-\end_layout
-
-\begin_layout Plain Layout
-
-      if (setStart == 0) {
-\end_layout
-
-\begin_layout Plain Layout
-
-        setStart <- k
-\end_layout
-
-\begin_layout Plain Layout
-
-        setEnd <- k
-\end_layout
-
-\begin_layout Plain Layout
-
-        DSET <- rbind(DSET, DT[k,])
-\end_layout
-
-\begin_layout Plain Layout
-
-      } else if (as.numeric(difftime(DT$Time[k], DT$Time[setEnd], units='sec'))
- > TGAP) {
-\end_layout
-
-\begin_layout Plain Layout
-
-        if (length(DSET[DSET$TestR == TRUE, "herr"]) > NSL &&
-\end_layout
-
-\begin_layout Plain Layout
-
-            length(DSET[DSET$TestL == TRUE, "herr"]) > NSL) {      
-\end_layout
-
-\begin_layout Plain Layout
-
-          hmnR <- mean (DSET$herr[DSET$TestR], na.rm=TRUE)
-\end_layout
-
-\begin_layout Plain Layout
-
-          hmnL <- mean (DSET$herr[DSET$TestL], na.rm=TRUE)
-\end_layout
-
-\begin_layout Plain Layout
-
-          hsdevR <- sd (DSET$herr[DSET$TestR], na.rm=TRUE) / 
-\end_layout
-
-\begin_layout Plain Layout
-
-            sqrt (length (DSET$TestR)/NRA)
-\end_layout
-
-\begin_layout Plain Layout
-
-          hsdevL <- sd (DSET$herr[DSET$TestL], na.rm=TRUE) / 
-\end_layout
-
-\begin_layout Plain Layout
-
-            sqrt (length (DSET$TestL)/NRA)
-\end_layout
-
-\begin_layout Plain Layout
-
-          tbrR <- mean(DSET$Time[DSET$TestR], na.rm=TRUE)
-\end_layout
-
-\begin_layout Plain Layout
-
-          tbrL <- mean(DSET$Time[DSET$TestL], na.rm=TRUE)
-\end_layout
-
-\begin_layout Plain Layout
-
-          # print (sprintf ("R time %s count %d", as.POSIXct (tbrR, origin="2014-
-07-04", tz="GMT"), length(DSET$TestR)))
-\end_layout
-
-\begin_layout Plain Layout
-
-          hmeanR <- c(hmeanR, hmnR)
-\end_layout
-
-\begin_layout Plain Layout
-
-          hsdR   <- c(hsdR, hsdevR)
-\end_layout
-
-\begin_layout Plain Layout
-
-          tbarR  <- c(tbarR, tbrR)
-\end_layout
-
-\begin_layout Plain Layout
-
-          # print (sprintf ("L time %s count %d", as.POSIXct (tbrL, origin="2014-
-07-04", tz="GMT"), length(DSET$TestL)))
-\end_layout
-
-\begin_layout Plain Layout
-
-          hmeanL <- c(hmeanL, hmnL)
-\end_layout
-
-\begin_layout Plain Layout
-
-          hsdL   <- c(hsdL, hsdevL)
-\end_layout
-
-\begin_layout Plain Layout
-
-          tbarL  <- c(tbarL, tbrL)
-\end_layout
-
-\begin_layout Plain Layout
-
-        }
-\end_layout
-
-\begin_layout Plain Layout
-
-        setStart <- k
-\end_layout
-
-\begin_layout Plain Layout
-
-        setEnd <- k
-\end_layout
-
-\begin_layout Plain Layout
-
-        DSET <- DT[k,]
-\end_layout
-
-\begin_layout Plain Layout
-
-      } else {
-\end_layout
-
-\begin_layout Plain Layout
-
-        setEnd <- k
-\end_layout
-
-\begin_layout Plain Layout
-
-        DSET <- rbind(DSET, DT[k,])
-\end_layout
-
-\begin_layout Plain Layout
-
-      }
-\end_layout
-
-\begin_layout Plain Layout
-
-    }
-\end_layout
-
-\begin_layout Plain Layout
-
-  }
-\end_layout
-
-\begin_layout Plain Layout
-
-  if (length(DSET[DSET$TestR == TRUE, "herr"]) > NSL &&
-\end_layout
-
-\begin_layout Plain Layout
-
-      length(DSET[DSET$TestL == TRUE, "herr"]) > NSL) { 
-\end_layout
-
-\begin_layout Plain Layout
-
-    hmnR <- mean (DSET$herr[DSET$TestR], na.rm=TRUE)
-\end_layout
-
-\begin_layout Plain Layout
-
-    hmnL <- mean (DSET$herr[DSET$TestL], na.rm=TRUE)
-\end_layout
-
-\begin_layout Plain Layout
-
-    hsdevR <- sd (DSET$herr[DSET$TestR], na.rm=TRUE) / sqrt (length (DSET$TestR)/
-NRA)
-\end_layout
-
-\begin_layout Plain Layout
-
-    hsdevL <- sd (DSET$herr[DSET$TestL], na.rm=TRUE) / sqrt (length (DSET$TestL)/
-NRA)
-\end_layout
-
-\begin_layout Plain Layout
-
-    tbrR <- mean(DSET$Time[DSET$TestR], na.rm=TRUE)
-\end_layout
-
-\begin_layout Plain Layout
-
-    tbrL <- mean(DSET$Time[DSET$TestL], na.rm=TRUE)
-\end_layout
-
-\begin_layout Plain Layout
-
-    hmeanR <- c(hmeanR, hmnR)
-\end_layout
-
-\begin_layout Plain Layout
-
-    hsdR   <- c(hsdR, hsdevR)
-\end_layout
-
-\begin_layout Plain Layout
-
-    tbarR  <- c(tbarR, tbrR)
-\end_layout
-
-\begin_layout Plain Layout
-
-    hmeanL <- c(hmeanL, hmnL)
-\end_layout
-
-\begin_layout Plain Layout
-
-    hsdL   <- c(hsdL, hsdevL)
-\end_layout
-
-\begin_layout Plain Layout
-
-    tbarL  <- c(tbarL, tbrL)
-\end_layout
-
-\begin_layout Plain Layout
-
-  }
-\end_layout
-
-\begin_layout Plain Layout
-
-  if (length (tbarL) < 3) {
-\end_layout
-
-\begin_layout Plain Layout
-
-    print (sprintf ("CorrectHeading found too few qualifying turns (%d),
-\backslash
-nso return is default of -0.08", length (tbarL)))
-\end_layout
-
-\begin_layout Plain Layout
-
-    return (c(rep(.default, LD)))
-\end_layout
-
-\begin_layout Plain Layout
-
-  }
-\end_layout
-
-\begin_layout Plain Layout
-
-  if (GeneratePlot) {
-\end_layout
-
-\begin_layout Plain Layout
-
-    clr <- c("right", "left", "spline")
-\end_layout
-
-\begin_layout Plain Layout
-
-    col <- c ('blue', 'darkgreen', "red")
-\end_layout
-
-\begin_layout Plain Layout
-
-  }
-\end_layout
-
-\begin_layout Plain Layout
-
-  EH <- data.frame(tbar=c(tbarL, tbarR), hmeanR=c(rep(NA, length(tbarL)),
- hmeanR),
-\end_layout
-
-\begin_layout Plain Layout
-
-                   hmeanL=c(hmeanL, rep(NA, length(tbarR))), 
-\end_layout
-
-\begin_layout Plain Layout
-
-                   hsdR=c(rep(NA, length(tbarL)), hsdR), 
-\end_layout
-
-\begin_layout Plain Layout
-
-                   hsdL=c(hsdL, rep(NA, length(tbarR))))
-\end_layout
-
-\begin_layout Plain Layout
-
-  EH$tbar <- as.POSIXct (EH$tbar, origin="1970-01-01", tz="GMT")
-\end_layout
-
-\begin_layout Plain Layout
-
-  ## whmean and whsd are not used; left here for reference
-\end_layout
-
-\begin_layout Plain Layout
-
-  whmean <- weighted.mean (c(EH$hmeanR, EH$hmeanL), 
-\end_layout
-
-\begin_layout Plain Layout
-
-                           c(1/EH$hsdR^2, 1/EH$hsdL^2), na.rm=TRUE)
-\end_layout
-
-\begin_layout Plain Layout
-
-  whsd <- sqrt (1/sum(c(1/EH$hsdR^2, 1/EH$hsdL^2), na.rm=TRUE))
-\end_layout
-
-\begin_layout Plain Layout
-
-  if (GeneratePlot) {
-\end_layout
-
-\begin_layout Plain Layout
-
-    p <- ggplot(EH, aes(x=tbar), na.rm=TRUE)
-\end_layout
-
-\begin_layout Plain Layout
-
-    p <- p + geom_errorbar(aes(ymin=hmeanR-hsdR, ymax=hmeanR+hsdR, colour=clr[1]
-),
-\end_layout
-
-\begin_layout Plain Layout
-
-                           width=600, size=1.5, na.rm=TRUE) + ylim (-0.25,0.15)
-\end_layout
-
-\begin_layout Plain Layout
-
-    p <- p + geom_point (aes(y = hmeanR, colour=clr[1]),size=3.5, na.rm=TRUE)
-\end_layout
-
-\begin_layout Plain Layout
-
-    p <- p + geom_errorbar(aes(ymin=hmeanL-hsdL, ymax=hmeanL+hsdL, colour=clr[2]
-),
-\end_layout
-
-\begin_layout Plain Layout
-
-                           width=600, size=1.5, na.rm=TRUE)
-\end_layout
-
-\begin_layout Plain Layout
-
-    p <- p + geom_point (aes(y = hmeanL, colour=clr[2]), size=3.5, na.rm=TRUE)
-\end_layout
-
-\begin_layout Plain Layout
-
-    p <- p + ylab(expression(paste(delta,psi,' [',degree,']')))
-\end_layout
-
-\begin_layout Plain Layout
-
-    p <- p + xlab ("Time [UTC]")
-\end_layout
-
-\begin_layout Plain Layout
-
-  }
-\end_layout
-
-\begin_layout Plain Layout
-
-  yss <- c(EH$hmeanL[!is.na(EH$hmeanL)], EH$hmeanR[!is.na(EH$hmeanR)])
-\end_layout
-
-\begin_layout Plain Layout
-
-  ywts <- 1/c(EH$hsdL[!is.na(EH$hsdL)], EH$hsdR[!is.na(EH$hsdR)])^2
-\end_layout
-
-\begin_layout Plain Layout
-
-  SS <- smooth.spline(EH$tbar, yss, w=ywts, df=length(yss)-1, spar=0.7)
-\end_layout
-
-\begin_layout Plain Layout
-
-  # # xss <- as.POSIXct (SS$x, origin="1970-01-01", tz="GMT")
-\end_layout
-
-\begin_layout Plain Layout
-
-  # # p <- p + geom_line(aes(x=xss, y=SS$y, colour=clr[3]), lwd=2, na.rm=TRUE)
-\end_layout
-
-\begin_layout Plain Layout
-
-  if (GeneratePlot) {
-\end_layout
-
-\begin_layout Plain Layout
-
-    D1$HC <- predict(SS, as.numeric(D1$Time))$y
-\end_layout
-
-\begin_layout Plain Layout
-
-    p <- p + geom_line (data=D1, aes (x=Time, y=HC, colour=clr[3]), lwd=2,
- na.rm=TRUE)
-\end_layout
-
-\begin_layout Plain Layout
-
-    # SS2 <- smooth.spline(EH$tbar, yss, df=8, spar=0.4)
-\end_layout
-
-\begin_layout Plain Layout
-
-    # xss2 <- as.POSIXct (SS2$x, origin="1970-01-01", tz="GMT")
-\end_layout
-
-\begin_layout Plain Layout
-
-    # p <- p + geom_line(aes(x=xss2, y=SS2$y, colour=clr[3]), lwd=2, lty=2,
- na.rm=TRUE)
-\end_layout
-
-\begin_layout Plain Layout
-
-    cols <- c("right"="blue", "left"="darkgreen", "spline"="red")
-\end_layout
-
-\begin_layout Plain Layout
-
-    p <- p + scale_colour_manual("turn direction:", values=cols)
-\end_layout
-
-\begin_layout Plain Layout
-
-    p <- p + guides(color=guide_legend(override.aes=list(shape=c(16,16,NA),
- 
-\end_layout
-
-\begin_layout Plain Layout
-
-                                                         linetype=c(0,0,1))))
-\end_layout
-
-\begin_layout Plain Layout
-
-    p <- p + theme_WAC()
-\end_layout
-
-\begin_layout Plain Layout
-
-    print (p)
-\end_layout
-
-\begin_layout Plain Layout
-
-  }
-\end_layout
-
-\begin_layout Plain Layout
-
-  
-\end_layout
-
-\begin_layout Plain Layout
-
-  ## construct the input-rate heading correction HC
-\end_layout
-
-\begin_layout Plain Layout
-
-  HC <- predict(SS, as.numeric(D$Time))$y
-\end_layout
-
-\begin_layout Plain Layout
-
-  return (HC)
-\end_layout
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-@
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-<<plot-heading-correction-rf15, include=TRUE, fig.height=4, fig.cap="The heading
- correction determined using the proposed algorithm, for the measurements
- from DEEPWAVE flight 15 (3 July 2014).
- Estimates from left and right turns are plotted separately and an interpolating
- spline fit is also shown.
- Error bars are approximately $2
-\backslash
-
-\backslash
-sigma_m$ where $
-\backslash
-
-\backslash
-sigma_m$ is the standard deviation in the mean value.">>=
-\end_layout
-
-\begin_layout Plain Layout
-
+  ## this duplicates code from CorrectHeading in order to include the plot
 \end_layout
 
 \begin_layout Plain Layout
@@ -7050,11 +4412,6 @@ sigma_m$ is the standard deviation in the mean value.">>=
 \begin_layout Plain Layout
 
   }
-\end_layout
-
-\begin_layout Plain Layout
-
-  # plotTrack(D1)
 \end_layout
 
 \begin_layout Plain Layout
@@ -7808,6 +5165,26 @@ NRA)
 
 \begin_layout Plain Layout
 
+  if (PlotsAtEnd) {
+\end_layout
+
+\begin_layout Plain Layout
+
+    #Fig5 <- recordPlot ()
+\end_layout
+
+\begin_layout Plain Layout
+
+    invisible (dev.off())
+\end_layout
+
+\begin_layout Plain Layout
+
+  }
+\end_layout
+
+\begin_layout Plain Layout
+
   
 \end_layout
 
@@ -8293,12 +5670,12 @@ DT[!v,] <- NA
 
 \begin_layout Plain Layout
 
-r <- setRange(D1$Time, 80000, 82500)
+# r <- setRange(D1$Time, 80000, 82500)
 \end_layout
 
 \begin_layout Plain Layout
 
-r <- setRange(D1$Time, 0, 0)
+# r <- setRange(D1$Time, 0, 0)
 \end_layout
 
 \begin_layout Plain Layout
@@ -8421,23 +5798,32 @@ status open
 
 \begin_layout Plain Layout
 
-<<spline-plot, include=TRUE, fig.height=4, fig.cap="Estimates of heading errors
- arising from turns during DEEPWAVE flight 16 (4 July 2014).
- Estimates from each left and right turn are plotted separately, and two
- spline fits with different degrees of smoothing are shown.
- Error bars are approximately $2
-\backslash
-
-\backslash
-sigma_m$ where $
-\backslash
-
-\backslash
-sigma_m$ is the standard deviation in the mean value.">>=
+<<spline-plot, fig.height=4, fig.cap=FigCap6, include=if (PlotsAtEnd) FALSE
+ else TRUE>>=
 \end_layout
 
 \begin_layout Plain Layout
 
+\end_layout
+
+\begin_layout Plain Layout
+
+if (PlotsAtEnd) {
+\end_layout
+
+\begin_layout Plain Layout
+
+  cairo_pdf ("./Graphics/Fig6.pdf")
+\end_layout
+
+\begin_layout Plain Layout
+
+  dev.control ("enable")
+\end_layout
+
+\begin_layout Plain Layout
+
+}
 \end_layout
 
 \begin_layout Plain Layout
@@ -8482,26 +5868,6 @@ DT$TestL <- (!is.na(DT$Time) & (DT$ROLL < -10))
 \begin_layout Plain Layout
 
 DSET <- data.frame ()
-\end_layout
-
-\begin_layout Plain Layout
-
-set <- vector("numeric")
-\end_layout
-
-\begin_layout Plain Layout
-
-hmean <- vector("numeric")
-\end_layout
-
-\begin_layout Plain Layout
-
-hsd <- vector("numeric")
-\end_layout
-
-\begin_layout Plain Layout
-
-tbar <- vector("numeric")
 \end_layout
 
 \begin_layout Plain Layout
@@ -8981,6 +6347,26 @@ print (p)
 
 \begin_layout Plain Layout
 
+if (PlotsAtEnd) {
+\end_layout
+
+\begin_layout Plain Layout
+
+  #Fig6 <- recordPlot()
+\end_layout
+
+\begin_layout Plain Layout
+
+  invisible (dev.off())
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
 \end_layout
 
 \begin_layout Plain Layout
@@ -9130,1400 +6516,6 @@ s
  
 \end_layout
 
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Subsection
-Details regarding the correction algorithm
-\end_layout
-
-\begin_layout Plain Layout
-
-\emph on
-[maybe move this to an appendix?]
-\end_layout
-
-\begin_layout Plain Layout
-The intent of this section is to provide an algorithm suitable for routine
- use.
- The requirements for this algorithm are as follows:
-\end_layout
-
-\begin_layout Itemize
-The flight pattern must include maneuvers that provide horizontal accelerations,
- usually turns of at least 30
-\begin_inset space \thinspace{}
-\end_inset
-
-s duration 
-\emph on
-in each direction.
-
-\emph default
- The reason is that it is difficult to correct for timing errors in the
- measurements of heading relative to the measured ground-speed components
- from a GPS receiver, and even a delay of 50
-\begin_inset space \thinspace{}
-\end_inset
-
-ms will, for a turn rate corresponding to a three-minute turn through 360
-\begin_inset Formula $^{\circ}$
-\end_inset
-
-, lead to a 0.05
-\begin_inset Formula $^{\circ}$
-\end_inset
-
- false indication of a heading error.
- However, the error reverses sign with the direction of the turn, so averaging
- the results from left turns and from right turns will correct for this
- false indication of a heading error.
- Course-reversal maneuvers like 
-\begin_inset Quotes eld
-\end_inset
-
-90-270
-\begin_inset Quotes erd
-\end_inset
-
- turns (90
-\begin_inset Formula $^{\circ}$
-\end_inset
-
- one direction followed by 270
-\begin_inset Formula $^{\circ}$
-\end_inset
-
- the other direction) provide good data for this algorithm, as do 
-\begin_inset Quotes eld
-\end_inset
-
-60-300-60
-\begin_inset Quotes erd
-\end_inset
-
- teardrop turns that are a faster means of returning to the starting point.
- If wind measurements are critical to the research, it may be useful to
- include patterns like 
-\begin_inset Quotes eld
-\end_inset
-
-S
-\begin_inset Quotes erd
-\end_inset
-
- turns periodically, with 30
-\begin_inset space \thinspace{}
-\end_inset
-
-s turns in opposite directions, to provide the needed accelerations.
-\end_layout
-
-\begin_layout Itemize
-To the extent possible, sampled time series should be corrected for sampling
- delays.
- The most important such correction is the timing of the heading measurements
- from the INS relative to the ground-speed measurements from the GPS.
- In the examples shown in this note, the differences between different turn
- directions were minimized by shifting the heading forward in time by 140
- ms, so this shift was applied before calculations such as those shown in
- Figs.
-\begin_inset space ~
-\end_inset
-
-
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-ref{fig:spline-plot}
-\end_layout
-
-\end_inset
-
- or 
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-ref{fig:errors-rf16}
-\end_layout
-
-\end_inset
-
-.
- The averaging provided by the first item above helps reduce errors from
- timing, but it is still preferable to keep those errors small.
- Circle maneuvers such as used to construct Fig.
-\begin_inset space ~
-\end_inset
-
-
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-ref{fig:errors-rf16}
-\end_layout
-
-\end_inset
-
- provide a sensitive test of timing errors.
-\end_layout
-
-\begin_layout Plain Layout
-Many research flights and research data sets meet these requirements, and
- they can be addressed in flight plans for future projects.
- The algorithm implemented here, for which specific R code is available,
- follows these steps:
-\end_layout
-
-\begin_layout Enumerate
-
-\emph on
-Shift the heading measurement as needed, where necessary using fractional
- increments in the time series.
-
-\emph default
- For example, the standard high-rate data sets provided by the NCAR/EOL/RAF
- data processing are 25
-\begin_inset space \thinspace{}
-\end_inset
-
-Hz time series, so a shift of 140
-\begin_inset space \thinspace{}
-\end_inset
-
-ms represents a 3.5-increment.
- This can be accomplished using interpolation to higher-rate series, filtering
- of the high-rate file, and resampling at the original rate.
-\end_layout
-
-\begin_layout Enumerate
-
-\emph on
-For data files produced at rates above 1
-\begin_inset space \thinspace{}
-\end_inset
-
-Hz, construct a 1
-\begin_inset space \thinspace{}
-\end_inset
-
-Hz data set to use when calculating the heading correction.
-
-\emph default
- These results change only slowly, as suggested in Fig.
-\begin_inset space ~
-\end_inset
-
-
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-ref{fig:spline-plot}
-\end_layout
-
-\end_inset
-
- Because the application of the transformations, differentiations, and pitch
- corrections require considerable calculation, this results in considerably
- faster calculations.
- 
-\end_layout
-
-\begin_layout Enumerate
-
-\emph on
-Apply the pitch and roll corrections using the algorithm developed in Sect.
-\begin_inset space ~
-\end_inset
-
-
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "sec:Correcting-the-pitch"
-
-\end_inset
-
-.
- 
-\emph default
-The measurements of pitch and, to a lesser extent, roll affect the transformatio
-n of the accelerations from the 
-\begin_inset Formula $a$
-\end_inset
-
--frame to the 
-\begin_inset Formula $l$
-\end_inset
-
--frame.
- Although the correction developed here depends only weakly on the correction
- to pitch and roll, inclusion of this step may protect against or at least
- identify anomalously large errors in pitch.
- Reciprocally, the pitch correction depends on the measured heading, but
- the effect of heading errors are insignificant.
- Omission of this step normally makes no detectable difference.
-\end_layout
-
-\begin_layout Enumerate
-
-\emph on
-Differentiate the ground-speed measurements provided by a GPS receiver,
-\emph default
- using Savitzky-Golay polynomials, to obtain reference measurements of horizonta
-l accelerations in the 
-\begin_inset Formula $l$
-\end_inset
-
--frame.
- The specific choice was to use third-order polynomials spanning 21
-\begin_inset space \thinspace{}
-\end_inset
-
-s.
-\end_layout
-
-\begin_layout Enumerate
-
-\emph on
-Transform the accelerations measured by the INS in the 
-\begin_inset Formula $a$
-\end_inset
-
--frame to the 
-\begin_inset Formula $l$
-\end_inset
-
--frame.
-
-\emph default
- Filter these results also using Savitzky-Golay polynomials of the same
- order and span so that they are smoothed in the same way as the ground-speed
- derivatives.
-\end_layout
-
-\begin_layout Enumerate
-
-\emph on
-Use (
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "eq:final-answer"
-
-\end_inset
-
-) to obtain estimates of the heading error 
-\begin_inset Formula $\delta\psi$
-\end_inset
-
- at each time.
-
-\emph default
- However, apply data restrictions to avoid cases of high uncertainty.
- The most important restriction used here was to require that the total
- horizontal acceleration in the 
-\begin_inset Formula $l$
-\end_inset
-
--frame be larger than 
-\begin_inset Formula $1$
-\end_inset
-
-
-\begin_inset space \thinspace{}
-\end_inset
-
-m
-\begin_inset space \thinspace{}
-\end_inset
-
-s
-\begin_inset Formula $^{-1}$
-\end_inset
-
-.
- 
-\end_layout
-
-\begin_layout Enumerate
-
-\emph on
-Use a search algorithm to identify flight segments with turns
-\emph default
- (specifically, magnitude of roll larger than 10
-\begin_inset Formula $^{\circ}$
-\end_inset
-
-) continuously except for possible gaps of 5
-\begin_inset space \thinspace{}
-\end_inset
-
-min.
- Require that these flight segments have both right and left turns, with
- at least 45
-\begin_inset space \thinspace{}
-\end_inset
-
-s of each.
-\end_layout
-
-\begin_layout Enumerate
-
-\emph on
-For each such segment, calculate the mean correction
-\emph default
- and its standard deviation and the mean time for each turn direction.
-\end_layout
-
-\begin_layout Enumerate
-
-\emph on
-Use cubic spline interpolation
-\emph default
- to represent the variation in heading correction over the course of the
- flight.
- Two possible choices are shown in Fig.
-\begin_inset space ~
-\end_inset
-
-
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-ref{fig:spline-plot}
-\end_layout
-
-\end_inset
-
-; of these, the smoother choice is incorporated into the algorithm.
-\end_layout
-
-\begin_layout Enumerate
-
-\emph on
-Subtract the result given by the interopolation from the measured heading.
-\end_layout
-
-\begin_layout Plain Layout
-The archives accompanying this note include specific algorithms for each
- step and a complete program constructing this text as well as performing
- the data-analysis steps.
- In particular, there are functions for the pitch correction and heading
- correction, for time-shifting, and for transformations between reference
- frames.
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Section
-
-\lang english
-Comparison to an IRS with a Kalman filter
-\end_layout
-
-\begin_layout Plain Layout
-
-\lang english
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-<<prelim>>=
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-require(xts)
-\end_layout
-
-\begin_layout Plain Layout
-
-require(zoo)
-\end_layout
-
-\begin_layout Plain Layout
-
-require(signal)
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-transferAttributes <- function (dsub, d) {
-\end_layout
-
-\begin_layout Plain Layout
-
-  ds <- dsub
-\end_layout
-
-\begin_layout Plain Layout
-
-  for (nm in names (ds)) {
-\end_layout
-
-\begin_layout Plain Layout
-
-    if (nm %in% names(d)) {
-\end_layout
-
-\begin_layout Plain Layout
-
-      var <- sprintf ("d$%s", nm)
-\end_layout
-
-\begin_layout Plain Layout
-
-      A <- attributes (eval (parse (text=var)))
-\end_layout
-
-\begin_layout Plain Layout
-
-      A$dim <- NULL
-\end_layout
-
-\begin_layout Plain Layout
-
-      if (nm != "Time") {
-\end_layout
-
-\begin_layout Plain Layout
-
-        A$class <- NULL
-\end_layout
-
-\begin_layout Plain Layout
-
-      }
-\end_layout
-
-\begin_layout Plain Layout
-
-      attributes (ds[,nm]) <- A
-\end_layout
-
-\begin_layout Plain Layout
-
-    }
-\end_layout
-
-\begin_layout Plain Layout
-
-  }
-\end_layout
-
-\begin_layout Plain Layout
-
-  return(ds)
-\end_layout
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-@
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-<<read-applanix, echo=TRUE, include=TRUE>>=
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-SaveRData5 <- sprintf("%s5.Rdata", thisFileName)
-\end_layout
-
-\begin_layout Plain Layout
-
-if (ReloadData) {
-\end_layout
-
-\begin_layout Plain Layout
-
-  ApplanixRF16 <- read.table ("/Data/DEEPWAVE/ApplanixRF16.txt", 
-\end_layout
-
-\begin_layout Plain Layout
-
-                            header=TRUE, quote="
-\backslash
-"", stringsAsFactors=FALSE)
-\end_layout
-
-\begin_layout Plain Layout
-
-  ## convert times to a POSIX-format time, for merging with standard netCDF:
-\end_layout
-
-\begin_layout Plain Layout
-
-  ## (note 2014-07-04 is the flight date)
-\end_layout
-
-\begin_layout Plain Layout
-
-  ApplanixRF16$Time <- as.POSIXct (ApplanixRF16$time_.UTC_seconds_of_day.,
-\end_layout
-
-\begin_layout Plain Layout
-
-                                 origin="2014-07-04", tz="GMT")
-\end_layout
-
-\begin_layout Plain Layout
-
-  NewNames <- names (ApplanixRF16)
-\end_layout
-
-\begin_layout Plain Layout
-
-  ## reassign names as specified in file NewNames:
-\end_layout
-
-\begin_layout Plain Layout
-
-  source ('NewNames')
-\end_layout
-
-\begin_layout Plain Layout
-
-  NewNames <- c(NewNames, "Time")
-\end_layout
-
-\begin_layout Plain Layout
-
-  names (ApplanixRF16) <- NewNames
-\end_layout
-
-\begin_layout Plain Layout
-
-  save(ApplanixRF16, file=SaveRData5)
-\end_layout
-
-\begin_layout Plain Layout
-
-} else {
-\end_layout
-
-\begin_layout Plain Layout
-
-  load(SaveRData5)
-\end_layout
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-@
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-<<read-HRT-netCDF, include=TRUE, echo=FALSE>>=
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-## read variables from netCDF file, including those needed for pitch correction:
-\end_layout
-
-\begin_layout Plain Layout
-
-# Flight <- "rf16h"
-\end_layout
-
-\begin_layout Plain Layout
-
-# # Data <- getNetCDF ("/scr/raf/Prod_Data/DEEPWAVE/HRT/DEEPWAVErf16hPC.nc",
-\end_layout
-
-\begin_layout Plain Layout
-
-# Data <- getNetCDF ("/Data/DEEPWAVE/DEEPWAVErf16h.nc",
-\end_layout
-
-\begin_layout Plain Layout
-
-#                    standardVariables(c("PITCH", "ROLL", "THDG", "GGVSPD",
-\end_layout
-
-\begin_layout Plain Layout
-
-#                                        "VNS", "VEW", "GGVNS", "GGVEW",
- "LATC")))
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-# Rate <- 1
-\end_layout
-
-\begin_layout Plain Layout
-
-# if ("sps25" %in% names(attributes(Data)$Dimensions)) {Rate <- 25}
-\end_layout
-
-\begin_layout Plain Layout
-
-# s <- -60
-\end_layout
-
-\begin_layout Plain Layout
-
-# Data$VEW <- ShiftInTime (Data$VEW, Rate, s)
-\end_layout
-
-\begin_layout Plain Layout
-
-# Data$VNS <- ShiftInTime (Data$VNS, Rate, s)
-\end_layout
-
-\begin_layout Plain Layout
-
-# Data$THDG <- ShiftInTime (Data$THDG, Rate, s)
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-# C <- CorrectPitch(Data)
-\end_layout
-
-\begin_layout Plain Layout
-
-# Data$PITCHC <- Data$PITCH - C[,1] 
-\end_layout
-
-\begin_layout Plain Layout
-
-# Data$ROLLC <- Data$ROLL - C[,2]
-\end_layout
-
-\begin_layout Plain Layout
-
-Data <- DataSave
-\end_layout
-
-\begin_layout Plain Layout
-
-Rate <- 1
-\end_layout
-
-\begin_layout Plain Layout
-
-if ("sps25" %in% names(attributes(Data)$Dimensions)) {Rate <- 25}
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-## if Rate > 10, need to interpolate/filter the 10-Hz Applanix measurements
- to get 25 Hz;
-\end_layout
-
-\begin_layout Plain Layout
-
-## if Rate == 1, need to average the 10-Hz Applanix measurements
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-ReloadDave <- FALSE
-\end_layout
-
-\begin_layout Plain Layout
-
-ReloadDave <- TRUE
-\end_layout
-
-\begin_layout Plain Layout
-
-if (ReloadDave) {
-\end_layout
-
-\begin_layout Plain Layout
-
-  if (Rate == 25) {
-\end_layout
-
-\begin_layout Plain Layout
-
-    L <- 2.5 * nrow (ApplanixRF16)
-\end_layout
-
-\begin_layout Plain Layout
-
-    for (nm in names (ApplanixRF16)) {
-\end_layout
-
-\begin_layout Plain Layout
-
-      if (nm == "Time") {next}    ## skip Time; will handle specially below
-\end_layout
-
-\begin_layout Plain Layout
-
-      ## angle variables require vector averaging to avoid wrap-around problems
-\end_layout
-
-\begin_layout Plain Layout
-
-      if (nm == "THDG_APPX" || nm == "WANDER_APPX" || nm == "HDG_APPX")
- {
-\end_layout
-
-\begin_layout Plain Layout
-
-        sina <- sin (ApplanixRF16[, nm] * pi/180)
-\end_layout
-
-\begin_layout Plain Layout
-
-        cosa <- cos (ApplanixRF16[, nm] * pi/180)
-\end_layout
-
-\begin_layout Plain Layout
-
-        X1 <- stats::approx (x=ApplanixRF16$time_seconds_APPX, y=sina,
-\end_layout
-
-\begin_layout Plain Layout
-
-                            method='linear', n=L)
-\end_layout
-
-\begin_layout Plain Layout
-
-        X2 <- stats::approx (x=ApplanixRF16$time_seconds_APPX, y=cosa,
-\end_layout
-
-\begin_layout Plain Layout
-
-                             method='linear', n=L)
-\end_layout
-
-\begin_layout Plain Layout
-
-        ## apply small amount of filtering to linearly interpolated values
-\end_layout
-
-\begin_layout Plain Layout
-
-        X1$y <- signal::filter (signal::sgolay(3,7), X1$y)
-\end_layout
-
-\begin_layout Plain Layout
-
-        X2$y <- signal::filter (signal::sgolay(3,7), X2$y)
-\end_layout
-
-\begin_layout Plain Layout
-
-        Dave[, nm] <- (atan2(X1$y, X2$y) * 180/pi + 360) %% 360
-\end_layout
-
-\begin_layout Plain Layout
-
-      } else {    ## these are now not-angle variables
-\end_layout
-
-\begin_layout Plain Layout
-
-        X <- stats::approx (x=ApplanixRF16$time_seconds_APPX, y=ApplanixRF16[,
- nm], 
-\end_layout
-
-\begin_layout Plain Layout
-
-                           method='linear', n=L)
-\end_layout
-
-\begin_layout Plain Layout
-
-        X$y <- signal::filter (signal::sgolay (3,7), X$y)
-\end_layout
-
-\begin_layout Plain Layout
-
-        ## add variables to data.frame
-\end_layout
-
-\begin_layout Plain Layout
-
-        if (grepl("time", nm)) {
-\end_layout
-
-\begin_layout Plain Layout
-
-          Dave <- data.frame(time_seconds_APPX=X$y)
-\end_layout
-
-\begin_layout Plain Layout
-
-        } else {
-\end_layout
-
-\begin_layout Plain Layout
-
-          Dave[, nm] <- X$y
-\end_layout
-
-\begin_layout Plain Layout
-
-        }
-\end_layout
-
-\begin_layout Plain Layout
-
-      }
-\end_layout
-
-\begin_layout Plain Layout
-
-    }
-\end_layout
-
-\begin_layout Plain Layout
-
-  } else {  ## this is branch for 1-Hz data
-\end_layout
-
-\begin_layout Plain Layout
-
-    
-\end_layout
-
-\begin_layout Plain Layout
-
-    ## construct 1-Hz data by averaging 10-Hz data    
-\end_layout
-
-\begin_layout Plain Layout
-
-    ep <- endpoints(ApplanixRF16$Time, 'seconds')
-\end_layout
-
-\begin_layout Plain Layout
-
-    tt <- as.integer(period.apply(ApplanixRF16$time_seconds_APPX, ep, mean))
-\end_layout
-
-\begin_layout Plain Layout
-
-    Dave <- data.frame(time_seconds_APPX=tt)
-\end_layout
-
-\begin_layout Plain Layout
-
-    for (nm in names(ApplanixRF16)) {
-\end_layout
-
-\begin_layout Plain Layout
-
-      print(nm)
-\end_layout
-
-\begin_layout Plain Layout
-
-      if (nm == "Time") {next}
-\end_layout
-
-\begin_layout Plain Layout
-
-      ## deal specially with THDG_APPX to handle wrap-around
-\end_layout
-
-\begin_layout Plain Layout
-
-      if (nm == "THDG_APPX" || nm == "WANDER_APPX" || nm == "HDG_APPX")
- {
-\end_layout
-
-\begin_layout Plain Layout
-
-        ## note that this is the preferred way to average angles
-\end_layout
-
-\begin_layout Plain Layout
-
-        sina <- sin(ApplanixRF16[, nm] * pi/180)
-\end_layout
-
-\begin_layout Plain Layout
-
-        cosa <- cos(ApplanixRF16[, nm] * pi/180)
-\end_layout
-
-\begin_layout Plain Layout
-
-        sinave <- period.apply(sina, ep, mean)
-\end_layout
-
-\begin_layout Plain Layout
-
-        cosave <- period.apply(cosa, ep, mean)
-\end_layout
-
-\begin_layout Plain Layout
-
-        Dave[, nm] <- (atan2(sinave, cosave)*180/pi + 360) %% 360
-\end_layout
-
-\begin_layout Plain Layout
-
-      } else {
-\end_layout
-
-\begin_layout Plain Layout
-
-        if (grepl("time_s", nm)) {next}  ## already dealt with time_s
-\end_layout
-
-\begin_layout Plain Layout
-
-        Dave[, nm] <- period.apply(ApplanixRF16[,nm], ep, mean)
-\end_layout
-
-\begin_layout Plain Layout
-
-      }
-\end_layout
-
-\begin_layout Plain Layout
-
-    }
-\end_layout
-
-\begin_layout Plain Layout
-
-  }
-\end_layout
-
-\begin_layout Plain Layout
-
-  Dave$Time <- as.POSIXct(Dave$time_seconds_APPX, origin="2014-07-04", tz="GMT")
-\end_layout
-
-\begin_layout Plain Layout
-
-  save(Dave, file="APPX.Rdata")
-\end_layout
-
-\begin_layout Plain Layout
-
-} else {
-\end_layout
-
-\begin_layout Plain Layout
-
-  load(file='APPX.Rdata')
-\end_layout
-
-\begin_layout Plain Layout
-
-}  
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-@
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-
-\lang english
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-<<match-times, eval=FALSE>>=
-\end_layout
-
-\begin_layout Plain Layout
-
-  
-\end_layout
-
-\begin_layout Plain Layout
-
-  ## now set consistent time limits and dimensions in the two files
-\end_layout
-
-\begin_layout Plain Layout
-
-  ## The netCDF file is a subset of the Applanix file, so truncate the latter
-\end_layout
-
-\begin_layout Plain Layout
-
-SE <- getStartEnd(Data$Time)
-\end_layout
-
-\begin_layout Plain Layout
-
-r <- setRange(Dave$Time, SE[1], SE[2])
-\end_layout
-
-\begin_layout Plain Layout
-
-Dave <- Dave[r, ]
-\end_layout
-
-\begin_layout Plain Layout
-
-## need work here: match times
-\end_layout
-
-\begin_layout Plain Layout
-
-## make sure they match:
-\end_layout
-
-\begin_layout Plain Layout
-
-DVE <- Dave
-\end_layout
-
-\begin_layout Plain Layout
-
-for (i in 1:nrow(Data)) {
-\end_layout
-
-\begin_layout Plain Layout
-
-  DVE[i,] <- NULL
-\end_layout
-
-\begin_layout Plain Layout
-
-  j <- which (abs(Dave$Time-Data$Time[i]) < 0.02)
-\end_layout
-
-\begin_layout Plain Layout
-
-  if (length(j) > 1) {printf (sprintf ("multiple matches i=%d j=%d %d",
- i, j[1], j[2]))}
-\end_layout
-
-\begin_layout Plain Layout
-
-  if (j == NA || j == 0) {print (sprintf ("no match for i=%d", i))}
-\end_layout
-
-\begin_layout Plain Layout
-
-  DVE[i,] <- DAVE[j,]
-\end_layout
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\begin_layout Plain Layout
-
-DAVE <- DVE
-\end_layout
-
-\begin_layout Plain Layout
-
-DS <- Data
-\end_layout
-
-\begin_layout Plain Layout
-
-Data <- Data[1:nrow(Dave),]
-\end_layout
-
-\begin_layout Plain Layout
-
-Data <- transferAttributes(Data, DS)
-\end_layout
-
-\begin_layout Plain Layout
-
-Dave$Time <- NULL    ## this is a duplicate
-\end_layout
-
-\begin_layout Plain Layout
-
-Dave <- cbind(Data, Dave)  ## merge the two data.files
-\end_layout
-
-\begin_layout Plain Layout
-
-attributes(Dave) <- attributes(Data)
-\end_layout
-
-\begin_layout Plain Layout
-
-NewNames <- NewNames[-which(NewNames == 'Time')]  ## eliminate Time for
- NewNames
-\end_layout
-
-\begin_layout Plain Layout
-
-names (Dave) <- c(names (Data), NewNames)
-\end_layout
-
-\begin_layout Plain Layout
-
-Dave <- transferAttributes (Dave, DS)             ## DS is saved 'Data'
-\end_layout
-
-\begin_layout Plain Layout
-
-Dave$DTHDG <- Dave$THDG-Dave$THDG_APPX
-\end_layout
-
-\begin_layout Plain Layout
-
-Dave$DTHDG[Dave$DTHDG > 180] <- Dave$DTHDG[Dave$DTHDG > 180] - 360
-\end_layout
-
-\begin_layout Plain Layout
-
-Dave$DTHDG[Dave$DTHDG < -180] <- Dave$DTHDG[Dave$DTHDG < -180] + 360
-\end_layout
-
-\begin_layout Plain Layout
-
-Dave$DPITCH <- Dave$PITCH-Dave$PITCH_APPX
-\end_layout
-
-\begin_layout Plain Layout
-
-Dave$DPITCHC <- Dave$PITCHC-Dave$PITCH_APPX
-\end_layout
-
-\begin_layout Plain Layout
-
-Dave$DROLL <- Dave$ROLL - Dave$ROLL_APPX
-\end_layout
-
-\begin_layout Plain Layout
-
-Dave$DROLLC <- Dave$ROLLC-Dave$ROLL_APPX
-\end_layout
-
-\begin_layout Plain Layout
-
-SE <- getStartEnd(Dave$Time)
-\end_layout
-
-\begin_layout Plain Layout
-
-r <- setRange(Dave$Time, SE[1], SE[2])
-\end_layout
-
-\begin_layout Plain Layout
-
-DT <- Dave[r, ]
-\end_layout
-
-\begin_layout Plain Layout
-
-q <- (abs(DT$ROLL) > 5) | (DT$TASX < 130)
-\end_layout
-
-\begin_layout Plain Layout
-
-DT$DROLL[q] <- NA
-\end_layout
-
-\begin_layout Plain Layout
-
-DT$DPITCH[q] <- NA
-\end_layout
-
-\begin_layout Plain Layout
-
-DT$DTHDG[q] <- NA
-\end_layout
-
-\begin_layout Plain Layout
-
-DT$DPITCHC[q] <- NA
-\end_layout
-
-\begin_layout Plain Layout
-
-mP <- mean(DT$PITCH, na.rm=TRUE)
-\end_layout
-
-\begin_layout Plain Layout
-
-mPC <- mean(DT$PITCHC, na.rm=TRUE)
-\end_layout
-
-\begin_layout Plain Layout
-
-mPA <- mean(DT$PITCH_APPX, na.rm=TRUE)
-\end_layout
-
-\begin_layout Plain Layout
-
-DT$DP <- DT$DPITCH - mP + mPA
-\end_layout
-
-\begin_layout Plain Layout
-
-DT$DPC <- DT$DPITCHC - mPC + mPA
-\end_layout
-
-\begin_layout Plain Layout
-
-mR <- mean(DT$ROLL, na.rm=TRUE)
-\end_layout
-
-\begin_layout Plain Layout
-
-mRC <- mean(DT$ROLLC, na.rm=TRUE)
-\end_layout
-
-\begin_layout Plain Layout
-
-mRA <- mean(DT$ROLL_APPX, na.rm=TRUE)
-\end_layout
-
-\begin_layout Plain Layout
-
-DT$DR <- DT$DROLL - mR + mRA
-\end_layout
-
-\begin_layout Plain Layout
-
-DT$DRC <- DT$DROLLC - mRC + mRA
-\end_layout
-
-\begin_layout Plain Layout
-
-DT$PC <- DT$PITCHC - DT$PITCH
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-@
-\end_layout
-
-\end_inset
-
-
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
 \begin_layout Section
 Some properties of the corrections
 \end_layout
@@ -10542,13 +6534,32 @@ status open
 
 \begin_layout Plain Layout
 
-<<typical-errors, include=TRUE, fig.height=4, fig.cap="Probability distribution
- of individual 1-Hz estimate of the pitch error as determined using the
- algorithm of Sect.2.">>=
+<<typical-errors, fig.height=4, fig.cap=FigCap7, include=if(PlotsAtEnd) FALSE
+ else TRUE>>=
 \end_layout
 
 \begin_layout Plain Layout
 
+\end_layout
+
+\begin_layout Plain Layout
+
+if (PlotsAtEnd) {
+\end_layout
+
+\begin_layout Plain Layout
+
+  cairo_pdf ("./Graphics/Fig7.pdf")
+\end_layout
+
+\begin_layout Plain Layout
+
+  dev.control ("enable")
+\end_layout
+
+\begin_layout Plain Layout
+
+}
 \end_layout
 
 \begin_layout Plain Layout
@@ -10608,6 +6619,26 @@ meanPC <- mean(DD[r, "PC"], na.rm=TRUE)
 \begin_layout Plain Layout
 
 sdPC <- sd(DD[r, "PC"], na.rm=TRUE)
+\end_layout
+
+\begin_layout Plain Layout
+
+if (PlotsAtEnd) {
+\end_layout
+
+\begin_layout Plain Layout
+
+  # Fig7 <- recordPlot ()
+\end_layout
+
+\begin_layout Plain Layout
+
+  invisible (dev.off())
+\end_layout
+
+\begin_layout Plain Layout
+
+}
 \end_layout
 
 \begin_layout Plain Layout
@@ -10711,8 +6742,19 @@ If the pitch correction reduces the error in pitch, wind measurements made
  before and after level course reversal would be expected to match better
  after correction because, if there is a pitch error, its contribution to
  the vertical wind would reverse sign between the two legs.
- The following is a tabulation of four instances where the flight track
- reversed course and remained at the same altitude.
+ Table
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:Flight-segments"
+
+\end_inset
+
+ lists four instances from the DEEPWAVE project where the flight track reversed
+ course and remained at the same altitude.
  Some other candidates were excluded because conditions were too variable
  along the legs to produce a small-uncertainty estimate of the vertical
  wind, or because (as was the normal case in these research flights) the
@@ -10758,455 +6800,11 @@ s
 \end_layout
 
 \begin_layout Standard
-\begin_inset Float table
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset Caption Standard
-
-\begin_layout Plain Layout
-Flight segments before and after constant-altitude course reversal in relatively
- steady wind conditions.
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-\align center
-\begin_inset Tabular
-<lyxtabular version="3" rows="5" columns="3">
-<features rotate="0" tabularvalignment="middle">
-<column alignment="center" valignment="top">
-<column alignment="center" valignment="top">
-<column alignment="center" valignment="top">
-<row>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\series bold
-Flight
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\series bold
-before turn (UTC)
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\series bold
-after turn (UTC)
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-2
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-12:25:00--12:30:00
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-12:37:00--12:43:00
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-10
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-7:53:00--7:58:00
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-8:05:00--8:10:00
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-19
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-8:39:30--8:44:30
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-8:51:30--8:56:30
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-21
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-8:51:00--8:55:00
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-9:03:00--9:07:30
-\end_layout
-
-\end_inset
-</cell>
-</row>
-</lyxtabular>
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
 \begin_inset Note Note
 status open
 
 \begin_layout Plain Layout
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-begin{minipage}[t]{1
-\backslash
-columnwidth}%
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-hskip1in%
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-begin{tabular}{|c|c|c|}
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-hline 
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-textbf{Flight} &
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-textbf{Times before turn [m/s]} &
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-textbf{Times after turn [m/s]}
-\backslash
-tabularnewline
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-hline 
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-hline 
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-2 &
-\end_layout
-
-\begin_layout Plain Layout
-
-12:25:00--12:30:00 &
-\end_layout
-
-\begin_layout Plain Layout
-
-12:37:00--12:43:00
-\backslash
-tabularnewline
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-hline
-\end_layout
-
-\begin_layout Plain Layout
-
-10 &
-\end_layout
-
-\begin_layout Plain Layout
-
-7:53:00--7:58:00 &
-\end_layout
-
-\begin_layout Plain Layout
-
-8:05:00--8:10:00
-\backslash
-tabularnewline
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-hline 
-\end_layout
-
-\begin_layout Plain Layout
-
-19 &
-\end_layout
-
-\begin_layout Plain Layout
-
-8:39:30--8:44:30 &
-\end_layout
-
-\begin_layout Plain Layout
-
-8:51:30--8:56:30
-\backslash
-tabularnewline
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-hline 
-\end_layout
-
-\begin_layout Plain Layout
-
-21 &
-\end_layout
-
-\begin_layout Plain Layout
-
-8:51:00--8:55:00 &
-\end_layout
-
-\begin_layout Plain Layout
-
-9:03:00--9:07:30
-\backslash
-tabularnewline
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-hline 
-\end_layout
-
-\begin_layout Plain Layout
-
-% 21 &
-\end_layout
-
-\begin_layout Plain Layout
-
-% 9:56:30--10:01:30 &
-\end_layout
-
-\begin_layout Plain Layout
-
-% 10:08:00--10:13:00
-\backslash
-tabularnewline
-\end_layout
-
-\begin_layout Plain Layout
-
-% 
-\backslash
-hline 
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-end{tabular}%
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-end{minipage}
-\end_layout
-
-\begin_layout Plain Layout
-
-% The average absolute value of the
-\end_layout
-
-\begin_layout Plain Layout
-
-% difference before correction was smaller than 0.1
-\backslash
-,m/s, so the wind 
-\end_layout
-
-\begin_layout Plain Layout
-
-% measurements were already in very good agreement for these pairs of legs
-\end_layout
-
-\begin_layout Plain Layout
-
-% and not much improvement could be expected.
- 
-\end_layout
-
-\begin_layout Plain Layout
-
-% However, application of the
-\end_layout
-
-\begin_layout Plain Layout
-
-% pitch-correction algorithm did reduce this average to about 36
-\backslash
-% of the
-\end_layout
-
-\begin_layout Plain Layout
-
-% uncorrected value, as shown in Fig.
-\backslash
- 
-\backslash
-ref{fig:reverse-course-w-comparison}.
-\end_layout
-
-\end_inset
-
-
+table tab-Flight-segments goes here
 \end_layout
 
 \end_inset
@@ -11220,19 +6818,32 @@ status open
 
 \begin_layout Plain Layout
 
-<<reverse-course-w-comparison, fig.height=3.5, fig.cap="Absolute difference
- in vertical wind for flight segments before and after level course-reversal
- maneuvers.
- The top panel shows the uncorrected measurements and the bottom panel shows
- the result of applying the pitch correction developed in Sect.
-\backslash
-
-\backslash
- 2.", include=TRUE>>=
+<<reverse-course-w-comparison, fig.height=3.5, fig.cap=FigCap8, include=if
+ (PlotsAtEnd) FALSE else TRUE>>=
 \end_layout
 
 \begin_layout Plain Layout
 
+\end_layout
+
+\begin_layout Plain Layout
+
+if (PlotsAtEnd) {
+\end_layout
+
+\begin_layout Plain Layout
+
+  cairo_pdf ("./Graphics/Fig8.pdf")
+\end_layout
+
+\begin_layout Plain Layout
+
+  dev.control ("enable")
+\end_layout
+
+\begin_layout Plain Layout
+
+}
 \end_layout
 
 \begin_layout Plain Layout
@@ -11652,11 +7263,6 @@ op <- par (mar=c(2,4,1,2.5)+0.1)
 
 \begin_layout Plain Layout
 
-# op <- par (mfrow=c(2,1), mar=c(2,5,2,2)+0.1)
-\end_layout
-
-\begin_layout Plain Layout
-
 hist (abs(wid[rr]), border='blue', col=rgb(0,0,100,30, maxColorValue=255),
  
 \end_layout
@@ -11717,6 +7323,26 @@ legend('topright', legend="after correction", text.col='red')
 \begin_layout Plain Layout
 
 # print (widc)
+\end_layout
+
+\begin_layout Plain Layout
+
+if (PlotsAtEnd) {
+\end_layout
+
+\begin_layout Plain Layout
+
+  # Fig8 <- recordPlot ()
+\end_layout
+
+\begin_layout Plain Layout
+
+  invisible (dev.off())
+\end_layout
+
+\begin_layout Plain Layout
+
+}
 \end_layout
 
 \begin_layout Plain Layout
@@ -11983,150 +7609,6 @@ ty in vertical wind is determined primarily by uncertainty in the measurement
  of angle of attack, and the pitch uncertainty is of little significance.
 \end_layout
 
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-
-\lang english
- Modern GPS receivers, especially if augmented by special signals or special
- processing, produce 1-Hz measurements with uncertainty of around 0.03
-\begin_inset space \thinspace{}
-\end_inset
-
-m
-\begin_inset space \thinspace{}
-\end_inset
-
-s
-\begin_inset Formula $^{-1}$
-\end_inset
-
-[ref] The consistency of the Schuler oscillation, as illustrated by the
- top panels in Figs.
-\begin_inset space ~
-\end_inset
-
-1 and 2, suggest that derivatives in velocity can be determined by averaging
- over periods of at least 10 min or more, so if the ground-speed measurements
- from the INS have uncertainty of about 0.03
-\begin_inset space \thinspace{}
-\end_inset
-
-m
-\begin_inset space \thinspace{}
-\end_inset
-
-s
-\begin_inset Formula $^{-1}$
-\end_inset
-
- (where variance spectra for the 1-Hz measurements begin to show noise),
- the uncertainty in differences between these two signals might be expected
- to be 
-\begin_inset Formula $0.03\,\sqrt{2}\approx0.04$
-\end_inset
-
-
-\begin_inset space \thinspace{}
-\end_inset
-
-m
-\begin_inset space \thinspace{}
-\end_inset
-
-s
-\begin_inset Formula $^{-1}$
-\end_inset
-
-, and averaged over 10
-\begin_inset space ~
-\end_inset
-
-min or perhaps 60 autocorrelation times the resulting difference could be
- resolved to 
-\begin_inset Formula $0.04/\sqrt{60}\approx0.005$
-\end_inset
-
-
-\begin_inset space \thinspace{}
-\end_inset
-
-m
-\begin_inset space \thinspace{}
-\end_inset
-
-s
-\begin_inset Formula $^{-1}$
-\end_inset
-
-.
- Over intervals separated by 10
-\begin_inset space \thinspace{}
-\end_inset
-
-min, the derivative then might be determined to 
-\begin_inset Formula $0.005\times1/600\approx10^{-5}$
-\end_inset
-
-
-\begin_inset space \thinspace{}
-\end_inset
-
-m
-\begin_inset space \thinspace{}
-\end_inset
-
-s
-\begin_inset Formula $^{-2}$
-\end_inset
-
-, leading to an uncertainty in the pitch correction from (
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "eq:delta-theta"
-
-\end_inset
-
-) of about 10
-\begin_inset Formula $^{-6}$
-\end_inset
-
- or 0.00005
-\begin_inset Formula $^{\circ}$
-\end_inset
-
-.
- S-G polynomials reduce noise in an average by a factor of 
-\begin_inset Formula $\sqrt{(3(3m^{2}-7)/4m(m^{2}-4)}\simeq0.05$
-\end_inset
-
- for m=1013 or 
-\begin_inset Formula $0.06$
-\end_inset
-
- for m=601.
- 
-\begin_inset Formula $0.04*0.06=0.0024$
-\end_inset
-
-m/s, 600-s separation gives acceleration uncertainty of about 
-\begin_inset Formula $0.0024/600=4e-6$
-\end_inset
-
- or pitch uncertainty of 2e-5
-\begin_inset Formula $^{\circ}$
-\end_inset
-
-.
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
 \begin_layout Subsection
 The heading correction
 \end_layout
@@ -12232,10 +7714,6 @@ key "Cooper2016ncartn"
 
  arising from variations among the three circle maneuvers analyzed.
  This variation likely arose from unsteady wind conditions around the circles.
-\end_layout
-
-\begin_layout Section
-Conclusions
 \end_layout
 
 \begin_layout Conclusions
@@ -12504,6 +7982,325 @@ summarize the results for the measurements of the vertical and horizontal
 
 ) components of the horizontal wind because these depend differently on
  the fundamental measurements.
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+tables 2 and 3 go here
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Acknowledgements
+The instrument development and data collection were supported by the NCAR
+ Earth Observing Laboratory.
+ Data used in this study were collected during the DEEPWAVE field campaign
+ led by Ron Smith, Dave Fritts, Jim Doyle, Mike Taylor, Steve Eckermann,
+ Steve Smith, Andreas D
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+"o
+\end_layout
+
+\end_inset
+
+rnbrack, and Michael Uddstrom.
+ During this field campaign, based in New Zealand, the Research Aviation
+ Facility pilots, mechanics, technicians, and software engineers operated
+ the NSF/NCAR Gulfstream
+\begin_inset space ~
+\end_inset
+
+GV.
+ The National Center for Atmospheric Research is sponsored by the National
+ Science Foundation.
+ 
+\end_layout
+
+\begin_layout Acknowledgements
+Almost all of the analyses reported here were performed using R (
+\begin_inset CommandInset citation
+LatexCommand citet
+key "Rlanguage"
+
+\end_inset
+
+), with RStudio (
+\begin_inset CommandInset citation
+LatexCommand citet
+key "RStudio2012"
+
+\end_inset
+
+) and knitr (
+\begin_inset CommandInset citation
+LatexCommand citet
+key "Xie2014a,Xie2014b"
+
+\end_inset
+
+).
+ The "ggplot2" package (
+\begin_inset CommandInset citation
+LatexCommand citet
+key "wickham2009"
+
+\end_inset
+
+) was used for many of the figures.
+ The effort to make these results reproducible benefited greatly from the
+ work represented in these analysis tools, especially that provided by Y.
+ Xie.
+ The book by C.
+ Gandrud (
+\begin_inset CommandInset citation
+LatexCommand citet
+key "Gandrud2014"
+
+\end_inset
+
+) and material and presentations related to the 
+\begin_inset Quotes eld
+\end_inset
+
+Geoscience Paper of the Future
+\begin_inset Quotes erd
+\end_inset
+
+ (http://www.ontosoft.org/gpf/) also had a strong influence on the approach
+ to this work.
+\end_layout
+
+\begin_layout Acknowledgements
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+clearpage
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset bibtex
+LatexCommand bibtex
+bibfiles "WAC"
+options "copernicus"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Flight segments before and after constant-altitude course reversal in relatively
+ steady wind conditions.
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:Flight-segments"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="5" columns="3">
+<features rotate="0" tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+Flight
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+before turn (UTC)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+after turn (UTC)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+12:25:00--12:30:00
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+12:37:00--12:43:00
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+10
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+7:53:00--7:58:00
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+8:05:00--8:10:00
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+19
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+8:39:30--8:44:30
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+8:51:30--8:56:30
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+21
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+8:51:00--8:55:00
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+9:03:00--9:07:30
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -12513,7 +8310,7 @@ sideways false
 status open
 
 \begin_layout Plain Layout
-\align center
+\align left
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
@@ -12561,7 +8358,26 @@ ADIFR and BDIFR are pressure measurements on the radome for angle of attack
 
 \end_inset
 
+ 
+\begin_inset ERT
+status open
 
+\begin_layout Plain Layout
+
+
+\backslash
+vfill
+\backslash
+eject
+\end_layout
+
+\end_inset
+
+
+\series bold
+Table 2
+\series default
+:
 \begin_inset ERT
 status collapsed
 
@@ -12574,7 +8390,32 @@ vskip
 
 \end_inset
 
-0.1truein 
+0.1truein
+\series bold
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Box Frameless
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+\align center
 \begin_inset Tabular
 <lyxtabular version="3" rows="18" columns="7">
 <features rotate="0" booktabs="true" tabularvalignment="middle">
@@ -13910,6 +9751,11 @@ C
 
 \end_layout
 
+\end_inset
+
+
+\end_layout
+
 \begin_layout Standard
 \begin_inset Float table
 wide true
@@ -13917,20 +9763,7 @@ sideways false
 status open
 
 \begin_layout Plain Layout
-\align center
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-
-\backslash
-protect
-\end_layout
-
-\end_inset
-
-
+\align left
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
@@ -13974,18 +9807,6 @@ status collapsed
 \end_inset
 
  refer to the longitudinal component (along the axis of the aircraft).
- See Table
-\begin_inset space ~
-\end_inset
-
-
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "tab:Elemental-w"
-
-\end_inset
-
- for further information on the elements in this table.
  All entries apply to 1-Hz measurements.
 \lang english
 
@@ -14024,12 +9845,32 @@ reference "tab:Elemental-w"
 
 \end_inset
 
- for explanation of some of the remaining terms.
+ further information on the elements in this table and for explanation of
+ some of the remaining terms.
 \end_layout
 
 \end_inset
 
 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+vfill
+\backslash
+eject
+\end_layout
+
+\end_inset
+
+
+\series bold
+Table 3
+\series default
+:
 \begin_inset ERT
 status collapsed
 
@@ -14042,7 +9883,29 @@ vskip
 
 \end_inset
 
-0.1truein 
+0.1truein
+\series bold
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Box Frameless
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+\align left
+ 
 \begin_inset Tabular
 <lyxtabular version="3" rows="22" columns="7">
 <features rotate="0" booktabs="true" tabularvalignment="middle">
@@ -15654,92 +11517,21 @@ hPa
 
 \end_layout
 
-\begin_layout Acknowledgements
-The instrument development and data collection were supported by the NCAR
- Earth Observing Laboratory.
- Data used in this study were collected during the DEEPWAVE field campaign
- led by Ron Smith, Dave Fritts, Jim Doyle, Mike Taylor, Steve Eckermann,
- Steve Smith, Andreas D
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-"o
-\end_layout
-
 \end_inset
 
-rnbrack, and Michael Uddstrom.
- During this field campaign, based in New Zealand, the Research Aviation
- Facility pilots, mechanics, technicians, and software engineers operated
- the NSF/NCAR Gulfstream
+
+\end_layout
+
+\begin_layout Subsubsection*
+Figure captions:
+\end_layout
+
+\begin_layout Description
+Figure
 \begin_inset space ~
 \end_inset
 
-GV.
- The National Center for Atmospheric Research is sponsored by the National
- Science Foundation.
- 
-\end_layout
-
-\begin_layout Acknowledgements
-Almost all of the analyses reported here were performed using R (
-\begin_inset CommandInset citation
-LatexCommand citet
-key "Rlanguage"
-
-\end_inset
-
-), with RStudio (
-\begin_inset CommandInset citation
-LatexCommand citet
-key "RStudio2012"
-
-\end_inset
-
-) and knitr (
-\begin_inset CommandInset citation
-LatexCommand citet
-key "Xie2014a,Xie2014b"
-
-\end_inset
-
-).
- The "ggplot2" package (
-\begin_inset CommandInset citation
-LatexCommand citet
-key "wickham2009"
-
-\end_inset
-
-) was used for many of the figures.
- The effort to make these results reproducible benefited greatly from the
- work represented in these analysis tools, especially that provided by Y.
- Xie.
- The book by C.
- Gandrud (
-\begin_inset CommandInset citation
-LatexCommand citet
-key "Gandrud2014"
-
-\end_inset
-
-) and material and presentations related to the 
-\begin_inset Quotes eld
-\end_inset
-
-Geoscience Paper of the Future
-\begin_inset Quotes erd
-\end_inset
-
- (http://www.ontosoft.org/gpf/) also had a strong influence on the approach
- to this work.
-\end_layout
-
-\begin_layout Acknowledgements
+1: 
 \begin_inset ERT
 status open
 
@@ -15747,7 +11539,154 @@ status open
 
 
 \backslash
-clearpage
+Sexpr{FigCap1}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Description
+Figure
+\begin_inset space ~
+\end_inset
+
+2: 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{FigCap2}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Description
+Figure
+\begin_inset space ~
+\end_inset
+
+3: 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{FigCap3}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Description
+Figure
+\begin_inset space ~
+\end_inset
+
+4: 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{FigCap4}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Description
+Figure
+\begin_inset space ~
+\end_inset
+
+5: 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{FigCap5}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Description
+Figure
+\begin_inset space ~
+\end_inset
+
+6: 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{FigCap6}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Description
+Figure
+\begin_inset space ~
+\end_inset
+
+7: 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{FigCap7}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Description
+Figure
+\begin_inset space ~
+\end_inset
+
+8: 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{FigCap8}
 \end_layout
 
 \end_inset
@@ -15756,10 +11695,55 @@ clearpage
 \end_layout
 
 \begin_layout Standard
-\begin_inset CommandInset bibtex
-LatexCommand bibtex
-bibfiles "./WAC"
-options "copernicus"
+\align center
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename figure/v-errors-straight-leg-1.pdf
+	lyxscale 50
+	height 65theight%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{FigCap1}
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:v-errors-straight-leg"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
 
 \end_inset
 
@@ -15767,7 +11751,518 @@ options "copernicus"
 \end_layout
 
 \begin_layout Standard
-\begin_inset Newpage pagebreak
+\align center
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename figure/processing-2-1.pdf
+	height 65theight%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{FigCap2}
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:processing-2"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename figure/get-b-vector-and-transform-1.pdf
+	height 65theight%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{FigCap3}
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:get-b-vector-and-transform"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename figure/error-components-1.pdf
+	lyxscale 50
+	height 65theight%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{FigCap4}
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:error-components"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename figure/plot-heading-correction-rf15-1.pdf
+	lyxscale 50
+	height 65theight%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{FigCap5}
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:plot-heading-correction-rf15"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename figure/spline-plot-1.pdf
+	lyxscale 50
+	height 65theight%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{FigCap6}
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:spline-plot"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename figure/typical-errors-1.pdf
+	lyxscale 50
+	height 65theight%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{FigCap7}
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:typical-errors"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename figure/reverse-course-w-comparison-1.pdf
+	lyxscale 50
+	height 65theight%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{FigCap8}
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:reverse-course-w-comparison"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{figure}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+noindent 
+\backslash
+begin{centering}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+includegraphics[width=0.9
+\backslash
+textwidth]{Graphics/Fig1.pdf}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+par
+\backslash
+end{centering}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+protect
+\backslash
+caption[Variance spectra for various components entering vertical-wind calculati
+ons.]{
+\backslash
+label{fig:Variance-spectra-VSPD}Variance spectra {[}units: m$^{2}$s$^{-2}$,
+ density functions per logarithmic interval in frequency expressed in Hz{]}
+ for various components entering vertical-wind calculations.
+ Data are from DEEPWAVE flight 16, 6:30:00--12:30:00 UTC.
+ The thick blue trace is that for the vertical wind variable WIC; others
+ show either measurements of the aircraft vertical motion (VSPD, GGVSPD)
+ or, as GUSTW,
+\backslash
+sindex[var]{GUSTW=relative-wind contribution to the wind measurement} the
+ relative-wind contribution to WIC.
+ The green diagonal lines show the slope expected
+\backslash
+index{inertial subrange} for an inertial subrange; the thicker green line
+ labeled ``!0$^{-4}$'' corresponds to the spectrum expected for an eddy
+ dissipation rate
+\backslash
+index{eddy dissipation rate} of $1
+\backslash
+times10^{-4}$
+\backslash
+,m$^{2}$s$^{-3}$.
+ Other green reference lines are displaced by an order of magnitude in eddy
+ dissipation rate.
+ The calculations are based on the all-poles or maximum-entropy method,
+ with 100 poles; cf.~
+\backslash
+citet{Press:1992:NRC:148286}.
+ The resolution used was 0.0005, with results smoothed in 50 bins in the
+ logarithm of frequency.
+ Total variance in WIC is 1.36
+\backslash
+,m$^{2}$s$^{-2}$.}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{figure}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<add-plots, fig.height=4,fig.width=6,fig.cap=FigCap1, include=FALSE>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+if (PlotsAtEnd) {
+\end_layout
+
+\begin_layout Plain Layout
+
+  #replayPlot (Fig1)
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
 \end_inset
 
 
