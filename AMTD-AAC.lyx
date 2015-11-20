@@ -344,7 +344,7 @@ An inertial system aligns during initialization to detect the local vertical
  direction and then calculates the new vertical direction as the aircraft
  moves (changing the local vertical direction) and accelerates (which can
  cause gyros to precess).
- Any mis-alignment present at initialization persists but also will oscillate
+ Any misalignment present at initialization persists but also will oscillate
  and will cause errors in roll and pitch to mix as the aircraft changes
  flight direction.
  For the inertial system used on the NSF/NCAR GV, the standard uncertainty
@@ -403,7 +403,7 @@ The existence of this coupling allows estimation of the pitch error if the
  That is the case if, in addition to the INS, there is a GPS receiver that
  can provide high-quality measurements of Earth-relative velocity.
  Modern GPS receivers, especially if they incorporate differential-GPS correctio
-ns or ionispheric corrections, produce velocity measurements that have remarkabl
+ns or ionospheric corrections, produce velocity measurements that have remarkabl
 y low uncertainty, often a few cm/s, so these can be considered a standard
  against which to compare the corresponding IRS-measured velocities.
  The difference between ground-speed components from the two systems thus
@@ -426,7 +426,7 @@ status open
 
 \begin_layout Plain Layout
 
-PlotsAtEnd <- TRUE
+PlotsAtEnd <- TRUE    ## if FALSE, plots are in-line in text
 \end_layout
 
 \begin_layout Plain Layout
@@ -436,7 +436,8 @@ ReloadData <- FALSE
 
 \begin_layout Plain Layout
 
-#ReloadData <- TRUE
+# ReloadData <- TRUE  ## used to retrieve original data rather than saved
+ .Rdata files
 \end_layout
 
 \begin_layout Plain Layout
@@ -476,7 +477,7 @@ opts_chunk$set(fig.width=6, fig.height=5, fig.loc="center", digits=4)
 
 \begin_layout Plain Layout
 
-thisFileName <- "AttitudeAngleNote"
+thisFileName <- "AMTD-AAC"
 \end_layout
 
 \begin_layout Plain Layout
@@ -491,7 +492,7 @@ Directory <- DataDirectory ()
 
 \begin_layout Plain Layout
 
-Flight <- "ff02" 		
+Flight <- "ff02" 		# second ferry flight
 \end_layout
 
 \begin_layout Plain Layout
@@ -583,6 +584,67 @@ Cradeg <- pi / 180
 
 \begin_layout Plain Layout
 
+## these functions are used to displace plots to the end, if PlotsAtEnd
+ is TRUE
+\end_layout
+
+\begin_layout Plain Layout
+
+SavePlot <- function (.figname) {
+\end_layout
+
+\begin_layout Plain Layout
+
+  if (PlotsAtEnd) {
+\end_layout
+
+\begin_layout Plain Layout
+
+    cairo_pdf (sprintf ("./Graphics/%s.pdf", .figname))
+\end_layout
+
+\begin_layout Plain Layout
+
+    dev.control ("enable")
+\end_layout
+
+\begin_layout Plain Layout
+
+  }
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+EndSave <- function () {
+\end_layout
+
+\begin_layout Plain Layout
+
+  if (PlotsAtEnd) {
+\end_layout
+
+\begin_layout Plain Layout
+
+    invisible (dev.off())
+\end_layout
+
+\begin_layout Plain Layout
+
+  }
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
 \end_layout
 
 \begin_layout Plain Layout
@@ -606,6 +668,12 @@ status open
 
 \begin_layout Plain Layout
 
+\end_layout
+
+\begin_layout Plain Layout
+
+## these figure captions are used for the figure-caption list and also are
+ attached to the figures
 \end_layout
 
 \begin_layout Plain Layout
@@ -849,7 +917,7 @@ Because
 \begin_inset Formula $\delta v_{n}$
 \end_inset
 
-is measurable by comparison to measurements from a GPS receiver, the error
+ is measurable by comparison to measurements from a GPS receiver, the error
  in pitch can be found from (
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -972,22 +1040,12 @@ status open
 
 \begin_layout Plain Layout
 
-if (PlotsAtEnd) {
+## this generates a plot of velocity and pitch/roll errors in the l-frame
 \end_layout
 
 \begin_layout Plain Layout
 
-  cairo_pdf ("./Graphics/Fig1.pdf")
-\end_layout
-
-\begin_layout Plain Layout
-
-  dev.control("enable")
-\end_layout
-
-\begin_layout Plain Layout
-
-}
+SavePlot ("Fig1")
 \end_layout
 
 \begin_layout Plain Layout
@@ -1136,22 +1194,7 @@ hi))), lwd=2, col=c("blue", "darkgreen"), text.col=c("blue", "darkgreen"),
 
 \begin_layout Plain Layout
 
-if (PlotsAtEnd) {
-\end_layout
-
-\begin_layout Plain Layout
-
-  # Fig1 <- recordPlot()
-\end_layout
-
-\begin_layout Plain Layout
-
-  invisible(dev.off())
-\end_layout
-
-\begin_layout Plain Layout
-
-}
+EndSave ()
 \end_layout
 
 \begin_layout Plain Layout
@@ -1459,7 +1502,7 @@ negative
 \begin_inset Formula $a$
 \end_inset
 
- reference frames do not affect the estimate of platform mis-alignment and
+ reference frames do not affect the estimate of platform misalignment and
  how that misalignment is resolved into pitch and roll components.
  Therefore, 
 \end_layout
@@ -1540,7 +1583,7 @@ status open
 \begin_layout Plain Layout
 
 ## the plot generated here is not included in the manuscript draft -- "include=F
-ALSE" agove
+ALSE" above
 \end_layout
 
 \begin_layout Plain Layout
@@ -1551,11 +1594,6 @@ Flight <- "rf01h"
 \begin_layout Plain Layout
 
 Flight <- "rf01"
-\end_layout
-
-\begin_layout Plain Layout
-
-# Flight <- "rf15"
 \end_layout
 
 \begin_layout Plain Layout
@@ -1645,12 +1683,12 @@ Data$THDG <- ShiftInTime (Data$THDG, Rate, Ts)
 
 \begin_layout Plain Layout
 
-D <- Data[Data$TASX > 130, ]
+D <- Data[Data$TASX > 130, ]    ## avoid possible periods with flaps
 \end_layout
 
 \begin_layout Plain Layout
 
-#D <- D[setRange(D$Time, 81500,82500),]
+# D <- D[setRange(D$Time, 81500,82500),]
 \end_layout
 
 \begin_layout Plain Layout
@@ -1688,6 +1726,279 @@ Application to a representative research flight
 \begin_inset CommandInset label
 LatexCommand label
 name "sub:Application-to-research"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<processing-2, fig.height=6.5, fig.cap=FigCap2, include=if (PlotsAtEnd) FALSE
+ else TRUE>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+SavePlot ("Fig2")
+\end_layout
+
+\begin_layout Plain Layout
+
+layout(matrix(1:2, ncol = 1), widths = 1, heights = c(5,6))
+\end_layout
+
+\begin_layout Plain Layout
+
+op <- par (mar=c(2,4,1,2.5)+0.1)
+\end_layout
+
+\begin_layout Plain Layout
+
+# deal with missing values:
+\end_layout
+
+\begin_layout Plain Layout
+
+D <- D[!is.na (D$Time), ]
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+## interpolate if necessary:
+\end_layout
+
+\begin_layout Plain Layout
+
+VNS <- zoo::na.approx (as.vector(D$VNS), maxgap=100*Rate, na.rm = FALSE)
+\end_layout
+
+\begin_layout Plain Layout
+
+VEW <- zoo::na.approx (as.vector(D$VEW), maxgap=100*Rate, na.rm = FALSE)
+\end_layout
+
+\begin_layout Plain Layout
+
+GGVNS <- zoo::na.approx (as.vector(D$GGVNS), maxgap=100*Rate, na.rm = FALSE)
+\end_layout
+
+\begin_layout Plain Layout
+
+GGVEW <- zoo::na.approx (as.vector(D$GGVEW), maxgap=100*Rate, na.rm = FALSE)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+## calculate derivatives -- note need for "Rate" here (but Rate = 1, this
+ file)
+\end_layout
+
+\begin_layout Plain Layout
+
+# 1013 points (must be odd) to span about 1/5 Schuler osc.
+ -- about 16.8 min
+\end_layout
+
+\begin_layout Plain Layout
+
+NAV <- 1013*Rate
+\end_layout
+
+\begin_layout Plain Layout
+
+vndot <- signal::sgolayfilt (VNS-GGVNS, 3, NAV, m=1) * Rate  # m=1 for first
+ deriv.
+\end_layout
+
+\begin_layout Plain Layout
+
+vedot <- signal::sgolayfilt (VEW-GGVEW, 3, NAV, m=1) * Rate
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+## get l-frame errors
+\end_layout
+
+\begin_layout Plain Layout
+
+deltaPitchL <- -vndot/Ranadu::Gravity (D$LAT, D$GGALT)
+\end_layout
+
+\begin_layout Plain Layout
+
+deltaRollL <- vedot/Ranadu::Gravity (D$LAT, D$GGALT)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+## transform to a-frame errors
+\end_layout
+
+\begin_layout Plain Layout
+
+HDG <- D$THDG*Cradeg
+\end_layout
+
+\begin_layout Plain Layout
+
+D$deltaPitch <- (sin(HDG)*deltaRollL + cos(HDG)*deltaPitchL)/Cradeg
+\end_layout
+
+\begin_layout Plain Layout
+
+D$deltaRoll <- (cos(HDG)*deltaRollL - sin(HDG)*deltaPitchL)/Cradeg
+\end_layout
+
+\begin_layout Plain Layout
+
+# DeltaPitch2 <- CorrectPitch(D)[,1]
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+## convert to degrees
+\end_layout
+
+\begin_layout Plain Layout
+
+D$dRL <- deltaRollL/Cradeg
+\end_layout
+
+\begin_layout Plain Layout
+
+D$dPL <- deltaPitchL/Cradeg
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+## plot the l-frame errors
+\end_layout
+
+\begin_layout Plain Layout
+
+plotWAC (D[, c("Time", "dPL", "dRL")], ylab=expression (paste (delta, theta^(l),
+ ' or ', delta, phi^(l), ' [', degree, ']')), lwd=c(2.5, 2, 1.5),  lty=c(1,1,3),
+ ylim=c(-0.04,0.05), legend.position=NA)
+\end_layout
+
+\begin_layout Plain Layout
+
+legend('top', legend=c(expression (paste (delta, theta^(l))), expression
+ (paste (delta, phi^(l)))), lwd=c(2.5,2), lty=c(1,1), col=c("blue", "darkgreen"),
+ text.col=c("blue", "darkgreen"), cex=0.8, bg='lightyellow', horiz=TRUE)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+## add second panel with the a-frame errors
+\end_layout
+
+\begin_layout Plain Layout
+
+op <- par (mar=c(5,4,1,2.5)+0.1)
+\end_layout
+
+\begin_layout Plain Layout
+
+plotWAC (D[, c("Time", "deltaPitch", "deltaRoll")], ylab=expression (paste
+ (delta, theta, ' or ', delta, phi, ' [', degree, ']')), lwd=c(2.5, 2, 1.5),
+  lty=c(1,1,3), ylim=c(-0.04,0.05), legend.position=NA)
+\end_layout
+
+\begin_layout Plain Layout
+
+lineWAC (D$Time, D$ROLL/1000, col='red', lwd=1.5, lty=1)
+\end_layout
+
+\begin_layout Plain Layout
+
+legend('top', legend=c(expression (paste (delta, theta)), expression (paste
+ (delta, phi)), "ROLL/1000"), lwd=c(2.5,2,1.5), lty=c(1,1,1), col=c("blue",
+ "darkgreen", "red"), text.col=c("blue", "darkgreen", "red"), cex=0.8, bg='lightye
+llow', horiz=TRUE)
+\end_layout
+
+\begin_layout Plain Layout
+
+Valid <- (D$TASX > 130)
+\end_layout
+
+\begin_layout Plain Layout
+
+Valid[abs(D$ROLL) > 5] <- FALSE
+\end_layout
+
+\begin_layout Plain Layout
+
+## hist (CorrectPitch(D)[Valid], xlim=c(-0.05, 0.05))
+\end_layout
+
+\begin_layout Plain Layout
+
+## mean is very close to zero
+\end_layout
+
+\begin_layout Plain Layout
+
+## mean (CorrectPitch(D)[Valid], na.rm=TRUE)
+\end_layout
+
+\begin_layout Plain Layout
+
+SDofCorrection = sd (CorrectPitch(D)[Valid,1], na.rm=TRUE)
+\end_layout
+
+\begin_layout Plain Layout
+
+EndSave ()
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
 
 \end_inset
 
@@ -1964,254 +2275,6 @@ For research applications, the roll correction is seldom of much consequence,
  below that based solely on specifications for the measurement from the
  IRS.
  
-\end_layout
-
-\begin_layout Standard
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-<<processing-2, fig.height=6.5, fig.cap=FigCap2, include=if (PlotsAtEnd) FALSE
- else TRUE>>=
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-if (PlotsAtEnd) {
-\end_layout
-
-\begin_layout Plain Layout
-
-  cairo_pdf ("./Graphics/Fig2.pdf")
-\end_layout
-
-\begin_layout Plain Layout
-
-  dev.control ("enable")
-\end_layout
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\begin_layout Plain Layout
-
-layout(matrix(1:2, ncol = 1), widths = 1, heights = c(5,6))
-\end_layout
-
-\begin_layout Plain Layout
-
-op <- par (mar=c(2,4,1,2.5)+0.1)
-\end_layout
-
-\begin_layout Plain Layout
-
-# deal with missing values:
-\end_layout
-
-\begin_layout Plain Layout
-
-D <- D[!is.na (D$Time), ]
-\end_layout
-
-\begin_layout Plain Layout
-
-#interpolate if necessary:
-\end_layout
-
-\begin_layout Plain Layout
-
-VNS <- zoo::na.approx (as.vector(D$VNS), maxgap=100*Rate, na.rm = FALSE)
-\end_layout
-
-\begin_layout Plain Layout
-
-VEW <- zoo::na.approx (as.vector(D$VEW), maxgap=100*Rate, na.rm = FALSE)
-\end_layout
-
-\begin_layout Plain Layout
-
-GGVNS <- zoo::na.approx (as.vector(D$GGVNS), maxgap=100*Rate, na.rm = FALSE)
-\end_layout
-
-\begin_layout Plain Layout
-
-GGVEW <- zoo::na.approx (as.vector(D$GGVEW), maxgap=100*Rate, na.rm = FALSE)
-\end_layout
-
-\begin_layout Plain Layout
-
-# 1013 points (must be odd) to span about 1/5 Schuler osc.
- -- about 16.8 min
-\end_layout
-
-\begin_layout Plain Layout
-
-NAV <- 1013*Rate
-\end_layout
-
-\begin_layout Plain Layout
-
-vndot <- signal::sgolayfilt (VNS-GGVNS, 3, NAV, m=1) * Rate  # m=1 for first
- deriv.
-\end_layout
-
-\begin_layout Plain Layout
-
-vedot <- signal::sgolayfilt (VEW-GGVEW, 3, NAV, m=1) * Rate
-\end_layout
-
-\begin_layout Plain Layout
-
-deltaPitchL <- -vndot/Ranadu::Gravity (D$LAT, D$GGALT)
-\end_layout
-
-\begin_layout Plain Layout
-
-deltaRollL <- vedot/Ranadu::Gravity (D$LAT, D$GGALT)
-\end_layout
-
-\begin_layout Plain Layout
-
-HDG <- D$THDG*Cradeg
-\end_layout
-
-\begin_layout Plain Layout
-
-D$deltaPitch <- (sin(HDG)*deltaRollL + cos(HDG)*deltaPitchL)/Cradeg
-\end_layout
-
-\begin_layout Plain Layout
-
-D$deltaRoll <- (cos(HDG)*deltaRollL - sin(HDG)*deltaPitchL)/Cradeg
-\end_layout
-
-\begin_layout Plain Layout
-
-# DeltaPitch2 <- CorrectPitch(D)[,1]
-\end_layout
-
-\begin_layout Plain Layout
-
-D$dRL <- deltaRollL/Cradeg
-\end_layout
-
-\begin_layout Plain Layout
-
-D$dPL <- deltaPitchL/Cradeg
-\end_layout
-
-\begin_layout Plain Layout
-
-plotWAC (D[, c("Time", "dPL", "dRL")], ylab=expression (paste (delta, theta^(l),
- ' or ', delta, phi^(l), ' [', degree, ']')), lwd=c(2.5, 2, 1.5),  lty=c(1,1,3),
- ylim=c(-0.04,0.05), legend.position=NA)
-\end_layout
-
-\begin_layout Plain Layout
-
-legend('top', legend=c(expression (paste (delta, theta^(l))), expression
- (paste (delta, phi^(l)))), lwd=c(2.5,2), lty=c(1,1), col=c("blue", "darkgreen"),
- text.col=c("blue", "darkgreen"), cex=0.8, bg='lightyellow', horiz=TRUE)
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-op <- par (mar=c(5,4,1,2.5)+0.1)
-\end_layout
-
-\begin_layout Plain Layout
-
-plotWAC (D[, c("Time", "deltaPitch", "deltaRoll")], ylab=expression (paste
- (delta, theta, ' or ', delta, phi, ' [', degree, ']')), lwd=c(2.5, 2, 1.5),
-  lty=c(1,1,3), ylim=c(-0.04,0.05), legend.position=NA)
-\end_layout
-
-\begin_layout Plain Layout
-
-lineWAC (D$Time, D$ROLL/1000, col='red', lwd=1.5, lty=1)
-\end_layout
-
-\begin_layout Plain Layout
-
-legend('top', legend=c(expression (paste (delta, theta)), expression (paste
- (delta, phi)), "ROLL/1000"), lwd=c(2.5,2,1.5), lty=c(1,1,1), col=c("blue",
- "darkgreen", "red"), text.col=c("blue", "darkgreen", "red"), cex=0.8, bg='lightye
-llow', horiz=TRUE)
-\end_layout
-
-\begin_layout Plain Layout
-
-Valid <- (D$TASX > 130)
-\end_layout
-
-\begin_layout Plain Layout
-
-Valid[abs(D$ROLL) > 5] <- FALSE
-\end_layout
-
-\begin_layout Plain Layout
-
-## hist (CorrectPitch(D)[Valid], xlim=c(-0.05, 0.05))
-\end_layout
-
-\begin_layout Plain Layout
-
-## mean is very close to zero
-\end_layout
-
-\begin_layout Plain Layout
-
-## mean (CorrectPitch(D)[Valid], na.rm=TRUE)
-\end_layout
-
-\begin_layout Plain Layout
-
-SDofCorrection = sd (CorrectPitch(D)[Valid,1], na.rm=TRUE)
-\end_layout
-
-\begin_layout Plain Layout
-
-if (PlotsAtEnd) {
-\end_layout
-
-\begin_layout Plain Layout
-
-  #Fig2 <- recordPlot()
-\end_layout
-
-\begin_layout Plain Layout
-
-  invisible (dev.off())
-\end_layout
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-@
-\end_layout
-
-\end_inset
-
-
 \end_layout
 
 \begin_layout Subsection
@@ -2636,7 +2699,11 @@ s
 \begin_inset Formula $^{-2}$
 \end_inset
 
- but horizontal accelerations exceeding 1
+ in the 
+\begin_inset Formula $l$
+\end_inset
+
+-frame but horizontal accelerations exceeding 1
 \begin_inset space ~
 \end_inset
 
@@ -2789,7 +2856,7 @@ is given in terms of the yaw angle, which is the negative of the heading
  The specific transformation used here is included in the Workflow document
  contained in the supplementary material for this paper.
 \begin_inset Note Note
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \begin_inset Formula 
@@ -2858,6 +2925,11 @@ status open
 
 \begin_layout Plain Layout
 
+## get data for next flight to use
+\end_layout
+
+\begin_layout Plain Layout
+
 Flight <- "rf15" 				
 \end_layout
 
@@ -2884,10 +2956,6 @@ VarNames <- c("BLATA", "BLONGA", "BNORMA",
 \begin_layout Plain Layout
 
               "GGVSPD", "LAT", "LON", "ALT", "THDG", "PITCH", "ROLL") 
-\end_layout
-
-\begin_layout Plain Layout
-
 \end_layout
 
 \begin_layout Plain Layout
@@ -3069,22 +3137,7 @@ d) FALSE else TRUE>>=
 
 \begin_layout Plain Layout
 
-if (PlotsAtEnd) {
-\end_layout
-
-\begin_layout Plain Layout
-
-  cairo_pdf ("./Graphics/Fig3.pdf")
-\end_layout
-
-\begin_layout Plain Layout
-
-  dev.control ("enable")
-\end_layout
-
-\begin_layout Plain Layout
-
-}
+SavePlot ("Fig3")
 \end_layout
 
 \begin_layout Plain Layout
@@ -3106,6 +3159,12 @@ FC1c <- "As for the preceding figure but for a pitch maneuver, 4:25:00--4:30:00
 
 \begin_layout Plain Layout
 
+\end_layout
+
+\begin_layout Plain Layout
+
+## this function applies the rotation correction to the accelerations after
+ transformation to the l-frame
 \end_layout
 
 \begin_layout Plain Layout
@@ -3209,6 +3268,11 @@ RotationCorrection <- function (.data=Data, .V) {
 
 \begin_layout Plain Layout
 
+## two-panel figure
+\end_layout
+
+\begin_layout Plain Layout
+
 layout(matrix(1:1, ncol = 1), widths = 1, heights = c(5))
 \end_layout
 
@@ -3223,7 +3287,13 @@ op <- par (mar=c(5,4,1,2.5)+0.1)
 
 \begin_layout Plain Layout
 
-G <- Gravity (D$LATC, D$GGALT)
+## get l-frame accelerations
+\end_layout
+
+\begin_layout Plain Layout
+
+G <- Gravity (D$LATC, D$GGALT)    ## Ranadu gravity function, approx.
+ matching that of the INS
 \end_layout
 
 \begin_layout Plain Layout
@@ -3273,6 +3343,18 @@ D$LACCZ <- LV[, 3] + G
 
 \begin_layout Plain Layout
 
+## apply averaging to match that used for GPS values, exc.
+ use smaller value for
+\end_layout
+
+\begin_layout Plain Layout
+
+## the z component because the vertical acceleration varies rapidly in the
+ pitch maneuver
+\end_layout
+
+\begin_layout Plain Layout
+
 D$LACCX <- signal::sgolayfilt (D$LACCX, 3, 21, m=0)
 \end_layout
 
@@ -3283,35 +3365,17 @@ D$LACCY <- signal::sgolayfilt (D$LACCY, 3, 21, m=0)
 
 \begin_layout Plain Layout
 
-D$LACCZ <- signal::sgolayfilt (D$LACCZ, 3, 7, m=0)  ## smaller averaging
- for z because
+D$LACCZ <- signal::sgolayfilt (D$LACCZ, 3, 7, m=0)  
 \end_layout
 
 \begin_layout Plain Layout
 
-                                                    ## z component varies
- rapidly in
+V <- c("Time", "LACCX", "LACCY", "LACCZ", "vedot", "vndot")  
 \end_layout
 
 \begin_layout Plain Layout
 
-                                                    ## pitch maneuver
-\end_layout
-
-\begin_layout Plain Layout
-
-# plotWAC(D[, c("Time", "LACCX", "LACCY", "LACCZ")], ylab="acceleration
- [m/s^2]")
-\end_layout
-
-\begin_layout Plain Layout
-
-V <- c("Time", "LACCX", "LACCY", "LACCZ", "vedot", "vndot")
-\end_layout
-
-\begin_layout Plain Layout
-
-r <- setRange(D$Time, 33500,35500)
+r <- setRange(D$Time, 33500,35500)  ## select the period of a circle maneuver
 \end_layout
 
 \begin_layout Plain Layout
@@ -3377,22 +3441,7 @@ legend('bottomleft', legend=c(expression(a[x]), expression(a[y]), expression(a[z
 
 \begin_layout Plain Layout
 
-if (PlotsAtEnd) {
-\end_layout
-
-\begin_layout Plain Layout
-
-  #Fig3 <- recordPlot ()
-\end_layout
-
-\begin_layout Plain Layout
-
-  invisible (dev.off())
-\end_layout
-
-\begin_layout Plain Layout
-
-}
+EndSave ()
 \end_layout
 
 \begin_layout Plain Layout
@@ -3659,8 +3708,8 @@ ms.
 Many research flights and research data sets meet these requirements, and
  where wind measurement is important they can be incorporated into flight
  plans for future projects.
- The algorithm implemented here, for which specific R code is available,
- follows these steps:
+ The algorithm implemented here, for which specific R code is available
+ in the supplemental material, follows these steps:
 \end_layout
 
 \begin_layout Enumerate
@@ -3878,7 +3927,7 @@ ref{fig:spline-plot}
 \begin_layout Enumerate
 
 \emph on
-Subtract the result given by this interopolation from the measured heading
+Subtract the result given by this interpolation from the measured heading
  to obtain the corrected heading.
 \end_layout
 
@@ -3998,22 +4047,17 @@ status open
 
 \begin_layout Plain Layout
 
-if (PlotsAtEnd) {
+## plot error estimates "herr"
 \end_layout
 
 \begin_layout Plain Layout
 
-  cairo_pdf ("./Graphics/Fig4.pdf")
+SavePlot ("Fig4")
 \end_layout
 
 \begin_layout Plain Layout
 
-  dev.control ("enable")
-\end_layout
-
-\begin_layout Plain Layout
-
-}
+## still using the data.frame constructed earlier, D
 \end_layout
 
 \begin_layout Plain Layout
@@ -4028,6 +4072,11 @@ A <- sqrt(A2)
 
 \begin_layout Plain Layout
 
+## error estimate from the "estimator-equation" (10)
+\end_layout
+
+\begin_layout Plain Layout
+
 D$herr <- (-D$LACCY*(D$vedot-D$LACCX)+D$LACCX*(D$vndot-D$LACCY)) / (Cradeg*A2)
 \end_layout
 
@@ -4038,6 +4087,11 @@ D$herr <- (-D$LACCY*(D$vedot-D$LACCX)+D$LACCX*(D$vndot-D$LACCY)) / (Cradeg*A2)
 
 \begin_layout Plain Layout
 
+\end_layout
+
+\begin_layout Plain Layout
+
+## qualify the points, but don't change D in case it is still needed
 \end_layout
 
 \begin_layout Plain Layout
@@ -4107,12 +4161,22 @@ bf <- signal::butter(3,1/300)
 
 \begin_layout Plain Layout
 
-D$hs <- rep(NA, nrow(DT))
+## put the average value of the heading correction into D
+\end_layout
+
+\begin_layout Plain Layout
+
+# D$hs <- rep(NA, nrow(DT))
 \end_layout
 
 \begin_layout Plain Layout
 
 D$hs <- rep(meanDh, nrow(DT))
+\end_layout
+
+\begin_layout Plain Layout
+
+## replace the mean value with the error estimate where valid
 \end_layout
 
 \begin_layout Plain Layout
@@ -4133,6 +4197,11 @@ for (i in 1:nrow(ts)) {
 \begin_layout Plain Layout
 
 }
+\end_layout
+
+\begin_layout Plain Layout
+
+## interpolate, filter, plot
 \end_layout
 
 \begin_layout Plain Layout
@@ -4162,26 +4231,7 @@ legend('topleft', legend=expression(paste("smoothed ",delta,psi)), col='red',
 
 \begin_layout Plain Layout
 
-if (PlotsAtEnd) {
-\end_layout
-
-\begin_layout Plain Layout
-
-  #Fig4 <- recordPlot ()
-\end_layout
-
-\begin_layout Plain Layout
-
-  invisible (dev.off())
-\end_layout
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\begin_layout Plain Layout
-
+EndSave ()
 \end_layout
 
 \begin_layout Plain Layout
@@ -4301,22 +4351,7 @@ status open
 
 \begin_layout Plain Layout
 
-  if (PlotsAtEnd) {
-\end_layout
-
-\begin_layout Plain Layout
-
-    cairo_pdf ("./Graphics/Fig5.pdf")
-\end_layout
-
-\begin_layout Plain Layout
-
-    dev.control ("enable")
-\end_layout
-
-\begin_layout Plain Layout
-
-  }
+  SavePlot ("Fig5")
 \end_layout
 
 \begin_layout Plain Layout
@@ -4361,12 +4396,7 @@ status open
 
 \begin_layout Plain Layout
 
-  ## Note: apply shift in time before calling, and
-\end_layout
-
-\begin_layout Plain Layout
-
-  ##       do pitch correction if desired
+  ## Note: time shifts already applied
 \end_layout
 
 \begin_layout Plain Layout
@@ -4387,6 +4417,11 @@ status open
 \begin_layout Plain Layout
 
   
+\end_layout
+
+\begin_layout Plain Layout
+
+## superfluous: this file is 1-Hz
 \end_layout
 
 \begin_layout Plain Layout
@@ -4537,7 +4572,7 @@ status open
 
 \begin_layout Plain Layout
 
-  D1$LACCZ <- LV[, 3] + G
+  # D1$LACCZ <- LV[, 3] + G  ## not used
 \end_layout
 
 \begin_layout Plain Layout
@@ -4557,7 +4592,7 @@ status open
 
 \begin_layout Plain Layout
 
-  D1$LACCZ <- signal::sgolayfilt (D1$LACCZ, 3, 21, m=0)
+  # D1$LACCZ <- signal::sgolayfilt (D1$LACCZ, 3, 21, m=0)
 \end_layout
 
 \begin_layout Plain Layout
@@ -4603,16 +4638,6 @@ status open
 
 \begin_layout Plain Layout
 
-  r <- DT$ROLL > 10
-\end_layout
-
-\begin_layout Plain Layout
-
-  l <- DT$ROLL < -10
-\end_layout
-
-\begin_layout Plain Layout
-
   DT$TestR <- (!is.na(DT$Time) & (DT$ROLL > 10))
 \end_layout
 
@@ -4624,26 +4649,6 @@ status open
 \begin_layout Plain Layout
 
   DSET <- data.frame ()
-\end_layout
-
-\begin_layout Plain Layout
-
-  set <- vector("numeric")
-\end_layout
-
-\begin_layout Plain Layout
-
-  hmean <- vector("numeric")
-\end_layout
-
-\begin_layout Plain Layout
-
-  hsd <- vector("numeric")
-\end_layout
-
-\begin_layout Plain Layout
-
-  tbar <- vector("numeric")
 \end_layout
 
 \begin_layout Plain Layout
@@ -4979,6 +4984,15 @@ NRA)
 
 \begin_layout Plain Layout
 
+\end_layout
+
+\begin_layout Plain Layout
+
+  ## form new data.frame for generating plot
+\end_layout
+
+\begin_layout Plain Layout
+
   EH <- data.frame(tbar=c(tbarL, tbarR), hmeanR=c(rep(NA, length(tbarL)),
  hmeanR),
 \end_layout
@@ -5077,6 +5091,15 @@ NRA)
 
 \begin_layout Plain Layout
 
+\end_layout
+
+\begin_layout Plain Layout
+
+  ## now apply a smoothing spline
+\end_layout
+
+\begin_layout Plain Layout
+
   yss <- c(EH$hmeanL[!is.na(EH$hmeanL)], EH$hmeanR[!is.na(EH$hmeanR)])
 \end_layout
 
@@ -5097,7 +5120,8 @@ NRA)
 
 \begin_layout Plain Layout
 
-  D1$HC <- predict(SS, as.numeric(D1$Time))$y
+  D1$HC <- predict(SS, as.numeric(D1$Time))$y  ## this uses the fitted spline
+ SS
 \end_layout
 
 \begin_layout Plain Layout
@@ -5165,22 +5189,7 @@ NRA)
 
 \begin_layout Plain Layout
 
-  if (PlotsAtEnd) {
-\end_layout
-
-\begin_layout Plain Layout
-
-    #Fig5 <- recordPlot ()
-\end_layout
-
-\begin_layout Plain Layout
-
-    invisible (dev.off())
-\end_layout
-
-\begin_layout Plain Layout
-
-  }
+  EndSave ()
 \end_layout
 
 \begin_layout Plain Layout
@@ -5276,22 +5285,16 @@ status open
 
 \begin_layout Plain Layout
 
-# require(maps)
+## load data for next flight and apply time shifts and pitch/roll correction
 \end_layout
 
 \begin_layout Plain Layout
 
-# require(mapdata)
 \end_layout
 
 \begin_layout Plain Layout
 
-# require(mapproj)
-\end_layout
-
-\begin_layout Plain Layout
-
-Flight <- "rf16h" 
+Flight <- "rf16h"   ## 25-Hz file
 \end_layout
 
 \begin_layout Plain Layout
@@ -5461,6 +5464,11 @@ D$ROLL <- D$ROLLC
 
 \begin_layout Plain Layout
 
+## construct and work with 1-Hz data.frame, for processing speed
+\end_layout
+
+\begin_layout Plain Layout
+
 if (Rate > 1) {
 \end_layout
 
@@ -5570,7 +5578,7 @@ D1$LACCY <- LV[, 2]
 
 \begin_layout Plain Layout
 
-D1$LACCZ <- LV[, 3] + G
+# D1$LACCZ <- LV[, 3] + G
 \end_layout
 
 \begin_layout Plain Layout
@@ -5589,7 +5597,7 @@ D1$LACCY <- signal::sgolayfilt (D1$LACCY, 3, 21, m=0)
 
 \begin_layout Plain Layout
 
-D1$LACCZ <- signal::sgolayfilt (D1$LACCZ, 3, 21, m=0)
+# D1$LACCZ <- signal::sgolayfilt (D1$LACCZ, 3, 21, m=0)
 \end_layout
 
 \begin_layout Plain Layout
@@ -5622,6 +5630,12 @@ ref{eq:estimator-equation}) for DEEPWAVE flight 16.">>=
 
 \begin_layout Plain Layout
 
+\end_layout
+
+\begin_layout Plain Layout
+
+## this would construct a plot like the first one for flight 15, but is
+ now suppressed
 \end_layout
 
 \begin_layout Plain Layout
@@ -5808,22 +5822,18 @@ status open
 
 \begin_layout Plain Layout
 
-if (PlotsAtEnd) {
+## this chunk constructs the plot of mean values from turns and the spline
+ fit, for Flt 16
 \end_layout
 
 \begin_layout Plain Layout
 
-  cairo_pdf ("./Graphics/Fig6.pdf")
+SavePlot ("Fig6")
 \end_layout
 
 \begin_layout Plain Layout
 
-  dev.control ("enable")
-\end_layout
-
-\begin_layout Plain Layout
-
-}
+## this function was used in development; not needed now
 \end_layout
 
 \begin_layout Plain Layout
@@ -6347,22 +6357,7 @@ print (p)
 
 \begin_layout Plain Layout
 
-if (PlotsAtEnd) {
-\end_layout
-
-\begin_layout Plain Layout
-
-  #Fig6 <- recordPlot()
-\end_layout
-
-\begin_layout Plain Layout
-
-  invisible (dev.off())
-\end_layout
-
-\begin_layout Plain Layout
-
-}
+EndSave ()
 \end_layout
 
 \begin_layout Plain Layout
@@ -6400,12 +6395,7 @@ status open
 
 \begin_layout Plain Layout
 
-D$HC <- predict(SS, as.numeric(D$Time))$y
-\end_layout
-
-\begin_layout Plain Layout
-
-DSAVE <- D    # save for use in later section
+# D$HC <- predict(SS, as.numeric(D$Time))$y  ## not used at high rate
 \end_layout
 
 \begin_layout Plain Layout
@@ -6544,49 +6534,50 @@ status open
 
 \begin_layout Plain Layout
 
-if (PlotsAtEnd) {
+## plot density function showing magnitude of pitch corrections
 \end_layout
 
 \begin_layout Plain Layout
 
-  cairo_pdf ("./Graphics/Fig7.pdf")
+SavePlot ("Fig7")
 \end_layout
 
 \begin_layout Plain Layout
 
-  dev.control ("enable")
+# Project <- "DEEPWAVE"
 \end_layout
 
 \begin_layout Plain Layout
 
-}
+# Flight <- "rf16"
 \end_layout
 
 \begin_layout Plain Layout
 
-Project <- "DEEPWAVE"
-\end_layout
-
-\begin_layout Plain Layout
-
-Flight <- "rf16"
-\end_layout
-
-\begin_layout Plain Layout
-
-DD <- getNetCDF (sprintf ("%s%s/%s%s.nc", DataDirectory(), Project, Project,
+# DD <- getNetCDF (sprintf ("%s%s/%s%s.nc", DataDirectory(), Project, Project,
  Flight),
 \end_layout
 
 \begin_layout Plain Layout
 
-                 c("PITCH", "ROLL", "THDG", "TASX", "VNS", "VEW", "GGVNS",
+#                  c("PITCH", "ROLL", "THDG", "TASX", "VNS", "VEW", "GGVNS",
  "GGVEW",
 \end_layout
 
 \begin_layout Plain Layout
 
-                   "LATC", "GGALT"))
+#                    "LATC", "GGALT"))
+\end_layout
+
+\begin_layout Plain Layout
+
+## not necessary to load data.frame; still have 1-Hz file from prev.
+ section
+\end_layout
+
+\begin_layout Plain Layout
+
+DD <- D1
 \end_layout
 
 \begin_layout Plain Layout
@@ -6623,22 +6614,7 @@ sdPC <- sd(DD[r, "PC"], na.rm=TRUE)
 
 \begin_layout Plain Layout
 
-if (PlotsAtEnd) {
-\end_layout
-
-\begin_layout Plain Layout
-
-  # Fig7 <- recordPlot ()
-\end_layout
-
-\begin_layout Plain Layout
-
-  invisible (dev.off())
-\end_layout
-
-\begin_layout Plain Layout
-
-}
+EndSave ()
 \end_layout
 
 \begin_layout Plain Layout
@@ -6675,7 +6651,7 @@ ref{fig:typical-errors}
 \end_inset
 
  shows the density distribution of corrections calculated for one flight,
- filght 16 of the DEEPWAVE project.
+ flight 16 of the DEEPWAVE project.
  The standard deviation of the calculated corrections to pitch is 
 \begin_inset ERT
 status open
@@ -6828,22 +6804,7 @@ status open
 
 \begin_layout Plain Layout
 
-if (PlotsAtEnd) {
-\end_layout
-
-\begin_layout Plain Layout
-
-  cairo_pdf ("./Graphics/Fig8.pdf")
-\end_layout
-
-\begin_layout Plain Layout
-
-  dev.control ("enable")
-\end_layout
-
-\begin_layout Plain Layout
-
-}
+SavePlot ("Fig8")
 \end_layout
 
 \begin_layout Plain Layout
@@ -7033,11 +6994,6 @@ rr <- 1:dim(RC)[2]
 \begin_layout Plain Layout
 
 DDF <- data.frame()
-\end_layout
-
-\begin_layout Plain Layout
-
-# ReloadData <- TRUE
 \end_layout
 
 \begin_layout Plain Layout
@@ -7280,7 +7236,8 @@ hist (abs(wid[rr]), border='blue', col=rgb(0,0,100,30, maxColorValue=255),
 
 \begin_layout Plain Layout
 
-legend('topright', legend='uncorrected', text.col='blue')
+legend('topright', legend='uncorrected', inset=0.1, adj=-0.05, bty="n", box.col='wh
+ite', text.col='blue')
 \end_layout
 
 \begin_layout Plain Layout
@@ -7302,7 +7259,8 @@ hist (abs(widc[rr]), border='red', col=rgb(100,0,0,30,maxColorValue=255),lwd=3,
 
 \begin_layout Plain Layout
 
-legend('topright', legend="after correction", text.col='red')
+legend('topright', legend="after correction", inset=0.1, adj=-0.05, bty="n",
+ box.col='white', text.col='red')
 \end_layout
 
 \begin_layout Plain Layout
@@ -7327,26 +7285,7 @@ legend('topright', legend="after correction", text.col='red')
 
 \begin_layout Plain Layout
 
-if (PlotsAtEnd) {
-\end_layout
-
-\begin_layout Plain Layout
-
-  # Fig8 <- recordPlot ()
-\end_layout
-
-\begin_layout Plain Layout
-
-  invisible (dev.off())
-\end_layout
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\begin_layout Plain Layout
-
+EndSave ()
 \end_layout
 
 \begin_layout Plain Layout
@@ -7673,11 +7612,11 @@ Sexpr{round(whmean,2)}
 \end_layout
 
 \begin_layout Subsubsection
-A check based on circle maneuvers
+A check based on circle manoeuvres
 \end_layout
 
 \begin_layout Standard
-The circle maneuvers flown during flight 15 has been examined and discussed
+The circle manoeuvres flown during flight 15 has been examined and discussed
  in some detail in 
 \begin_inset CommandInset citation
 LatexCommand citet
@@ -7712,7 +7651,7 @@ key "Cooper2016ncartn"
 \begin_inset Formula $^{\circ}$
 \end_inset
 
- arising from variations among the three circle maneuvers analyzed.
+ arising from variations among the three circle manoeuvres analysed.
  This variation likely arose from unsteady wind conditions around the circles.
 \end_layout
 
@@ -7762,7 +7701,7 @@ An algorithm for correcting measurements of all three attitude angles (roll,
  pitch, and heading) apparently leads to significant improvement in conventional
  measurements from a high-quality inertial navigation system (INS) that
  does not use Kalman-filter updates to improve the measurements.
- The corrections are based on fits to centered portions of the flight and
+ The corrections are based on fits to centred portions of the flight and
  so can have advantages over recursive single-directional Kalman filters,
  and they do not require detailed knowledge of the error characteristics
  of the INS.
@@ -7928,8 +7867,17 @@ Summary of uncertainty in wind measurements
 \end_layout
 
 \begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
 \begin_inset FormulaMacro
 \newcommand{\myparallel}{{\mkern3mu\vphantom{\perp}\vrule depth 0pt\mkern3mu\vrule depth 0pt\mkern3mu}}
+\end_inset
+
+
+\end_layout
+
 \end_inset
 
 An extensive analysis of uncertainty in the measurements of wind from the
@@ -7977,7 +7925,7 @@ summarize the results for the measurements of the vertical and horizontal
 \end_inset
 
 ) and longitudinal (denoted 
-\begin_inset Formula $\myparallel$
+\begin_inset Formula $\mkern3mu\vphantom{\perp}\vrule depth0pt\mkern3mu\vrule depth0pt\mkern3mu$
 \end_inset
 
 ) components of the horizontal wind because these depend differently on
@@ -9770,11 +9718,9 @@ status open
 
 \lang english
 \begin_inset Argument 1
-status collapsed
+status open
 
 \begin_layout Plain Layout
-
-\lang english
 Elemental contributions to the uncertainty in measurement of horizontal
  wind by the radome-based system.
 \end_layout
@@ -9792,18 +9738,7 @@ Elemental contributions to the uncertainty in measurement of horizontal
 
  refer to the lateral component of the horizontal wind, and those with subscript
  
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-% indicating parallel 
-\end_layout
-
-\end_inset
-
-
-\begin_inset Formula $\myparallel$
+\begin_inset Formula $\mkern3mu\vphantom{\perp}\vrule depth0pt\mkern3mu\vrule depth0pt\mkern3mu$
 \end_inset
 
  refer to the longitudinal component (along the axis of the aircraft).
@@ -9986,7 +9921,7 @@ DOF
 \begin_inset Text
 
 \begin_layout Plain Layout
-\begin_inset Formula $\delta u_{\perp,\,\myparallel}$
+\begin_inset Formula $\delta u_{\perp,\,\mkern3mu\vphantom{\perp}\vrule depth0pt\mkern3mu\vrule depth0pt\mkern3mu}$
 \end_inset
 
  
@@ -10002,7 +9937,7 @@ bias
 \begin_inset Text
 
 \begin_layout Plain Layout
-\begin_inset Formula $\delta u_{\perp,\,\myparallel}$
+\begin_inset Formula $\delta u_{\perp,\,\mkern3mu\vphantom{\perp}\vrule depth0pt\mkern3mu\vrule depth0pt\mkern3mu}$
 \end_inset
 
  
@@ -11705,7 +11640,6 @@ status open
 \align center
 \begin_inset Graphics
 	filename figure/v-errors-straight-leg-1.pdf
-	lyxscale 50
 	height 65theight%
 
 \end_inset
@@ -11717,7 +11651,6 @@ status open
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-
 \begin_inset ERT
 status open
 
@@ -11772,7 +11705,6 @@ status open
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-
 \begin_inset ERT
 status open
 
@@ -11823,7 +11755,6 @@ status open
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-
 \begin_inset ERT
 status open
 
@@ -11875,7 +11806,6 @@ status open
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-
 \begin_inset ERT
 status open
 
@@ -11927,7 +11857,6 @@ status open
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-
 \begin_inset ERT
 status open
 
@@ -11979,7 +11908,6 @@ status open
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-
 \begin_inset ERT
 status open
 
@@ -12031,7 +11959,6 @@ status open
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-
 \begin_inset ERT
 status open
 
@@ -12072,7 +11999,7 @@ status open
 \begin_inset Graphics
 	filename figure/reverse-course-w-comparison-1.pdf
 	lyxscale 50
-	height 65theight%
+	width 80text%
 
 \end_inset
 
@@ -12083,7 +12010,6 @@ status open
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-
 \begin_inset ERT
 status open
 

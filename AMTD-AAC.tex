@@ -190,14 +190,14 @@ in wind measurement is summarized.
 An inertial system aligns during initialization to detect the local
 vertical direction and then calculates the new vertical direction
 as the aircraft moves (changing the local vertical direction) and
-accelerates (which can cause gyros to precess). Any mis-alignment
-present at initialization persists but also will oscillate and will
-cause errors in roll and pitch to mix as the aircraft changes flight
-direction. For the inertial system used on the NSF/NCAR GV, the standard
-uncertainty associated with this measurement is 0.05$^{\circ}$ in
-both roll and pitch for flight duration of a few hours, and the error
-often increases during the flight as heading errors and accelerometer
-biases affect the results. 
+accelerates (which can cause gyros to precess). Any misalignment present
+at initialization persists but also will oscillate and will cause
+errors in roll and pitch to mix as the aircraft changes flight direction.
+For the inertial system used on the NSF/NCAR GV, the standard uncertainty
+associated with this measurement is 0.05$^{\circ}$ in both roll and
+pitch for flight duration of a few hours, and the error often increases
+during the flight as heading errors and accelerometer biases affect
+the results. 
 
 The work of Schuler (\citet{Schuler1923}) showed that coupling among
 some of these error sources leads to limits on the growth of errors
@@ -218,7 +218,7 @@ The existence of this coupling allows estimation of the pitch error
 if the error in horizontal acceleration is known. That is the case
 if, in addition to the INS, there is a GPS receiver that can provide
 high-quality measurements of Earth-relative velocity. Modern GPS receivers,
-especially if they incorporate differential-GPS corrections or ionispheric
+especially if they incorporate differential-GPS corrections or ionospheric
 corrections, produce velocity measurements that have remarkably low
 uncertainty, often a few cm/s, so these can be considered a standard
 against which to compare the corresponding IRS-measured velocities.
@@ -249,7 +249,7 @@ error in pitch:\\
 \end{equation}
 
 
-Because $\delta v_{n}$is measurable by comparison to measurements
+Because $\delta v_{n}$ is measurable by comparison to measurements
 from a GPS receiver, the error in pitch can be found from (\ref{eq:full-delta-pitch})
 and the analogous equation for the $l$-frame error in roll, $\delta\phi^{(l)}$:\footnote{The different signs arise from the different definitions of the angles,
 where a positive pitch error represents a rotation of the platform
@@ -345,7 +345,7 @@ reference frame, so it differs from the $a$-frame by having $x$
 and $y$ axes interchanged and $z$ axis reversed in sign.} requires a rotation by the \emph{negative} of the heading angle $\psi$
 in the $l$-frame but does not require further transformation because
 differences in pitch and roll between the $l$ and $a$ reference
-frames do not affect the estimate of platform mis-alignment and how
+frames do not affect the estimate of platform misalignment and how
 that misalignment is resolved into pitch and roll components. Therefore, 
 
 \begin{eqnarray}
@@ -376,6 +376,8 @@ by the INS to obtain corrected values.
 
 
 \subsection{Application to a representative research flight\label{sub:Application-to-research}}
+
+
 
 The research flights have frequent changes in heading, with associated
 mixing of the roll and pitch errors but also accelerations that affect
@@ -463,8 +465,6 @@ but the pitch correction can either produce significant improvement
 in the calculated vertical wind or, when small, can reduce the uncertainty
 below that based solely on specifications for the measurement from
 the IRS. 
-
-
 
 
 \subsection{Some details regarding smoothing}
@@ -577,11 +577,11 @@ in the heading correction of 0.1$^{\circ}$ or about 0.002~radians,
 the total horizontal acceleration should then be at least 0.0005/0.002=0.25~m\,s$^{-2}$.
 
 Typical horizontal accelerations in turns exceed 4~m\,s$^{-2}$
-but horizontal accelerations exceeding 1~m\,s$^{-2}$ are seldom
-encountered outside of turns, so the algorithm developed here only
-provides a valid correction if there are regular turns during the
-flight. In the following, heading corrections will be calculated only
-for periods when the horizontal acceleration exceeds 1~m\,s$^{-2}$
+in the $l$-frame but horizontal accelerations exceeding 1~m\,s$^{-2}$
+are seldom encountered outside of turns, so the algorithm developed
+here only provides a valid correction if there are regular turns during
+the flight. In the following, heading corrections will be calculated
+only for periods when the horizontal acceleration exceeds 1~m\,s$^{-2}$
 to avoid excessive noise and uncertainty. It is significant, though,
 that for a flight that transits in a straight line from start to finish,
 attempts to use these estimates are unlikely to be useful. Fortunately,
@@ -718,7 +718,8 @@ in each turn direction provide a sensitive test of timing errors.
 Many research flights and research data sets meet these requirements,
 and where wind measurement is important they can be incorporated into
 flight plans for future projects. The algorithm implemented here,
-for which specific R code is available, follows these steps:
+for which specific R code is available in the supplemental material,
+follows these steps:
 \begin{enumerate}
 \item \emph{Shift the timing of the heading measurement as needed to match
 the GPS-receiver measurements of ground velocity. }The result of this
@@ -753,7 +754,7 @@ have both right and left turns, with at least 25\,s of each.
 standard deviation and the mean time for each turn direction.
 \item \emph{Use cubic spline interpolation} to represent the variation in
 heading correction over the course of the flight. 
-\item \emph{Subtract the result given by this interopolation from the measured
+\item \emph{Subtract the result given by this interpolation from the measured
 heading to obtain the corrected heading.}
 \end{enumerate}
 
@@ -833,7 +834,7 @@ discussed more extensively in the Appendix.
 
 As applied to most research flights, the corrections are fairly small.
 Figure~\ref{fig:typical-errors} shows the density distribution of
-corrections calculated for one flight, filght 16 of the DEEPWAVE project.
+corrections calculated for one flight, flight 16 of the DEEPWAVE project.
 The standard deviation of the calculated corrections to pitch is 0.01$^{\circ}$,
 which would propagate to a standard error in measurements of vertical
 wind of about 0.04\,m\,s$^{-1}$,
@@ -851,8 +852,8 @@ algorithm even if the correction is not applied.
 If the pitch correction reduces the error in pitch, wind measurements
 made before and after level course reversal would be expected to match
 better after correction because, if there is a pitch error, its contribution
-to the vertical wind would reverse sign between the two legs. The
-following is a tabulation of four instances where the flight track
+to the vertical wind would reverse sign between the two legs. Table~\ref{tab:Flight-segments}
+lists four instances from the DEEPWAVE project where the flight track
 reversed course and remained at the same altitude. Some other candidates
 were excluded because conditions were too variable along the legs
 to produce a small-uncertainty estimate of the vertical wind, or because
@@ -868,37 +869,6 @@ are listed before and after the turn, but excluding the turn, to represent
 approximately overlapping flight segments where it would be expected
 that the vertical wind would be the same. 
 
-\begin{table}
-\caption{Flight segments before and after constant-altitude course reversal
-in relatively steady wind conditions.}
-
-
-\centering{}%
-\begin{tabular}{|c|c|c|}
-\hline 
-\textbf{Flight} &
-\textbf{before turn (UTC)} &
-\textbf{after turn (UTC)}\tabularnewline
-\hline 
-\hline 
-2 &
-12:25:00--12:30:00 &
-12:37:00--12:43:00\tabularnewline
-\hline 
-10 &
-7:53:00--7:58:00 &
-8:05:00--8:10:00\tabularnewline
-\hline 
-19 &
-8:39:30--8:44:30 &
-8:51:30--8:56:30\tabularnewline
-\hline 
-21 &
-8:51:00--8:55:00 &
-9:03:00--9:07:30\tabularnewline
-\hline 
-\end{tabular}
-\end{table}
 
 
 
@@ -980,9 +950,9 @@ and \ensuremath{-0.07}$^{\circ}$ for flights 15 and 16, respectively,
 and standard deviations in these estimates of about 0.01$^{\circ}$. 
 
 
-\subsubsection{A check based on circle maneuvers}
+\subsubsection{A check based on circle manoeuvres}
 
-The circle maneuvers flown during flight 15 has been examined and
+The circle manoeuvres flown during flight 15 has been examined and
 discussed in some detail in \citet{Cooper2016ncartn}, Sect.~7.1.
 These flight patterns provide an alternate and independent way of
 estimating the heading error, because if the wind remains steady over
@@ -995,11 +965,8 @@ a sinusoidal variation to the wind speed or to components of the wind
 speed. The result of that analysis was an indicated heading error
 of $-$0.09$^{\circ}$, consistent with the error found here, although
 with a significantly larger uncertainty of 0.09$^{\circ}$ arising
-from variations among the three circle maneuvers analyzed. This variation
+from variations among the three circle manoeuvres analysed. This variation
 likely arose from unsteady wind conditions around the circles.
-
-
-\section{Conclusions}
 
 
 \conclusions[Summary and conclusions]{}
@@ -1008,7 +975,7 @@ An algorithm for correcting measurements of all three attitude angles
 (roll, pitch, and heading) apparently leads to significant improvement
 in conventional measurements from a high-quality inertial navigation
 system (INS) that does not use Kalman-filter updates to improve the
-measurements. The corrections are based on fits to centered portions
+measurements. The corrections are based on fits to centred portions
 of the flight and so can have advantages over recursive single-directional
 Kalman filters, and they do not require detailed knowledge of the
 error characteristics of the INS. In the case of pitch and roll, the
@@ -1053,10 +1020,9 @@ and are available via links from http://www.eol.ucar.edu/all-field-projects-and-
 
 \section{Summary of uncertainty in wind measurements}
 
-\global\long\def\myparallel{{\mkern3mu\vphantom{\perp}\vrule depth 0pt\mkern3mu\vrule depth 0pt\mkern3mu}}
-An extensive analysis of uncertainty in the measurements of wind from
-the NSF/NCAR GV is contained in \citet{Cooper2016ncartn}. Here two
-tables from that technical note are reproduced to provide context
+An extensive analysis of uncertainty in the measurements of wind
+from the NSF/NCAR GV is contained in \citet{Cooper2016ncartn}. Here
+two tables from that technical note are reproduced to provide context
 for the importance of the correction procedure described in the present
 note. For justification of the tabulated entries and further description
 of the measuring system, that technical note should be consulted.
@@ -1066,11 +1032,72 @@ the results for the measurements of the vertical and horizontal wind.
 The individual elements in the tables are standard uncertainties where
 possible. For horizontal wind, he elemental uncertainties are listed
 separately for the lateral (denoted $\perp$) and longitudinal (denoted
-$\myparallel$) components of the horizontal wind because these depend
-differently on the fundamental measurements.
+$\mkern3mu\vphantom{\perp}\vrule depth0pt\mkern3mu\vrule depth0pt\mkern3mu$)
+components of the horizontal wind because these depend differently
+on the fundamental measurements.
+\begin{acknowledgements}
+The instrument development and data collection were supported by the
+NCAR Earth Observing Laboratory. Data used in this study were collected
+during the DEEPWAVE field campaign led by Ron Smith, Dave Fritts,
+Jim Doyle, Mike Taylor, Steve Eckermann, Steve Smith, Andreas D\"ornbrack,
+and Michael Uddstrom. During this field campaign, based in New Zealand,
+the Research Aviation Facility pilots, mechanics, technicians, and
+software engineers operated the NSF/NCAR Gulfstream~GV. The National
+Center for Atmospheric Research is sponsored by the National Science
+Foundation. 
+
+Almost all of the analyses reported here were performed using R (\citet{Rlanguage}),
+with RStudio (\citet{RStudio2012}) and knitr (\citet{Xie2014a,Xie2014b}).
+The \textquotedbl{}ggplot2\textquotedbl{} package (\citet{wickham2009})
+was used for many of the figures. The effort to make these results
+reproducible benefited greatly from the work represented in these
+analysis tools, especially that provided by Y. Xie. The book by C.
+Gandrud (\citet{Gandrud2014}) and material and presentations related
+to the ``Geoscience Paper of the Future'' (http://www.ontosoft.org/gpf/)
+also had a strong influence on the approach to this work.
+
+\clearpage
+\end{acknowledgements}
+\bibliographystyle{copernicus}
+\bibliography{0_home_cooperw_RStudio_AMTD-AAC_WAC}
+
+
+\begin{table}
+\caption{Flight segments before and after constant-altitude course reversal
+in relatively steady wind conditions.\label{tab:Flight-segments}}
+
+
+\centering{}%
+\begin{tabular}{|c|c|c|}
+\hline 
+\textbf{Flight} &
+\textbf{before turn (UTC)} &
+\textbf{after turn (UTC)}\tabularnewline
+\hline 
+\hline 
+2 &
+12:25:00--12:30:00 &
+12:37:00--12:43:00\tabularnewline
+\hline 
+10 &
+7:53:00--7:58:00 &
+8:05:00--8:10:00\tabularnewline
+\hline 
+19 &
+8:39:30--8:44:30 &
+8:51:30--8:56:30\tabularnewline
+\hline 
+21 &
+8:51:00--8:55:00 &
+9:03:00--9:07:30\tabularnewline
+\hline 
+\end{tabular}
+\end{table}
+
 
 \begin{table*}
-\centering{}\caption[\foreignlanguage{british}{Elemental contributions to the uncertainty in measurement of vertical
+\begin{raggedright}
+\caption[\foreignlanguage{british}{Elemental contributions to the uncertainty in measurement of vertical
 wind provided by the radome-based system.}]{\selectlanguage{english}%
 \foreignlanguage{british}{Elemental contributions to the uncertainty
 in measurement of vertical wind provided by the radome-based system.
@@ -1087,7 +1114,13 @@ coefficients are the calibration coefficients for that pressure, the
 QCF transducer measures dynamic pressure, the PSF transducer measures
 static or ambient pressure, and ATX is the temperature measurement.}\selectlanguage{british}%
 }
-\vskip0.1truein %
+ \vfill\eject\textbf{Table 2}:\vskip0.1truein\textbf{}\\
+
+\par\end{raggedright}
+
+\centering{}%
+\begin{minipage}[t]{1\columnwidth}%
+\begin{center}
 \begin{tabular}{ccccccc}
 \toprule 
 \textbf{element}  &
@@ -1228,28 +1261,34 @@ $\gg$50 &
 \tabularnewline
 \bottomrule
 \end{tabular}
+\par\end{center}%
+\end{minipage}
 \end{table*}
 
 
 \begin{table*}
-\centering{}\protect\caption[Elemental contributions to the uncertainty in measurement of horizontal
-wind by the radome-based system.]{\selectlanguage{english}%
+\raggedright{}\caption[\foreignlanguage{british}{Elemental contributions to the uncertainty in measurement of horizontal
+wind by the radome-based system.}]{\selectlanguage{english}%
 \foreignlanguage{british}{Elemental contributions to the uncertainty
 in measurement of horizontal wind by the radome-based system. Entries
 '--' indicate negligible contribution to uncertainty. Entries with
 subscript $\perp$ refer to the lateral component of the horizontal
-wind, and those with subscript % indicating parallel $\protect\myparallel$
+wind, and those with subscript $\mkern3mu\protect\vphantom{\perp}\vrule depth0pt\mkern3mu\vrule depth0pt\mkern3mu$
 refer to the longitudinal component (along the axis of the aircraft).
-See Table~\ref{tab:Elemental-w} for further information on the elements
-in this table. All entries apply to 1-Hz measurements.}\label{tab:Elemental-h}\foreignlanguage{british}{The
+All entries apply to 1-Hz measurements.}\label{tab:Elemental-h}\foreignlanguage{british}{The
 SSRD coefficients represent the calibration for sideslip in terms
 of the radome pressure measurement BDIFR, and $\delta q$ is the correction
 applied to static and dynamic pressure that represents the ``static
 defect,'' the difference between the measured pressure PSF and the
 actual pressure at the flight level. See Table~\ref{tab:Elemental-w}
-for explanation of some of the remaining terms.}\selectlanguage{british}%
+further information on the elements in this table and for explanation
+of some of the remaining terms.}\selectlanguage{british}%
 }
-\vskip0.1truein %
+\vfill\eject\textbf{Table 3}:\vskip0.1truein\textbf{}\\
+\textbf{}%
+\begin{minipage}[t]{1\columnwidth}%
+\begin{flushleft}
+ %
 \begin{tabular}{ccccccc}
 \toprule 
 \textbf{element}  &
@@ -1257,8 +1296,10 @@ for explanation of some of the remaining terms.}\selectlanguage{british}%
 \textbf{bias}  &
 \textbf{random}  &
 \textbf{DOF}  &
-$\delta u_{\perp,\,\myparallel}$ \textbf{bias}  &
-$\delta u_{\perp,\,\myparallel}$ \textbf{random }\tabularnewline
+$\delta u_{\perp,\,\mkern3mu\vphantom{\perp}\vrule depth0pt\mkern3mu\vrule depth0pt\mkern3mu}$
+\textbf{bias}  &
+$\delta u_{\perp,\,\mkern3mu\vphantom{\perp}\vrule depth0pt\mkern3mu\vrule depth0pt\mkern3mu}$
+\textbf{random }\tabularnewline
  &
 \textbf{source}  &
 {[}type &
@@ -1419,110 +1460,83 @@ $\gg$50 &
 \tabularnewline
 \bottomrule
 \end{tabular}
+\par\end{flushleft}%
+\end{minipage}
 \end{table*}
 
-\begin{acknowledgements}
-The instrument development and data collection were supported by the
-NCAR Earth Observing Laboratory. Data used in this study were collected
-during the DEEPWAVE field campaign led by Ron Smith, Dave Fritts,
-Jim Doyle, Mike Taylor, Steve Eckermann, Steve Smith, Andreas D\"ornbrack,
-and Michael Uddstrom. During this field campaign, based in New Zealand,
-the Research Aviation Facility pilots, mechanics, technicians, and
-software engineers operated the NSF/NCAR Gulfstream~GV. The National
-Center for Atmospheric Research is sponsored by the National Science
-Foundation. 
 
-Almost all of the analyses reported here were performed using R (\citet{Rlanguage}),
-with RStudio (\citet{RStudio2012}) and knitr (\citet{Xie2014a,Xie2014b}).
-The \textquotedbl{}ggplot2\textquotedbl{} package (\citet{wickham2009})
-was used for many of the figures. The effort to make these results
-reproducible benefited greatly from the work represented in these
-analysis tools, especially that provided by Y. Xie. The book by C.
-Gandrud (\citet{Gandrud2014}) and material and presentations related
-to the ``Geoscience Paper of the Future'' (http://www.ontosoft.org/gpf/)
-also had a strong influence on the approach to this work.
 
-\clearpage
-\end{acknowledgements}
-\bibliographystyle{copernicus}
-\bibliography{0_home_cooperw_RStudio_AMTD-AAC_WAC}
-\clearpage
-
+\subsubsection*{Figure captions:}
+\begin{description}
+\item [{Figure~1:}] Top: Errors in the IRS measurements of the northward and eastward components of groundspeed ($V_n^{(IRS)}$ and $V_e^{(IRS)}$) as determined by comparison to measurements from a GPS receiver ($V_n^{(GPS)}$ and $V_e^{(GPS)}$) for DEEPWAVE flight ff02, a ferry flight starting on 1 June 2014 and traveling from Hawaii to Pago-Pago. Bottom: Errors in pitch ($\delta\theta$) and roll ($\delta\phi$) as obtained from (\ref{eq:full-delta-pitch}) and (\ref{eq:delta-phi}).
+\item [{Figure~2:}] Top: Errors in pitch ($\delta\theta^{(l)}$) and roll ($\delta\phi^{(l)}$) determined from the measured errors in ground-speed components via (\ref{eq:final-answer}), as measured in the $l$-frame. Measurements are from the DEEPWAVE project, research flight 1. Bottom: Errors in pitch ($\delta\theta$) and roll ($\delta\phi$) determined from the measured errors in ground-speed components, after transformation of the errors shown in the previous plot to the reference frame that is the body frame of the aircraft. Measurements are from the DEEPWAVE project, research flight 1. The limits $\pm$0.02 correspond to roll angle of $\pm 20^{\circ}$ after division by 1000.
+\item [{Figure~3:}] Accelerations ($a_x$, $a_y$, $a_z$) measured by an INS during a circle maneuver, 3:40:00--3:55:00 UTC on 3 July 2014, DEEPWAVE flight 15. Also shown as dotted lines are the accelerations deduced from differentiating the corresponding GPS-measured ground-speed components ($v_n$ and $v_e$).
+\item [{Figure~4:}] Heading error as estimated from (\ref{eq:estimator-equation}) for each 1-s measurement meeting the qualification test, for DEEPWAVE flight 15 (3 July 2014).
+\item [{Figure~5:}] The heading correction determined using the proposed algorithm, for the measurements from DEEPWAVE flight 15 (3 July 2014). Estimates from left and right turns are plotted separately and an interpolating spline fit is also shown. Error bars are approximately $2\sigma_m$ where $\sigma_m$ is the standard deviation in the mean value.
+\item [{Figure~6:}] Estimates of heading errors arising from turns during DEEPWAVE flight 16 (4 July 2014). Estimates from each left and right turn are plotted separately, and two spline fits with different degrees of smoothing are shown. Error bars are approximately $2\sigma_m$ where $\sigma_m$ is the standard deviation in the mean value.
+\item [{Figure~7:}] Probability distribution of individual 1-Hz estimate of the pitch error as determined using the algorithm of Sect.2.
+\item [{Figure~8:}] Absolute difference in vertical wind for flight segments before and after level course-reversal maneuvers. The top panel shows the uncorrected measurements and the bottom panel shows the result of applying the pitch correction developed in Sect.\ 2.
+\end{description}
 \begin{center}
 \begin{figure}
 \begin{centering}
-\includegraphics[height=0.65\textheight]{3_home_cooperw_RStudio_AMTD-AAC_Graphics_Fig1.pdf}
+\includegraphics[height=0.65\textheight]{1_home_cooperw_RStudio_AMTD-AAC_figure_v-errors-straight-leg-1.pdf}
 \par\end{centering}
 
-\caption{Top: Errors in the IRS measurements of the northward and eastward components of groundspeed ($V_n^{(IRS)}$ and $V_e^{(IRS)}$) as determined by comparison to measurements from a GPS receiver ($V_n^{(GPS)}$ and $V_e^{(GPS)}$) for DEEPWAVE flight ff02, a ferry flight starting on 1 June 2014 and traveling from Hawaii to Pago-Pago. Bottom: Errors in pitch ($\delta\theta$) and roll ($\delta\phi$) as obtained from (\ref{eq:full-delta-pitch}) and (\ref{eq:delta-phi}).\label{fig:v-errors-straight-leg}\selectlanguage{british}%
-}
+\caption{Top: Errors in the IRS measurements of the northward and eastward components of groundspeed ($V_n^{(IRS)}$ and $V_e^{(IRS)}$) as determined by comparison to measurements from a GPS receiver ($V_n^{(GPS)}$ and $V_e^{(GPS)}$) for DEEPWAVE flight ff02, a ferry flight starting on 1 June 2014 and traveling from Hawaii to Pago-Pago. Bottom: Errors in pitch ($\delta\theta$) and roll ($\delta\phi$) as obtained from (\ref{eq:full-delta-pitch}) and (\ref{eq:delta-phi}).\label{fig:v-errors-straight-leg}}
 \end{figure}
 
 \par\end{center}
 
 \begin{center}
 \begin{figure}
-\includegraphics[height=0.65\textheight]{4_home_cooperw_RStudio_AMTD-AAC_Graphics_Fig2.pdf}
+\begin{centering}
+\includegraphics[height=0.65\textheight]{2_home_cooperw_RStudio_AMTD-AAC_figure_processing-2-1.pdf}
+\par\end{centering}
 
-\caption{222}
-
-
+\caption{Top: Errors in pitch ($\delta\theta^{(l)}$) and roll ($\delta\phi^{(l)}$) determined from the measured errors in ground-speed components via (\ref{eq:final-answer}), as measured in the $l$-frame. Measurements are from the DEEPWAVE project, research flight 1. Bottom: Errors in pitch ($\delta\theta$) and roll ($\delta\phi$) determined from the measured errors in ground-speed components, after transformation of the errors shown in the previous plot to the reference frame that is the body frame of the aircraft. Measurements are from the DEEPWAVE project, research flight 1. The limits $\pm$0.02 correspond to roll angle of $\pm 20^{\circ}$ after division by 1000.\label{fig:processing-2}}
 \end{figure}
 \begin{figure}
 \begin{centering}
-\includegraphics[height=0.65\textheight]{4_home_cooperw_RStudio_AMTD-AAC_Graphics_Fig2.pdf}
+\includegraphics[height=0.65\textheight]{3_home_cooperw_RStudio_AMTD-AAC_figure_get-b-vector-and-transform-1.pdf}
 \par\end{centering}
 
-\caption{Top: Errors in pitch ($\delta\theta^{(l)}$) and roll ($\delta\phi^{(l)}$) determined from the measured errors in ground-speed components via (\ref{eq:final-answer}), as measured in the $l$-frame. Measurements are from the DEEPWAVE project, research flight 1. Bottom: Errors in pitch ($\delta\theta$) and roll ($\delta\phi$) determined from the measured errors in ground-speed components, after transformation of the errors shown in the previous plot to the reference frame that is the body frame of the aircraft. Measurements are from the DEEPWAVE project, research flight 1. The limits $\pm$0.02 correspond to roll angle of $\pm 20^{\circ}$ after division by 1000.\label{fig:processing-2}\selectlanguage{british}%
-}
+\caption{Accelerations ($a_x$, $a_y$, $a_z$) measured by an INS during a circle maneuver, 3:40:00--3:55:00 UTC on 3 July 2014, DEEPWAVE flight 15. Also shown as dotted lines are the accelerations deduced from differentiating the corresponding GPS-measured ground-speed components ($v_n$ and $v_e$).\label{fig:get-b-vector-and-transform}}
 \end{figure}
 \begin{figure}
 \begin{centering}
-\includegraphics[height=0.65\textheight]{5_home_cooperw_RStudio_AMTD-AAC_Graphics_Fig3.pdf}
+\includegraphics[height=0.65\textheight]{4_home_cooperw_RStudio_AMTD-AAC_figure_error-components-1.pdf}
 \par\end{centering}
 
-\caption{Accelerations ($a_x$, $a_y$, $a_z$) measured by an INS during a circle maneuver, 3:40:00--3:55:00 UTC on 3 July 2014, DEEPWAVE flight 15. Also shown as dotted lines are the accelerations deduced from differentiating the corresponding GPS-measured ground-speed components ($v_n$ and $v_e$).\label{fig:get-b-vector-and-transform}\selectlanguage{british}%
-}
+\caption{Heading error as estimated from (\ref{eq:estimator-equation}) for each 1-s measurement meeting the qualification test, for DEEPWAVE flight 15 (3 July 2014).\label{fig:error-components}}
 \end{figure}
 \begin{figure}
 \begin{centering}
-\includegraphics[height=0.65\textheight,bb = 0 0 200 100, draft, type=eps]{Graphics/Fig4.pdf}
+\includegraphics[height=0.65\textheight]{5_home_cooperw_RStudio_AMTD-AAC_figure_plot-heading-correction-rf15-1.pdf}
 \par\end{centering}
 
-\caption{Heading error as estimated from (\ref{eq:estimator-equation}) for each 1-s measurement meeting the qualification test, for DEEPWAVE flight 15 (3 July 2014).\label{fig:error-components}\selectlanguage{british}%
-}
+\caption{The heading correction determined using the proposed algorithm, for the measurements from DEEPWAVE flight 15 (3 July 2014). Estimates from left and right turns are plotted separately and an interpolating spline fit is also shown. Error bars are approximately $2\sigma_m$ where $\sigma_m$ is the standard deviation in the mean value.\label{fig:plot-heading-correction-rf15}}
 \end{figure}
 \begin{figure}
 \begin{centering}
-\includegraphics[height=0.65\textheight,bb = 0 0 200 100, draft, type=eps]{Graphics/Fig5.pdf}
+\includegraphics[height=0.65\textheight]{6_home_cooperw_RStudio_AMTD-AAC_figure_spline-plot-1.pdf}
 \par\end{centering}
 
-\caption{The heading correction determined using the proposed algorithm, for the measurements from DEEPWAVE flight 15 (3 July 2014). Estimates from left and right turns are plotted separately and an interpolating spline fit is also shown. Error bars are approximately $2\sigma_m$ where $\sigma_m$ is the standard deviation in the mean value.\label{fig:plot-heading-correction-rf15}\selectlanguage{british}%
-}
+\caption{Estimates of heading errors arising from turns during DEEPWAVE flight 16 (4 July 2014). Estimates from each left and right turn are plotted separately, and two spline fits with different degrees of smoothing are shown. Error bars are approximately $2\sigma_m$ where $\sigma_m$ is the standard deviation in the mean value.\label{fig:spline-plot}}
 \end{figure}
 \begin{figure}
 \begin{centering}
-\includegraphics[height=0.65\textheight,bb = 0 0 200 100, draft, type=eps]{Graphics/Fig6.pdf}
+\includegraphics[height=0.65\textheight]{7_home_cooperw_RStudio_AMTD-AAC_figure_typical-errors-1.pdf}
 \par\end{centering}
 
-\caption{Estimates of heading errors arising from turns during DEEPWAVE flight 16 (4 July 2014). Estimates from each left and right turn are plotted separately, and two spline fits with different degrees of smoothing are shown. Error bars are approximately $2\sigma_m$ where $\sigma_m$ is the standard deviation in the mean value.\label{fig:spline-plot}\selectlanguage{british}%
-}
+\caption{Probability distribution of individual 1-Hz estimate of the pitch error as determined using the algorithm of Sect.2.\label{fig:typical-errors}}
 \end{figure}
 \begin{figure}
 \begin{centering}
-\includegraphics[height=0.65\textheight,bb = 0 0 200 100, draft, type=eps]{Graphics/Fig7.pdf}
+\includegraphics[width=0.8\textwidth]{8_home_cooperw_RStudio_AMTD-AAC_figure_reverse-course-w-comparison-1.pdf}
 \par\end{centering}
 
-\caption{Probability distribution of individual 1-Hz estimate of the pitch error as determined using the algorithm of Sect.2.\label{fig:typical-errors}\selectlanguage{british}%
-}
-\end{figure}
-\begin{figure}
-\begin{centering}
-\includegraphics[height=0.65\textheight,bb = 0 0 200 100, draft, type=eps]{Graphics/Fig8.pdf}
-\par\end{centering}
-
-\caption{Absolute difference in vertical wind for flight segments before and after level course-reversal maneuvers. The top panel shows the uncorrected measurements and the bottom panel shows the result of applying the pitch correction developed in Sect.\ 2.\label{fig:reverse-course-w-comparison}\selectlanguage{british}%
-}
+\caption{Absolute difference in vertical wind for flight segments before and after level course-reversal maneuvers. The top panel shows the uncorrected measurements and the bottom panel shows the result of applying the pitch correction developed in Sect.\ 2.\label{fig:reverse-course-w-comparison}}
 \end{figure}
 
 \par\end{center}

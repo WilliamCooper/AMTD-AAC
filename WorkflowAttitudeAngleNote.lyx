@@ -594,6 +594,112 @@ Sexpr{}
 \end_layout
 
 \begin_layout Standard
+There are two 
+\begin_inset Quotes eld
+\end_inset
+
+switches
+\begin_inset Quotes erd
+\end_inset
+
+ defined near the start of the R Code: 
+\begin_inset Quotes eld
+\end_inset
+
+ReloadData
+\begin_inset Quotes erd
+\end_inset
+
+ and 
+\begin_inset Quotes eld
+\end_inset
+
+PlotAtEnd
+\begin_inset Quotes erd
+\end_inset
+
+.
+ When ReloadData is TRUE, the original archive data files are read and subsets
+ are saved in the directory 
+\begin_inset Quotes eld
+\end_inset
+
+DataFrames
+\begin_inset Quotes erd
+\end_inset
+
+ as .Rdata files; when it is FALSE, previously saved files are retrieved
+ instead.
+ The DataFrames directory is available as a separate archive and is adequate
+ for running the program without access to the original data archives.
+ When 
+\begin_inset Quotes eld
+\end_inset
+
+PlotAtEnd
+\begin_inset Quotes erd
+\end_inset
+
+ is TRUE, plots are still generated and saved in the directory 
+\begin_inset Quotes eld
+\end_inset
+
+figure
+\begin_inset Quotes erd
+\end_inset
+
+ but are not placed in-line in the text; instead they are plotted at the
+ end.
+ When FALSE, the figures appear in-line near where they are generated.
+ There is still a section at the end that generates copies of the figures,
+ but that section and the section making a separate list of figure captions
+ can be omitted.
+ This switch is intended to facilitate creation of the Copernicus Discussions
+ format.
+ For this to work, each section of code generating a plot should start with
+ 
+\begin_inset Quotes eld
+\end_inset
+
+SavePlot(
+\begin_inset Quotes eld
+\end_inset
+
+Fign
+\begin_inset Quotes erd
+\end_inset
+
+), where 'n' is the figure number, and end with 
+\begin_inset Quotes eld
+\end_inset
+
+EndPlot()
+\begin_inset Quotes erd
+\end_inset
+
+.
+ Also, the 
+\begin_inset Quotes eld
+\end_inset
+
+include
+\begin_inset Quotes erd
+\end_inset
+
+ argument for the chunk should be FALSE to suppress inclusion of the figure
+ in-line or TRUE if it should be placed normally in the text; this control
+ is implemented by if-else statements defining the 
+\begin_inset Quotes eld
+\end_inset
+
+include
+\begin_inset Quotes erd
+\end_inset
+
+ argument.
+\end_layout
+
+\begin_layout Standard
 The file and the manuscript are organized into two main sections where the
  two correction algorithms, one for pitch and roll and the other for heading,
  are developed.
@@ -603,6 +709,22 @@ The file and the manuscript are organized into two main sections where the
 d.
  The latter topic is discussed in much more detail in this workflow description.
  Each of those sections is discussed in some detail in this memo.
+\end_layout
+
+\begin_layout Standard
+The workflow used a LyX file (
+\begin_inset Quotes eld
+\end_inset
+
+AMTD-AAC.lyx
+\begin_inset Quotes erd
+\end_inset
+
+) as far as possible to generate the document and the LaTeX file, but at
+ the end that LaTeX file was merged into the Copernicus LaTeX template and
+ edited in that format for final touches to meet Copernicus requirements.
+ At that stage, the R Code was excluded from the LaTeX file but all the
+ results and plots had already been generated and coded for inclusion.
 \end_layout
 
 \begin_layout Section
